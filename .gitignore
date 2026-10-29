@@ -1,0 +1,17 @@
+node_modules
+dist
+src-tauri/target
+src-tauri/gen
+*.log
+.playwright-mcp
+
+.env
+
+*.tsbuildinfo
+
+.astro
+
+# Local release artifacts
+portable/
+*.zip
+SHA256SUMS.txt

@@ -1,0 +1,62 @@
+name: Feature request
+description: Suggest a focused improvement to Notchly
+title: "feat: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Good feature requests start with the problem, not only the solution. Please describe the workflow you are trying to improve.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What is difficult or missing today?
+      placeholder: I keep missing Claude Code permission prompts because...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should Notchly do? How should it look or behave?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Music / YouTube
+        - Ask Gemini
+        - AI agents / Claude Code
+        - Live activities
+        - Notifications
+        - Clipboard / shelf / find
+        - Appearance / accessibility
+        - Settings / localization
+        - Local API / integrations
+        - Installer / performance
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and discussions first.
+          required: true
+        - label: This request is focused on one problem.
+          required: true

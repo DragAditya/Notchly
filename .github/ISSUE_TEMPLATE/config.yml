@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://github.com/DragAditya/Notchly#readme
+    about: Installation, configuration, building and API documentation.
+  - name: Security vulnerability
+    url: https://github.com/DragAditya/Notchly/security/policy
+    about: Please report security problems privately, not in a public issue.
+  - name: Questions and ideas
+    url: https://github.com/DragAditya/Notchly/discussions
+    about: Ask a question or discuss a larger idea before opening an issue.

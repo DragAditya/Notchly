@@ -1,0 +1,89 @@
+name: Bug report
+description: Report a reproducible problem with Notchly
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Please search existing issues first, and do not include API keys, tokens, private messages or other secrets.
+
+        For a security vulnerability, use the private process in SECURITY.md instead of this form.
+
+  - type: input
+    id: version
+    attributes:
+      label: Notchly version
+      description: Shown in Settings → About, or the release asset name.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      description: Run `winver` and include the build number.
+      placeholder: "Windows 11 24H2 (26100.xxxx)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installation
+      options:
+        - NSIS installer (setup.exe)
+        - MSI
+        - Portable ZIP
+        - Built from source
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the problem and the affected module.
+      placeholder: The island stays compact when I change the volume...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Drag screenshots here, or paste relevant logs. Remove secrets and private notification text first.
+      render: text
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am using the latest release (or the current main branch).
+          required: true
+        - label: I removed secrets and private data from this report.
+          required: true

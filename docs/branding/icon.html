@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { width: 1024px; height: 1024px; margin: 0; background: transparent; }
+  body { display: grid; place-items: center; font-family: "Segoe UI", system-ui, sans-serif; }
+  .icon {
+    position: relative;
+    width: 960px;
+    height: 960px;
+    border-radius: 224px;
+    background:
+      radial-gradient(120% 120% at 18% 8%, rgba(255,255,255,.13), transparent 38%),
+      linear-gradient(145deg, #17171f 0%, #08080c 62%, #101018 100%);
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,.16),
+      inset 0 -10px 40px rgba(0,0,0,.65),
+      0 42px 90px rgba(0,0,0,.45);
+    overflow: hidden;
+  }
+  .icon::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(70% 55% at 50% 18%, rgba(108,99,255,.28), transparent 72%);
+  }
+  .island {
+    position: absolute;
+    left: 50%;
+    top: 46%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 214px;
+    border-radius: 120px;
+    background: #000;
+    border: 7px solid transparent;
+    background-clip: padding-box;
+    box-shadow:
+      0 0 0 7px rgba(255,255,255,.06),
+      0 26px 70px rgba(0,0,0,.75),
+      inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .island::before {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: 126px;
+    padding: 7px;
+    background: linear-gradient(115deg, #5eead4, #818cf8 38%, #c084fc 66%, #fb7185);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: .95;
+  }
+  .dot {
+    position: absolute;
+    left: 52px;
+    top: 50%;
+    width: 42px;
+    height: 42px;
+    margin-top: -21px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #c7d2fe, #6366f1 45%, #312e81 72%);
+    box-shadow: 0 0 26px rgba(99,102,241,.9);
+  }
+  .camera {
+    position: absolute;
+    right: 48px;
+    top: 50%;
+    width: 28px;
+    height: 28px;
+    margin-top: -14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #334155, #020617 66%);
+    border: 1px solid rgba(148,163,184,.25);
+  }
+  .wave {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 300px;
+    height: 60px;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .wave i {
+    display: block;
+    width: 10px;
+    border-radius: 99px;
+    background: linear-gradient(#e0e7ff, #818cf8);
+    box-shadow: 0 0 18px rgba(129,140,248,.6);
+  }
+  .wave i:nth-child(1) { height: 18px; opacity: .55; }
+  .wave i:nth-child(2) { height: 34px; opacity: .8; }
+  .wave i:nth-child(3) { height: 54px; }
+  .wave i:nth-child(4) { height: 28px; opacity: .75; }
+  .wave i:nth-child(5) { height: 14px; opacity: .45; }
+  .shine {
+    position: absolute;
+    left: -20%;
+    top: -40%;
+    width: 140%;
+    height: 90%;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,255,255,.11), transparent 62%);
+    transform: rotate(-12deg);
+  }
+</style>
+</head>
+<body>
+  <div class="icon">
+    <div class="shine"></div>
+    <div class="island">
+      <span class="dot"></span>
+      <div class="wave"><i></i><i></i><i></i><i></i><i></i></div>
+      <span class="camera"></span>
+    </div>
+  </div>
+</body>
+</html>

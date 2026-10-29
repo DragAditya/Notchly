@@ -1,0 +1,560 @@
+.activities-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.activities-empty {
+  margin: auto;
+  font-size: 13px;
+  color: var(--text-faint);
+}
+
+.activity-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 6px 4px;
+  border-radius: 14px;
+}
+.activity-card.is-row {
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+}
+.activity-card.is-clickable {
+  cursor: pointer;
+}
+.activity-card.is-clickable:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.activity-texts {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.activity-caption {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+.activity-title {
+  font-size: 15px;
+  font-weight: 650;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.activity-card.is-row .activity-title {
+  font-size: 13.5px;
+}
+.activity-subtitle {
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.activity-card.is-row .activity-subtitle {
+  -webkit-line-clamp: 1;
+  font-size: 12px;
+}
+
+.activity-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.activity-track,
+.activity-level {
+  position: relative;
+  flex: 1;
+  height: 5px;
+  border-radius: 99px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.14);
+}
+.activity-level {
+  flex: none;
+  width: 96px;
+  height: 6px;
+}
+.activity-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transform-origin: 0 50%;
+}
+.activity-pct,
+.activity-compact-value {
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+.activity-compact-value {
+  min-width: 22px;
+  text-align: right;
+}
+.activity-compact-title {
+  max-width: 200px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.activity-dismiss {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--text-faint);
+  font-size: 15px;
+  line-height: 1;
+}
+.activity-dismiss:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------------------------------------------------- premium signal card -- */
+/* System alerts (volume, brightness, battery, Bluetooth) use a wide card
+   instead of the tiny compact pill. The shell grows to the size the module
+   asks for; these styles fill it edge to edge. */
+
+.signal-root {
+  --accent: #8e8eff;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.signal-aura {
+  position: absolute;
+  z-index: 0;
+  left: 5%;
+  right: 5%;
+  top: 18%;
+  bottom: -22%;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.55;
+  background:
+    radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%),
+    radial-gradient(60% 60% at 70% 50%, color-mix(in srgb, var(--accent) 35%, transparent), transparent 72%);
+  filter: blur(32px);
+  transition: opacity 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.signal-card {
+  --pad: 22px;
+  --icon: 54px;
+  --gap: 18px;
+  --title: 20px;
+  --sub: 12.5px;
+  --value: 38px;
+  --orbit: 56px;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0 var(--pad);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(120% 160% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 42%),
+    linear-gradient(180deg, #0a0b0f 0%, #000 58%, #000 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.09),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.055);
+  transition: translate 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)), box-shadow 0.35s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.signal-root:hover .signal-aura { opacity: 0.74; }
+.signal-root:hover .signal-card {
+  translate: 0 -2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.signal-sensor {
+  position: absolute;
+  z-index: 6;
+  top: 9px;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--accent) 65%, #fff);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+  opacity: 0.8;
+  transform: translateX(-50%);
+}
+
+.signal-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--gap);
+  width: 100%;
+}
+
+.signal-icon {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: var(--icon);
+  height: var(--icon);
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.signal-ring {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transform: rotate(195deg);
+}
+
+.signal-ring-track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--accent) 26%, #000);
+  stroke-width: 7;
+}
+
+.signal-ring-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 7;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+
+.signal-ring-glyph {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  opacity: 0.94;
+  pointer-events: none;
+}
+
+.signal-copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.signal-title {
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--title);
+  font-weight: 650;
+  line-height: 1.14;
+  letter-spacing: -0.018em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signal-sub {
+  overflow: hidden;
+  color: var(--text-dim);
+  font-size: var(--sub);
+  font-weight: 450;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signal-right {
+  position: relative;
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: calc(var(--value) * 2.35);
+  margin-left: auto;
+}
+
+.signal-value {
+  display: flex;
+  align-items: baseline;
+  color: #fff;
+  font-size: var(--value);
+  font-weight: 640;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.8);
+}
+
+.signal-value .pct {
+  margin-left: 0.1em;
+  color: var(--text-dim);
+  font-size: 0.5em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.signal-value--text {
+  font-size: calc(var(--value) * 0.56);
+  font-weight: 620;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.signal-orbit {
+  position: relative;
+  width: var(--orbit);
+  height: var(--orbit);
+  display: grid;
+  place-items: center;
+}
+
+.orbit-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 50%;
+  opacity: 0.55;
+  transform-origin: center;
+}
+
+.orbit-ring:nth-child(2) {
+  inset: -8px;
+  opacity: 0.24;
+}
+
+.orbit-core {
+  position: relative;
+  width: 62%;
+  height: 62%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--accent) 30%, #0a0c12), #05070a 72%);
+  box-shadow:
+    0 0 24px color-mix(in srgb, var(--accent) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.signal-orbit.is-off .orbit-ring { border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.signal-orbit.is-off .orbit-core { color: var(--accent); }
+
+.signal-shine {
+  position: absolute;
+  z-index: 5;
+  inset: -60% -30%;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.07) 46%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(255, 255, 255, 0.05) 54%,
+    transparent 62%);
+  mix-blend-mode: screen;
+  transform: translateX(-120%);
+}
+
+/* ------------------------------------------------------------ effects -- */
+
+.signal-shockwave {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: calc(var(--pad) + var(--icon) * 0.5);
+  width: var(--icon);
+  height: var(--icon);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 75%, transparent);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  translate: -50% -50%;
+}
+
+.signal-card.fx .signal-shockwave {
+  animation: signal-shockwave 1.05s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) 0.12s both;
+}
+
+.signal-sparks {
+  position: absolute;
+  z-index: 4;
+  top: 50%;
+  left: calc(var(--pad) + var(--icon) * 0.5);
+  pointer-events: none;
+}
+
+.signal-sparks i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--s, 3px);
+  height: var(--s, 3px);
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  opacity: 0;
+}
+
+.signal-card.fx[data-spark="true"] .signal-sparks i {
+  animation: signal-spark 0.95s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  animation-delay: calc(0.18s + var(--d, 0ms));
+}
+
+.signal-flash {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: radial-gradient(circle at calc(var(--pad) + var(--icon) * 0.5) 50%,
+    color-mix(in srgb, var(--accent) 60%, transparent), transparent 58%);
+}
+
+.signal-card.fx[data-tone="zap"] .signal-flash,
+.signal-card.fx[data-tone="burst"] .signal-flash {
+  animation: signal-flash 0.7s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) 0.08s both;
+}
+
+.signal-glitch {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255, 80, 100, 0.18) 3px 4px);
+}
+
+.signal-card.fx[data-tone="glitch"] .signal-glitch {
+  animation: signal-glitch 0.55s steps(2, end) 0.1s both;
+}
+
+.signal-card .signal-shine {
+  animation: signal-shine 1.2s var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) 0.42s both;
+}
+
+/* ------------------------------------------------ quiet idle breathing -- */
+
+.signal-root.is-live .signal-aura { animation: signal-aura 5s ease-in-out infinite; }
+.signal-root.is-live .signal-inner { animation: signal-float 5.4s ease-in-out infinite; }
+.signal-root.is-live .signal-ring-fill { animation: signal-ring-glow 3.4s ease-in-out infinite; }
+.signal-root.is-live .signal-sensor { animation: signal-sensor 3.8s ease-in-out infinite; }
+.signal-root.is-live .orbit-ring { animation: signal-orbit 3.2s ease-out infinite; }
+.signal-root.is-live .orbit-ring:nth-child(2) { animation-delay: 0.8s; }
+
+.signal-card[data-tone="zap"] .signal-ring-glyph {
+  animation: signal-bolt 2.2s ease-in-out infinite;
+}
+
+.signal-card[data-tone="shake"] .signal-sensor,
+.signal-card[data-tone="glitch"] .signal-sensor {
+  animation-duration: 2s;
+}
+
+@keyframes signal-shockwave {
+  0% { opacity: 0.55; transform: scale(0.72); }
+  72%, 100% { opacity: 0; transform: scale(1.9); }
+}
+
+@keyframes signal-spark {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(0.25); }
+}
+
+@keyframes signal-flash {
+  0% { opacity: 0; }
+  16% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+@keyframes signal-glitch {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  12% { opacity: 0.85; transform: translateX(-3px); }
+  26% { opacity: 0; }
+  42% { opacity: 0.65; transform: translateX(3px); }
+  58% { opacity: 0; }
+  74% { opacity: 0.4; transform: translateX(-2px); }
+}
+
+@keyframes signal-shine {
+  0% { opacity: 0; transform: translateX(-120%); }
+  8% { opacity: 1; }
+  90% { opacity: 1; transform: translateX(120%); }
+  100% { opacity: 0; transform: translateX(120%); }
+}
+
+@keyframes signal-aura {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.72; transform: scale(1.04); }
+}
+
+@keyframes signal-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes signal-ring-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 45%, transparent)); }
+  50% { filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 78%, transparent)); }
+}
+
+@keyframes signal-sensor {
+  0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(0.9); }
+  50% { opacity: 0.95; transform: translateX(-50%) scale(1.12); }
+}
+
+@keyframes signal-orbit {
+  0% { transform: scale(0.86); opacity: 0.45; }
+  70%, 100% { transform: scale(1.18); opacity: 0; }
+}
+
+@keyframes signal-bolt {
+  0%, 100% { opacity: 0.72; filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 40%, transparent)); }
+  35% { opacity: 1; filter: drop-shadow(0 0 13px color-mix(in srgb, var(--accent) 85%, transparent)); }
+  55% { opacity: 0.84; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-card.fx .signal-shockwave,
+  .signal-card.fx[data-spark="true"] .signal-sparks i,
+  .signal-card.fx[data-tone="zap"] .signal-flash,
+  .signal-card.fx[data-tone="burst"] .signal-flash,
+  .signal-card.fx[data-tone="glitch"] .signal-glitch,
+  .signal-card .signal-shine,
+  .signal-root.is-live .signal-aura,
+  .signal-root.is-live .signal-inner,
+  .signal-root.is-live .signal-ring-fill,
+  .signal-root.is-live .signal-sensor,
+  .signal-root.is-live .orbit-ring,
+  .signal-card[data-tone="zap"] .signal-ring-glyph {
+    animation: none;
+  }
+}

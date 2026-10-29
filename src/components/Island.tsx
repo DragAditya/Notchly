@@ -1,0 +1,153 @@
+import { motion } from "motion/react";
+import { useEffect, useMemo, useRef } from "react";
+import { modules } from "../modules";
+import { useHitRects } from "../core/useHitRects";
+import { useIslandController } from "../core/useIslandController";
+import { useIslandDrag } from "../core/useIslandDrag";
+import { IslandContext, type IslandApi } from "../core/island";
+import { useAppearance } from "../core/appearance";
+import { useTauriEvent } from "../core/bridge";
+import { useSyncLocale } from "../core/i18n";
+import {
+	chatRequest,
+	instantPrompt,
+	islandAnswer,
+	requestAskFocus,
+	requestAskInstant,
+	type AskMessage,
+} from "../modules/ask/store";
+import { requestFindFocus } from "../modules/find/store";
+import { AmbientBubbles, SecondaryBubble } from "./island/Bubbles";
+import { islandContent } from "./island/content";
+import { ambientWidth, BUBBLE, BUBBLE_GAP, geometry, variantOf } from "./island/geometry";
+import { launcherSize } from "./island/Launcher";
+import { Rim } from "./island/Rim";
+import { Surface } from "./island/Surface";
+import { useIslandFileDrop } from "./island/useIslandFileDrop";
+
+export function Island() {
+	const ctl = useIslandController(modules);
+	const { mode, primary, secondary, focused } = ctl;
+	const look = useAppearance();
+	const windows = look.style === "windows";
+	const v = variantOf(look);
+	useHitRects();
+	useSyncLocale();
+	useIslandFileDrop(ctl);
+
+	const bigSize = ctl.launcher ? launcherSize(ctl.entries.length) : focused?.view.expandedSize;
+	const hideTabs = !ctl.launcher && !!focused?.view.hideTabs;
+	const g = geometry(v, look, mode, bigSize, primary, hideTabs);
+	const big = mode === "expanded" || mode === "peek";
+	const hidden = mode === "hidden";
+	const swallowed = mode === "swallowed";
+	const resting = mode === "compact" || mode === "idle";
+	const showSecondary = mode === "compact" && secondary !== undefined;
+	const transition = big ? v.expandSpring : v.shellSpring;
+
+	const drag = useIslandDrag({
+		width: g.width,
+		leftExtra: g.ear + (resting ? ambientWidth(ctl.entries.filter((e) => e.view.ambient).length) : 0),
+		rightExtra: g.ear + (showSecondary ? BUBBLE_GAP + BUBBLE : 0),
+		canReturn: !big,
+		onDragChange: ctl.lockHover,
+	});
+
+	// Global shortcut: the page opens (controller) and its input takes the keyboard.
+	useTauriEvent("island://ask", requestAskFocus);
+	// Custom "instant prompt" shortcut: one-line field, keyboard ready.
+	useTauriEvent("island://ask-instant", requestAskInstant);
+	useTauriEvent("island://find", requestFindFocus);
+
+	// A compact question came back: unfold the island on its answer exactly once.
+	const answer = islandAnswer.use();
+	const openedAnswer = useRef<AskMessage | null>(null);
+	const answerShown = useRef(false);
+	useEffect(() => {
+		if (!answer) {
+			openedAnswer.current = null;
+			answerShown.current = false;
+			return;
+		}
+		if (mode === "expanded" || mode === "peek") answerShown.current = true;
+		if (openedAnswer.current === answer) return;
+		openedAnswer.current = answer;
+		if (mode !== "expanded") ctl.expand("ask");
+	}, [answer, mode, ctl.expand]);
+
+	// Collapsing drops the one-shot Ask surfaces. A reply that was already on
+	// screen goes too, so the next open starts at a fresh prompt.
+	useEffect(() => {
+		if (mode === "expanded" || mode === "peek") return;
+		if (instantPrompt.get()) instantPrompt.set(false);
+		if (chatRequest.get()) chatRequest.set(false);
+		if (answerShown.current) {
+			answerShown.current = false;
+			islandAnswer.set(null);
+		}
+	}, [mode]);
+
+	const api: IslandApi = useMemo(
+		() => ({ mode, tab: ctl.tab, expand: ctl.expand, collapse: ctl.collapse, keepOpen: ctl.keepOpen }),
+		[mode, ctl.tab, ctl.expand, ctl.collapse, ctl.keepOpen],
+	);
+
+	const content = islandContent(ctl, look, v);
+	const rim = windows ? <Rim look={look} /> : null;
+	const bubble = { transition: v.shellSpring, rim, onOpen: ctl.expand };
+
+	return (
+		<IslandContext.Provider value={api}>
+			<div className="stage">
+				{/* The tray's black hole: the island spins into its own center and comes back out. */}
+				<motion.div
+					className="blackhole"
+					initial={false}
+					animate={swallowed ? { scale: 0, rotate: -200, opacity: 0 } : { scale: 1, rotate: 0, opacity: 1 }}
+					transition={
+						swallowed
+							? { duration: 0.46, ease: [0.55, 0, 1, 0.45] }
+							: { duration: 0.56, ease: [0.34, 1.4, 0.64, 1], opacity: { duration: 0.26 } }
+					}
+				>
+					<motion.div
+						className={`shell ${windows ? "is-windows" : "is-dynamic"} ${drag.dragging ? "is-dragging" : ""}`}
+						{...(hidden || swallowed ? {} : { "data-hit": true })}
+						{...ctl.domHover}
+						style={{ ...drag.style, marginTop: v.top }}
+						onPointerDown={drag.onPointerDown}
+						onClickCapture={drag.onClickCapture}
+						onUpdate={drag.onShellUpdate}
+						onWheel={ctl.onWheel}
+						initial={false}
+						animate={{
+							width: g.width,
+							height: g.height,
+							opacity: hidden ? 0 : 1,
+							y: hidden ? -g.height - 12 - v.top : 0,
+						}}
+						transition={transition}
+						onClick={() => resting && ctl.expand()}
+					>
+						<motion.span className="ear left" initial={false} animate={{ width: g.ear, height: g.ear }} transition={v.shellSpring} />
+						<motion.span className="ear right" initial={false} animate={{ width: g.ear, height: g.ear }} transition={v.shellSpring} />
+
+						<Surface
+							g={g}
+							big={big}
+							look={look}
+							transition={transition}
+							contentKey={content.key}
+							rim={rim}
+						>
+							{content.node}
+						</Surface>
+
+						<AmbientBubbles entries={ctl.entries} visible={resting} shrunk={mode === "idle" && !windows} {...bubble} />
+						<SecondaryBubble entry={showSecondary ? secondary : undefined} {...bubble} />
+					</motion.div>
+				</motion.div>
+			</div>
+		</IslandContext.Provider>
+	);
+}

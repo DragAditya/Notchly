@@ -1,0 +1,221 @@
+import { motion } from "motion/react";
+import { useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { Glyph } from "../../../components/Glyph";
+import { SparkleIcon } from "../../../components/icons";
+import { command, providerAction } from "../../../core/bridge";
+import { useT, type Translate } from "../../../core/i18n";
+import { useIsland } from "../../../core/island";
+import {
+  addAttachments,
+  ASK_PROVIDER,
+  draftRequest,
+  focusRequest,
+  GEMINI_BLUE,
+  pendingAttachments,
+  type AskState,
+  type Attachment,
+} from "../store";
+import { AttachmentChips } from "./AttachmentChips";
+import { Formatted } from "./Formatted";
+import { useAskViewing } from "./useAskViewing";
+
+/** "Ask Gemini": short answers from the Gemini API inside the island. */
+export function AskPanel({ state }: { state: AskState | undefined }) {
+  const t = useT();
+  const island = useIsland();
+  const attachments = pendingAttachments.use();
+  const focusPending = focusRequest.use();
+  const [draft, setDraft] = useState("");
+  const [copied, setCopied] = useState(false);
+  const input = useRef<HTMLTextAreaElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  const messages = state?.messages ?? [];
+  const running = !!state?.running;
+
+  // On screen: no "Gemini answered" alert, and the answer counts as read.
+  useAskViewing();
+  useEffect(
+    () => () => {
+      island.keepOpen(false);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  // Global shortcut / "ask about this file": take the keyboard.
+  useEffect(() => {
+    if (!focusPending) return;
+    focusRequest.set(false);
+    takeKeyboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusPending]);
+
+  // "Ask about this text" (clipboard): the text goes in, the question follows it.
+  const draftPending = draftRequest.use();
+  useEffect(() => {
+    // Read from the store, not the render: consumed once even if the effect runs twice.
+    const text = draftRequest.get();
+    if (text == null) return;
+    draftRequest.set(null);
+    setDraft((prev) => `${prev.trim() ? `${prev.trimEnd()}\n\n` : ""}${text}\n\n`);
+    takeKeyboard();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draftPending]);
+
+  // Follow the newest text.
+  const last = messages[messages.length - 1];
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages.length, last?.text]);
+
+  // The textarea grows with the question.
+  useLayoutEffect(() => {
+    const el = input.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 96)}px`;
+  }, [draft]);
+
+  function takeKeyboard() {
+    island.keepOpen(true);
+    command("focus_island");
+    window.setTimeout(() => input.current?.focus(), 30);
+  }
+
+  function send() {
+    if (running || (!draft.trim() && !attachments.length)) return;
+    providerAction(ASK_PROVIDER, "send", { text: draft, attachments });
+    setDraft("");
+    pendingAttachments.set([]);
+    setCopied(false);
+  }
+
+  function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      // Enter sends; Shift+Enter breaks the line.
+      e.preventDefault();
+      send();
+    } else if (e.key === "Escape") {
+      // Back to the app you were in; Gemini keeps answering meanwhile.
+      e.preventDefault();
+      input.current?.blur();
+      command("restore_focus");
+      island.collapse();
+    }
+  }
+
+  async function screenshot() {
+    const shot = await providerAction<Attachment>(ASK_PROVIDER, "screenshot").catch(() => undefined);
+    if (shot) addAttachments([shot]);
+    takeKeyboard();
+  }
+
+  const lastAnswer = !running && last && !last.fromUser && !last.error && last.text ? last.text : null;
+
+  return (
+    <div className="ask-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="ask-head">
+        <motion.span
+          className="ask-logo"
+          animate={running ? { rotate: 360 } : { rotate: 0 }}
+          transition={running ? { duration: 2.4, repeat: Infinity, ease: "linear" } : { duration: 0.3 }}
+        >
+          <SparkleIcon size={16} />
+        </motion.span>
+        <span className="ask-title">{t("ask.name")}</span>
+        {running && state?.status && <span className="ask-status">{statusText(t, state.status)}</span>}
+        <span className="ask-spacer" />
+        {messages.length > 0 && !running && (
+          <button className="ask-text-btn" onClick={() => providerAction(ASK_PROVIDER, "new")}>
+            {t("ask.new")}
+          </button>
+        )}
+      </div>
+
+      {messages.length === 0 ? (
+        <p className="ask-hint">
+          {t("ask.hint")} {state?.hotkey && t("ask.hotkey", { keys: state.hotkey })}
+        </p>
+      ) : (
+        <div className="ask-messages" ref={scroller} data-scroll>
+          {messages.map((m, i) =>
+            m.fromUser ? (
+              <div key={i} className="ask-user">
+                {m.attachments.map((a) =>
+                  a.isImage && a.thumb ? (
+                    <img key={a.path} className="ask-user-image" src={a.thumb} alt="" />
+                  ) : (
+                    <span key={a.path} className="ask-user-file">
+                      📎 {a.label ?? a.name}
+                    </span>
+                  ),
+                )}
+                <span>{m.text}</span>
+              </div>
+            ) : (
+              <div key={i} className={`ask-answer ${m.error ? "is-error" : ""}`}>
+                {m.text ? <Formatted text={m.text} /> : running && i === messages.length - 1 ? <span className="ask-dots">…</span> : null}
+              </div>
+            ),
+          )}
+          {lastAnswer && (
+            <button
+              className="ask-text-btn ask-copy"
+              onClick={() => {
+                navigator.clipboard.writeText(lastAnswer).then(() => setCopied(true));
+              }}
+            >
+              {copied ? t("ask.copied") : t("ask.copy")}
+            </button>
+          )}
+        </div>
+      )}
+
+      <AttachmentChips />
+
+      <div className="ask-field" data-no-drag>
+        <button className="ask-icon-btn" title={t("ask.screenshot")} onClick={screenshot}>
+          <Glyph name="camera" size={14} />
+        </button>
+        <textarea
+          ref={input}
+          rows={1}
+          value={draft}
+          placeholder={t("ask.placeholder")}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={onKeyDown}
+          onMouseDown={takeKeyboard}
+          onFocus={() => island.keepOpen(true)}
+          onBlur={() => island.keepOpen(false)}
+        />
+        <button
+          className={`ask-send ${running ? "is-stop" : ""}`}
+          style={{ background: GEMINI_BLUE }}
+          title={running ? t("ask.stop") : t("ask.send")}
+          disabled={!running && !draft.trim() && !attachments.length}
+          onClick={() => (running ? providerAction(ASK_PROVIDER, "cancel") : send())}
+        >
+          {running ? <span className="ask-stop-square" /> : <Glyph name="upload" size={13} />}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function statusText(t: Translate, status: NonNullable<AskState["status"]>) {
+  if (status.kind !== "tool") return t(`ask.status.${status.kind}`);
+  switch (status.arg) {
+    case "WebSearch":
+      return t("ask.status.webSearch");
+    case "WebFetch":
+      return t("ask.status.webFetch");
+    case "Read":
+      return t("ask.status.read");
+    case "Glob":
+    case "Grep":
+      return t("ask.status.search");
+    default:
+      return t("ask.status.tool", { tool: status.arg ?? "" });
+  }
+}
