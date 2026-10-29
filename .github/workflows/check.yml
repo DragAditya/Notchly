@@ -19,7 +19,7 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: oven-sh/setup-bun@v2
 
@@ -55,7 +55,7 @@ jobs:
       - name: Lockfile up to date
         run: git diff --exit-code -- src-tauri/Cargo.lock
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: Cargo.lock
