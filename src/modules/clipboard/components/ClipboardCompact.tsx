@@ -1,15 +1,18 @@
 import { Glyph } from "../../../components/Glyph";
 import { Marquee } from "../../../components/Marquee";
 import { useT } from "../../../core/i18n";
+import { useSetting } from "../../../core/settings";
+import { clipboardSettings } from "../settings";
 import { CLIPBOARD_YELLOW, type ClipItem } from "../types";
 import { clipTitle } from "./ClipboardPanel";
 
 /** Left slot of the "just copied" pill: the picture or an icon, and what it is. */
 export function ClipboardCompactLeft({ item }: { item: ClipItem }) {
   const t = useT();
+  const imagePreview = useSetting(clipboardSettings.imagePreview);
   return (
     <>
-      {item.kind === "image" && item.thumb ? (
+      {imagePreview && item.kind === "image" && item.thumb ? (
         <img className="clip-compact-thumb" src={item.thumb} alt="" draggable={false} />
       ) : (
         <span className="clip-compact-icon">

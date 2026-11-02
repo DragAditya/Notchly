@@ -47,6 +47,8 @@ export interface ModuleView {
    * this module, e.g. a new track started. `undefined` never peeks.
    */
   activityKey?: string;
+  /** How long an activity peek stays open, in ms (default 3800). */
+  peekMs?: number;
   /**
    * Left out of the tab bar (e.g. an empty shelf). It can still own the
    * compact island, peek, or be opened by `expand(id)`.

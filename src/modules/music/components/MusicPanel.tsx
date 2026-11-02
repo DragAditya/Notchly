@@ -34,6 +34,8 @@ export function MusicPanel({
   const t = useT();
   const pinned = usePipOpen();
   const videoEnabled = useSetting(musicSettings.video);
+  const showArtwork = useSetting(musicSettings.showArtwork);
+  const showProgress = useSetting(musicSettings.showProgress);
   const mirror = useMirrorVideo(music?.youtubeId);
   // While pinned, only the pinned window plays the video.
   const video = videoEnabled && !pinned ? mirror : null;
@@ -73,7 +75,13 @@ export function MusicPanel({
         </div>
       ) : (
         <button className="music-open" title={music.appName} onClick={openPlayer}>
-          <Artwork src={music.thumbnail} size={112} radius={20} trackKey={music.title} glow={accent} />
+          {showArtwork ? (
+            <Artwork src={music.thumbnail} size={112} radius={20} trackKey={music.title} glow={accent} />
+          ) : (
+            <span className="music-artwork-off">
+              <MusicIcon size={44} />
+            </span>
+          )}
           {music.appIcon && !pinned && (
             <span className="music-app-badge">
               <img src={music.appIcon} alt="" draggable={false} />
@@ -105,27 +113,29 @@ export function MusicPanel({
           {showVisualizer && <Visualizer playing={music.playing} color={accent} height={30} barWidth={4.5} />}
         </div>
 
-        <div className="music-progress">
-          <span className="time">{formatTime(position)}</span>
-          <div
-            className="bar"
-            onClick={(e) => {
-              if (!music.durationMs) return;
-              const r = e.currentTarget.getBoundingClientRect();
-              musicAction("seek", Math.round(((e.clientX - r.left) / r.width) * music.durationMs));
-            }}
-          >
-            <motion.div
-              className="bar-fill"
-              initial={false}
-              animate={{ scaleX: Math.min(1, progress) }}
-              transition={{ type: "tween", ease: "linear", duration: 0.25 }}
-            />
+        {showProgress && (
+          <div className="music-progress">
+            <span className="time">{formatTime(position)}</span>
+            <div
+              className="bar"
+              onClick={(e) => {
+                if (!music.durationMs) return;
+                const r = e.currentTarget.getBoundingClientRect();
+                musicAction("seek", Math.round(((e.clientX - r.left) / r.width) * music.durationMs));
+              }}
+            >
+              <motion.div
+                className="bar-fill"
+                initial={false}
+                animate={{ scaleX: Math.min(1, progress) }}
+                transition={{ type: "tween", ease: "linear", duration: 0.25 }}
+              />
+            </div>
+            <span className="time">
+              {music.durationMs ? `-${formatTime(music.durationMs - position)}` : "--:--"}
+            </span>
           </div>
-          <span className="time">
-            {music.durationMs ? `-${formatTime(music.durationMs - position)}` : "--:--"}
-          </span>
-        </div>
+        )}
 
         <div className="music-footer">
           <Controls music={music} />

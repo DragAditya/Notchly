@@ -10,24 +10,24 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/DragAditya/Notchly/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/DragAditya/Notchly?style=flat-square&color=6366f1" /></a>
+  <img alt="Version 1.1.0" src="https://img.shields.io/badge/version-1.1.0-6366f1?style=flat-square" />
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-22c55e?style=flat-square" /></a>
   <img alt="Platform: Windows 10 / 11" src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0ea5e9?style=flat-square" />
   <img alt="Built with Tauri, React and Rust" src="https://img.shields.io/badge/stack-Tauri%20%2B%20React%20%2B%20Rust-8b5cf6?style=flat-square" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/DragAditya/Notchly/releases/latest"><b>Download</b></a> ·
+  <a href="../../releases/latest"><b>Download</b></a> ·
   <a href="#build-from-source"><b>Build from source</b></a> ·
   <a href="docs/API.md"><b>Local API</b></a> ·
-  <a href="https://github.com/DragAditya/Notchly/issues"><b>Report a bug</b></a>
+  <a href="../../issues"><b>Report a bug</b></a>
 </p>
 
 ---
 
 ## What is Notchly?
 
-Notchly is a native-feeling Windows desktop app that puts a compact, always-available island at the top of your screen. It is designed to give you the information you need — and the controls you reach for most — without opening a dashboard or switching windows.
+Notchly is a native-feeling Windows desktop app that puts a compact, always-available island at the top of your screen. It gives you the information you need — and the controls you reach for most — without opening a dashboard or switching windows.
 
 It is built with **Tauri 2**, **React 19**, **TypeScript** and **Rust**, and it talks to Windows APIs directly for media, notifications, audio, display and system monitoring.
 
@@ -43,10 +43,23 @@ It is built with **Tauri 2**, **React 19**, **TypeScript** and **Rust**, and it 
 | **Ask Gemini** | Ask a short question with `Ctrl+Alt+Space` and read the answer in the island. Bring your own Google AI API key and choose the model. |
 | **AI agents** | Follow Claude Code sessions, permission prompts, plan usage and daily token activity without leaving the island. |
 | **Live activities** | Volume, brightness, Bluetooth, charging, battery and Windows power-mode changes, plus custom activities from the local API. |
+| **Companion eyes** | A small pair of eyes that peeks in for music, volume, battery and notifications, then disappears. Auto keeps it out of the way; `Ctrl+Alt+R` calls it and `Ctrl+Alt+Shift+R` turns Auto on or off. |
 | **Notifications** | Mirror Windows notifications from WhatsApp, Teams, Outlook, Discord and other apps, with app icons and quick open. |
-| **Utilities** | Clipboard history, file shelf, find-on-screen OCR, GitHub issue counts, CPU/GPU/network monitor, clock and calendar. |
-| **Make it yours** | A black notch or a floating Windows-style pill, gradient rims, multiple positions, multi-monitor support, English and Portuguese (Brazil). |
+| **Utilities** | Clipboard history, a screenshot keep/delete flow, a pending screenshot shelf, find-on-screen OCR, GitHub issue counts, CPU/GPU/network monitor, clock and calendar. |
+| **Make it yours** | A black notch or a floating Windows-style pill, gradient rims, multiple positions, adjustable screenshot card size, multi-monitor support, English and Portuguese (Brazil). |
 | **Local-first** | No account, no analytics, no telemetry, no Notchly server. Data stays on your machine unless a feature you enable needs a service. |
+
+## Screenshots that stay out of your way
+
+When you take a screenshot, the newest one appears in the notch as a large, focused card:
+
+- **Keep** saves the file and adds it to the Shelf.
+- **Delete** removes the file immediately.
+- **Do nothing** lets the card fold back and leaves the screenshot in the Shelf as a pending item.
+- The card countdown shows when the file will be deleted; the thin progress line shows when the card will close.
+- The second screenshot replaces the card and restarts the timer. Older screenshots go straight to the pending Shelf.
+- Pending rows show a thumbnail, a live countdown and Keep/Delete actions, and survive a restart.
+- Card width and height are configurable in Settings.
 
 ## A closer look
 
@@ -54,13 +67,13 @@ Notchly has two visual styles. Use **Settings → Appearance** to switch between
 
 - **Compact by default.** It stays out of the way at the top of the screen.
 - **Expands when you need it.** Hover or click to open the active module.
-- **Keyboard-first.** `Ctrl+Alt+Space` opens Ask Gemini; `Ctrl+Alt+F` finds text anywhere on screen.
+- **Keyboard-first.** `Ctrl+Alt+Space` opens Ask Gemini; `Ctrl+Alt+F` finds text anywhere on screen; `Ctrl+Alt+R` calls the companion.
 - **Multi-monitor aware.** Choose a display, follow the primary monitor, or move away from fullscreen apps.
-- **Fullscreen friendly.** It hides while games and fullscreen videos are running.
+- **Fullscreen friendly.** It hides while games and fullscreen videos are running, and the companion stays quiet there too.
 
 ## Download and install
 
-Get the latest build from **[GitHub Releases](https://github.com/DragAditya/Notchly/releases/latest)**.
+Get the latest build from **Releases in this repository**.
 
 Each release includes:
 
@@ -84,7 +97,7 @@ The installer is per-user and does not require an administrator prompt. The port
 
 ### Uninstall
 
-Use **Settings → Apps → Installed apps → Notchly → Uninstall**. If you used the portable build, delete the extracted folder and `%APPDATA%\com.dragaditya.notchly` to remove local data.
+Use **Settings → Apps → Installed apps → Notchly → Uninstall**. If you used the portable build, delete the extracted folder and `%APPDATA%\com.notchly.desktop` to remove local data.
 
 ## Build from source
 
@@ -97,10 +110,9 @@ Use **Settings → Apps → Installed apps → Notchly → Uninstall**. If you u
 
 ### Run the app
 
-```sh
-git clone https://github.com/DragAditya/Notchly.git
-cd Notchly
+Clone this repository, then:
 
+```sh
 bun install
 bun run app:dev
 ```
@@ -224,7 +236,7 @@ More detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 ## Privacy and security
 
 - No Notchly account, analytics, telemetry, ads or crash reporting.
-- Settings and feature data live under `%APPDATA%\com.dragaditya.notchly`.
+- Settings and feature data live under `%APPDATA%\com.notchly.desktop`.
 - Network calls go directly from your machine to the service you enabled (Google, Spotify, GitHub, Anthropic, YouTube) over HTTPS.
 - The local API listens on `127.0.0.1` only.
 - Passwords copied by password managers are ignored by clipboard history.
@@ -241,10 +253,8 @@ Read the full [privacy policy](docs/privacy/index.md) and [security policy](SECU
 
 Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), and use the issue forms for bug reports and feature requests. For security problems, please follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
 
-## Credits and license
+## License
 
-Notchly is a separate GPL-3.0 project maintained by **[DragAditya](https://github.com/DragAditya)**. Its Windows island implementation descends from the GPL-3.0 project **Dynamic Island for Windows** by **[HeyyCzer](https://github.com/HeyyCzer)**; that upstream work and its contributors are credited in [NOTICE.md](NOTICE.md). Notchly's branding, documentation, product changes and release pipeline are maintained separately.
+Notchly is licensed under the **GNU General Public License v3.0 or later**. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
 
-Copyright © 2026 DragAditya, HeyyCzer and Notchly contributors. Licensed under the [GNU General Public License v3.0](LICENSE) or later.
-
-If you redistribute a modified build, keep the license, copyright notices and upstream credit. The complete corresponding source is this repository.
+If you redistribute a modified build, keep the license and all copyright notices. The complete corresponding source is this repository.

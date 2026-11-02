@@ -13,14 +13,15 @@ export function usePeek(entries: ModuleEntry[]) {
   /** Set only when the peek came from an activity key, so manual peeks keep working. */
   const autoPeek = useRef<string | null>(null);
 
-  const peek = useCallback((moduleId: string, auto = false) => {
+  const peek = useCallback((moduleId: string, auto = false, duration = PEEK_DURATION) => {
     autoPeek.current = auto ? moduleId : null;
     setPeekId(moduleId);
     window.clearTimeout(timer.current);
+    const ms = Number.isFinite(duration) && duration > 0 ? duration : PEEK_DURATION;
     timer.current = window.setTimeout(() => {
       autoPeek.current = null;
       setPeekId(null);
-    }, PEEK_DURATION);
+    }, ms);
   }, []);
 
   const endPeek = useCallback(() => {
@@ -38,7 +39,7 @@ export function usePeek(entries: ModuleEntry[]) {
       const seen = lastKeys.current.has(module.id);
       const prev = lastKeys.current.get(module.id);
       lastKeys.current.set(module.id, view.activityKey);
-      if (seen && view.activityKey && view.activityKey !== prev) peek(module.id, true);
+      if (seen && view.activityKey && view.activityKey !== prev) peek(module.id, true, view.peekMs);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keySignature]);

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const HOVER_IN_DELAY = 110;
 const HOVER_OUT_DELAY = 380;
 /**
  * Switching tabs can shrink the island out from under the pointer: for this
@@ -12,6 +11,8 @@ const RESIZE_OUT_DELAY = 1200;
 interface Options {
   /** Entering expands the island; when off, only a click does. */
   expandOnHover: boolean;
+  /** How long the pointer rests before entering reacts. */
+  hoverDelay: number;
   onOpen: () => void;
   onClose: () => void;
 }
@@ -25,19 +26,27 @@ interface Options {
  * keep it open wherever the pointer goes; the pointer's last state applies
  * once every reason to stay open has ended.
  */
-export function useIslandHover({ expandOnHover, onOpen, onClose }: Options) {
+export function useIslandHover({ expandOnHover, hoverDelay, onOpen, onClose }: Options) {
   const [open, setOpen] = useState(false);
+  const [hovering, setHovering] = useState(false);
   const openRef = useRef(false);
   const timer = useRef<number | undefined>(undefined);
-  const latest = useRef({ expandOnHover, onOpen, onClose });
-  latest.current = { expandOnHover, onOpen, onClose };
+  const hoverTimer = useRef<number | undefined>(undefined);
+  const latest = useRef({ expandOnHover, hoverDelay, onOpen, onClose });
+  latest.current = { expandOnHover, hoverDelay, onOpen, onClose };
 
   const pointerInside = useRef(false);
   const locked = useRef(false);
   const holds = useRef(new Set<string>());
   const resizedAt = useRef(0);
 
-  useEffect(() => () => window.clearTimeout(timer.current), []);
+  useEffect(
+    () => () => {
+      window.clearTimeout(timer.current);
+      window.clearTimeout(hoverTimer.current);
+    },
+    [],
+  );
 
   const transition = useCallback((inside: boolean, immediate = false) => {
     window.clearTimeout(timer.current);
@@ -51,13 +60,26 @@ export function useIslandHover({ expandOnHover, onOpen, onClose }: Options) {
     };
     if (immediate) return apply();
     const justResized = Date.now() - resizedAt.current < RESIZE_GRACE_MS;
-    const delay = inside ? HOVER_IN_DELAY : justResized ? RESIZE_OUT_DELAY : HOVER_OUT_DELAY;
+    const delay = inside
+      ? Math.min(2000, Math.max(0, Number(latest.current.hoverDelay) || 0))
+      : justResized
+        ? RESIZE_OUT_DELAY
+        : HOVER_OUT_DELAY;
     timer.current = window.setTimeout(apply, delay);
   }, []);
 
   const onPointer = useCallback(
     (inside: boolean) => {
       pointerInside.current = inside;
+      // The companion waits for the same rest period as expansion. Leaving is
+      // immediate so it never lingers over whatever is underneath.
+      window.clearTimeout(hoverTimer.current);
+      if (!inside) {
+        setHovering(false);
+      } else {
+        const delay = Math.min(2000, Math.max(0, Number(latest.current.hoverDelay) || 0));
+        hoverTimer.current = window.setTimeout(() => setHovering(true), delay);
+      }
       if (locked.current || holds.current.size > 0) return;
       if (!inside || latest.current.expandOnHover) transition(inside);
       else window.clearTimeout(timer.current);
@@ -91,5 +113,5 @@ export function useIslandHover({ expandOnHover, onOpen, onClose }: Options) {
     transition(false, true);
   }, [transition]);
 
-  return { open, expand, collapse, onPointer, keepOpen, lockHover, expectResize };
+  return { open, hovering, expand, collapse, onPointer, keepOpen, lockHover, expectResize };
 }

@@ -26,7 +26,7 @@ This policy applies to the repository, issues, pull requests, discussions and an
 
 Maintainers may edit or remove comments, close issues and pull requests, or block accounts when behavior violates this policy. Enforcement decisions should be proportionate and focused on keeping the project usable.
 
-To report a conduct problem, contact the maintainer privately through [DragAditya's GitHub profile](https://github.com/DragAditya). Reports will be handled as confidentially as practical.
+To report a conduct problem, contact the maintainers privately through this repository's reporting options. Reports will be handled as confidentially as practical.
 
 ## Attribution
 

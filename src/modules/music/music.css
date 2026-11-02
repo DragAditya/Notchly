@@ -153,6 +153,76 @@
 
 
 /* --- compact -------------------------------------------------------------- */
+.music-compact-eyes {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 34px;
+  isolation: isolate;
+}
+.music-compact-eyes .companion-eyes {
+  --eye-w: 17px;
+  --eye-h: 23px;
+  gap: 7px;
+  z-index: 1;
+}
+.music-compact-eyes .companion-eyes[data-mood="music"] {
+  --eye-w: 20px;
+  --eye-h: 13px;
+}
+.music-compact-eyes .companion-eyes::before {
+  width: 44px;
+  height: 18px;
+  opacity: 0.2;
+}
+.music-compact-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  color: color-mix(in srgb, var(--accent, #fff) 70%, #fff);
+  background: rgba(255, 255, 255, 0.07);
+}
+.music-compact-eyes .artwork {
+  position: absolute;
+  z-index: 2;
+  right: -1px;
+  bottom: -1px;
+  box-shadow: 0 0 0 2px #000;
+}
+.music-dance-spark {
+  position: absolute;
+  z-index: 0;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #b6ffa8;
+  box-shadow: 0 0 7px rgba(150, 255, 135, 0.8);
+  opacity: 0.35;
+  animation: music-spark 2.4s ease-in-out infinite;
+}
+.music-dance-spark.left {
+  left: 1px;
+  top: 5px;
+}
+.music-dance-spark.right {
+  right: 2px;
+  top: 4px;
+  animation-delay: 0.8s;
+}
+.music-compact-eyes .companion-eyes[data-paused="true"] ~ .music-dance-spark,
+.music-compact-eyes:has(.companion-eyes[data-paused="true"]) .music-dance-spark {
+  animation-play-state: paused;
+  opacity: 0.15;
+}
+@keyframes music-spark {
+  0%, 100% { transform: scale(0.6); opacity: 0.25; }
+  50% { transform: scale(1.25); opacity: 0.9; }
+}
 .music-compact-titles {
   display: flex;
   flex-direction: column;
@@ -197,6 +267,16 @@
 .music-open-title {
   width: 100%;
   min-width: 0;
+}
+.music-artwork-off {
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 20px;
+  color: color-mix(in srgb, var(--accent, #fff) 75%, #fff);
+  background: linear-gradient(145deg, color-mix(in srgb, var(--accent, #fff) 24%, #111), #0a0a0c);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 /* YouTube in a browser: the video takes the artwork's place */

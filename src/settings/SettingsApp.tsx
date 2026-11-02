@@ -1,13 +1,15 @@
 import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router";
-import { GearIcon, GridIcon, InfoIcon, PaletteIcon } from "../components/icons";
+import { GearIcon, GridIcon, InfoIcon, PaletteIcon, SparkleIcon } from "../components/icons";
 import { useSyncLocale, useT } from "../core/i18n";
 import { useSettings } from "../core/settings";
 import { NavItem, NavSection } from "./components/NavItem";
 import { TitleBar } from "./components/TitleBar";
 import { AboutPage } from "./pages/AboutPage";
+import { AdvancedPage } from "./pages/AdvancedPage";
 import { AppearancePage } from "./pages/AppearancePage";
+import { CompanionPage } from "./pages/CompanionPage";
 import { GeneralPage } from "./pages/GeneralPage";
 import { ModulePage } from "./pages/ModulePage";
 import { ModulesPage } from "./pages/ModulesPage";
@@ -25,7 +27,7 @@ export function SettingsApp() {
   useSyncLocale();
 
   return (
-    <MemoryRouter>
+    <MemoryRouter initialEntries={[previewPath()]}>
       <div className="settings">
         <TitleBar />
         <div className="settings-main">
@@ -33,6 +35,8 @@ export function SettingsApp() {
             <NavSection label={t("settings.section.app")} />
             <NavItem to="/" icon={<GearIcon size={15} />} label={t("settings.general")} />
             <NavItem to="/appearance" icon={<PaletteIcon size={15} />} label={t("appearance.title")} />
+            <NavItem to="/companion" icon={<SparkleIcon size={15} />} label={t("companion.title")} />
+            <NavItem to="/advanced" icon={<GearIcon size={15} />} label={t("settings.advanced")} />
             <NavSection label={t("settings.section.island")} />
             {/* Stays highlighted on each module's own page too. */}
             <NavItem to="/modules" end={false} icon={<GridIcon size={14} />} label={t("modules.title")} />
@@ -44,6 +48,8 @@ export function SettingsApp() {
               <Routes>
                 <Route index element={<GeneralPage values={values} />} />
                 <Route path="appearance" element={<AppearancePage values={values} />} />
+                <Route path="companion" element={<CompanionPage values={values} />} />
+                <Route path="advanced" element={<AdvancedPage values={values} />} />
                 <Route path="modules" element={<ModulesPage values={values} />} />
                 <Route path="modules/:id" element={<ModulePage values={values} />} />
                 <Route path="about" element={<AboutPage />} />
@@ -54,6 +60,12 @@ export function SettingsApp() {
       </div>
     </MemoryRouter>
   );
+}
+
+/** Browser previews can open a page directly with `#settings/companion`. */
+function previewPath() {
+  const hash = location.hash.replace(/^#/, "");
+  return hash.startsWith("settings/") ? `/${hash.slice("settings/".length)}` : "/";
 }
 
 /** Fades each page in when the route changes. */

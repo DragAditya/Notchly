@@ -26,6 +26,12 @@ export const activitySettings = {
     description: "activities.bluetooth.desc",
     default: true,
   },
+  wifi: {
+    key: "activities.wifi",
+    label: "activities.wifi.label",
+    description: "activities.wifi.desc",
+    default: true,
+  },
   power: {
     key: "activities.power",
     label: "activities.power.label",
@@ -46,5 +52,6 @@ export const SOURCE_SETTING: Record<string, SettingDef> = {
   battery: activitySettings.battery,
   brightness: activitySettings.brightness,
   bluetooth: activitySettings.bluetooth,
+  wifi: activitySettings.wifi,
   power: activitySettings.power,
 };

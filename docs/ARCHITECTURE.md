@@ -57,9 +57,9 @@ Providers must degrade gracefully when a Windows API is unavailable. A missing m
 
 ## Persistence
 
-- Settings: `%APPDATA%\com.dragaditya.notchly\settings.json`
-- Shelf: `%APPDATA%\com.dragaditya.notchly\shelf.json`
-- On first run, Notchly copies settings and shelf data from the legacy `com.heyyczer.dynamicisland` folder when it is present.
+- Settings: `%APPDATA%\com.notchly.desktop\settings.json`
+- Shelf: `%APPDATA%\com.notchly.desktop\shelf.json`
+- On first run, Notchly copies data from a previous app-data folder (`com.dragaditya.notchly` or `com.heyyczer.dynamicisland`) when it is present.
 - Secrets such as the Gemini API key live in the local settings file and are never sent to Notchly maintainers.
 - GitHub tokens can use the operating system credential store when configured that way.
 
@@ -86,4 +86,4 @@ GitHub Actions builds tagged releases on Windows:
 4. Upload NSIS, MSI and portable artifacts.
 5. Publish a GitHub Release.
 
-The app's updater endpoint points at `DragAditya/Notchly` releases. Signing keys are supplied through repository secrets and are not committed.
+The app's updater endpoint points at this repository's releases. Signing keys are supplied through repository secrets and are not committed.

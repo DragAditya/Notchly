@@ -20,7 +20,37 @@ export const musicSettings = {
     description: "music.video.desc",
     default: false,
   },
+  showArtwork: {
+    key: "music.showArtwork",
+    label: "music.showArtwork.label",
+    description: "music.showArtwork.desc",
+    default: true,
+  },
+  showProgress: {
+    key: "music.showProgress",
+    label: "music.showProgress.label",
+    description: "music.showProgress.desc",
+    default: true,
+  },
+  hideWhenPaused: {
+    key: "music.hideWhenPaused",
+    label: "music.hideWhenPaused.label",
+    description: "music.hideWhenPaused.desc",
+    default: false,
+  },
 } satisfies Record<string, SettingDef>;
+
+export type MusicSource = "system" | "spotify" | "browser";
+
+/** Which player wins when several apps expose a media session. */
+export const musicSourceSettings = {
+  sourcePriority: {
+    key: "music.sourcePriority",
+    label: "music.source.label",
+    description: "music.source.desc",
+    default: "system",
+  } as SettingDef<MusicSource>,
+};
 
 export type LyricsMode = "line" | "word";
 

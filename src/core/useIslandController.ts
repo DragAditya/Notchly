@@ -40,8 +40,11 @@ export function useIslandController(modules: IslandModule[]) {
   const attentionId = forcedId ?? entries.find((e) => e.view.attention)?.module.id ?? null;
   const tabMemory = useTabMemory(attentionId);
   const { peekId, peek, endPeek } = usePeek(entries);
+  const hoverAction = readSetting(settings, generalSettings.hoverAction);
   const hover = useIslandHover({
-    expandOnHover: readSetting(settings, generalSettings.expandOnHover),
+    // "Pop companion" and "Do nothing" keep the island resting on hover.
+    expandOnHover: hoverAction === "expand" && readSetting(settings, generalSettings.expandOnHover),
+    hoverDelay: readSetting(settings, generalSettings.hoverDelay),
     onOpen: tabMemory.onIslandOpen,
     onClose: tabMemory.onIslandClose,
   });
@@ -111,6 +114,9 @@ export function useIslandController(modules: IslandModule[]) {
     tabs,
     launcher: mode === "expanded" && focusedId === LAUNCHER,
     mode,
+    fullscreen,
+    hoverAction,
+    hovering: hover.hovering,
     primary,
     secondary,
     focused,

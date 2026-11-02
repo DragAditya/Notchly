@@ -13,7 +13,8 @@ startSettings();
 
 // Same bundle for every window; pick the UI by window label
 // (or `#settings` / `#pip` when previewing in a browser).
-const label = isTauri ? getCurrentWindow().label : location.hash.slice(1) || "island";
+const hash = location.hash.slice(1);
+const label = isTauri ? getCurrentWindow().label : hash.split("/")[0] || "island";
 
 // No browser context menu (reload, inspect…) in release builds.
 if (import.meta.env.PROD) document.addEventListener("contextmenu", (e) => e.preventDefault());

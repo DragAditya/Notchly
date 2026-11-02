@@ -3,14 +3,19 @@ import { Glyph } from "../../../components/Glyph";
 import { providerAction } from "../../../core/bridge";
 import { useT, type Translate } from "../../../core/i18n";
 import { useIsland } from "../../../core/island";
+import { useSetting } from "../../../core/settings";
 import { formatAgo, useNow } from "../../ai-agents/common/format";
 import { attachFiles, draftRequest, requestAskFocus, useAskEnabled } from "../../ask/store";
 import { addToShelf } from "../../shelf/actions";
+import { formatRemaining, isPendingScreenshot } from "../screenshot";
+import { clipboardSettings } from "../settings";
 import { CLIPBOARD_PROVIDER, CLIPBOARD_YELLOW, clipAction, type ClipboardState, type ClipItem } from "../types";
 
 const DRAG_THRESHOLD = 5;
 /** How long "Copied!" / "Kept" stays on a row. */
 const FEEDBACK_MS = 1400;
+
+type Done = "copied" | "kept" | "pasted";
 
 /** What the item is, on one line ("Picture 1920×1080", "3 files", the text). */
 export function clipTitle(t: Translate, item: ClipItem): string {
@@ -21,6 +26,12 @@ export function clipTitle(t: Translate, item: ClipItem): string {
   return item.preview ?? "";
 }
 
+function doneLabel(t: Translate, done: Done) {
+  if (done === "copied") return t("clipboard.copiedAgain");
+  if (done === "pasted") return t("clipboard.pasted");
+  return t("clipboard.kept");
+}
+
 /**
  * The latest picture, shown big while it's fresh (a screenshot that just
  * opened the island), then the history. `hero` comes from the module view so
@@ -28,6 +39,7 @@ export function clipTitle(t: Translate, item: ClipItem): string {
  */
 export function ClipboardPanel({ state, hero }: { state: ClipboardState | undefined; hero: boolean }) {
   const t = useT();
+  const imagePreview = useSetting(clipboardSettings.imagePreview);
   const items = state?.items ?? [];
   const [first, ...rest] = items;
 
@@ -43,17 +55,17 @@ export function ClipboardPanel({ state, hero }: { state: ClipboardState | undefi
       </div>
       {hero && first ? (
         <>
-          <Hero item={first} />
+          <Hero item={first} showImage={imagePreview} />
           <ul className="clip-list" data-scroll>
             {rest.map((item) => (
-              <Row key={item.id} item={item} />
+              <Row key={item.id} item={item} showImage={imagePreview} />
             ))}
           </ul>
         </>
       ) : (
         <ul className="clip-list" data-scroll>
           {items.map((item) => (
-            <Row key={item.id} item={item} />
+            <Row key={item.id} item={item} showImage={imagePreview} />
           ))}
           {!items.length && (
             <li className="clip-empty">
@@ -70,17 +82,23 @@ export function ClipboardPanel({ state, hero }: { state: ClipboardState | undefi
 function useItemActions(item: ClipItem) {
   const island = useIsland();
   const askEnabled = useAskEnabled();
-  const [done, setDone] = useState<"copied" | "kept" | null>(null);
+  const pasteBehavior = useSetting(clipboardSettings.pasteBehavior);
+  const [done, setDone] = useState<Done | null>(null);
   const timer = useRef<number | undefined>(undefined);
-  const flash = (what: "copied" | "kept") => {
+  const flash = (what: Done) => {
     setDone(what);
     window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setDone(null), FEEDBACK_MS);
   };
 
+  const copy = () => clipAction("copy", item.id).then(() => flash("copied"));
+  const paste = () => clipAction("paste", item.id).then(() => flash("pasted"));
+
   return {
     done,
-    copy: () => clipAction("copy", item.id).then(() => flash("copied")),
+    copy,
+    activate: pasteBehavior === "paste" ? paste : copy,
+    // Keep on the shelf (the existing action for pictures and files).
     keep: async () => {
       const paths = await clipAction<string[]>("keep", item.id);
       if (paths?.length) {
@@ -129,8 +147,8 @@ function useDragOut(item: ClipItem) {
   };
 }
 
-function Visual({ item, size }: { item: ClipItem; size: number }) {
-  if (item.kind === "image" && item.thumb) {
+function Visual({ item, size, showImage = true }: { item: ClipItem; size: number; showImage?: boolean }) {
+  if (showImage && item.kind === "image" && item.thumb) {
     return <img className="clip-thumb" src={item.thumb} alt="" draggable={false} style={{ width: size, height: size }} />;
   }
   return (
@@ -142,48 +160,68 @@ function Visual({ item, size }: { item: ClipItem; size: number }) {
 
 function Meta({ item }: { item: ClipItem }) {
   const t = useT();
-  const now = useNow(30_000);
+  const pending = isPendingScreenshot(item);
+  const now = useNow(pending ? 1000 : 30_000);
   const parts = [
+    pending ? t("clipboard.cleanup.deletesIn", { time: formatRemaining((item.deleteAt ?? 0) - now) }) : null,
     item.kind === "text" && item.chars != null && item.chars > 40 ? t("clipboard.chars", { n: item.chars }) : null,
     item.kind === "files" && item.names.length > 1 ? item.names.slice(0, 3).join(", ") : null,
     item.source,
-    formatAgo(t, item.copiedAt, now),
+    pending ? null : formatAgo(t, item.copiedAt, now),
   ].filter(Boolean);
-  return <span className="clip-meta">{parts.join(" · ")}</span>;
+  return <span className={pending ? "clip-meta is-countdown" : "clip-meta"}>{parts.join(" · ")}</span>;
 }
 
-function Row({ item }: { item: ClipItem }) {
+function Row({ item, showImage }: { item: ClipItem; showImage: boolean }) {
   const t = useT();
   const a = useItemActions(item);
   const drag = useDragOut(item);
+  const pending = isPendingScreenshot(item);
 
   return (
-    <li className="clip-row" title={t("clipboard.copy")} data-no-drag onClick={a.copy} {...drag}>
-      <Visual item={item} size={36} />
+    <li className="clip-row" title={t("clipboard.copy")} data-no-drag onClick={a.activate} {...drag}>
+      <Visual item={item} size={36} showImage={showImage} />
       <div className="clip-texts">
         <span className={`clip-title ${item.kind === "text" ? "is-text" : ""}`}>{clipTitle(t, item)}</span>
-        {a.done ? <span className="clip-done">✓ {t(a.done === "copied" ? "clipboard.copiedAgain" : "clipboard.kept")}</span> : <Meta item={item} />}
+        {a.done ? (
+          <span className="clip-done">✓ {doneLabel(t, a.done)}</span>
+        ) : (
+          <Meta item={item} />
+        )}
       </div>
       <div className="clip-actions">
         {a.ask && <IconButton icon="chat" label={t("clipboard.ask")} onClick={a.ask} />}
-        {item.kind !== "text" && <IconButton icon="folder" label={t("clipboard.keep")} onClick={a.keep} />}
-        <IconButton icon="×" label={t("clipboard.remove")} onClick={a.remove} />
+        {item.kind !== "text" && (
+          <IconButton icon="folder" label={t("clipboard.keep")} onClick={a.keep} />
+        )}
+        <IconButton
+          icon="×"
+          label={pending ? t("clipboard.cleanup.deleteHint") : t("clipboard.remove")}
+          onClick={a.remove}
+        />
       </div>
     </li>
   );
 }
 
-function Hero({ item }: { item: ClipItem }) {
+function Hero({ item, showImage }: { item: ClipItem; showImage: boolean }) {
   const t = useT();
   const a = useItemActions(item);
   const drag = useDragOut(item);
+  const pending = isPendingScreenshot(item);
 
   return (
     <div className="clip-hero" data-no-drag {...drag}>
-      {item.thumb && <img className="clip-hero-img" src={item.thumb} alt="" draggable={false} />}
+      {(showImage || pending) && item.thumb && (
+        <img className="clip-hero-img" src={item.thumb} alt="" draggable={false} />
+      )}
       <div className="clip-hero-side">
         <span className="clip-title">{clipTitle(t, item)}</span>
-        {a.done ? <span className="clip-done">✓ {t(a.done === "copied" ? "clipboard.copiedAgain" : "clipboard.kept")}</span> : <Meta item={item} />}
+        {a.done ? (
+          <span className="clip-done">✓ {doneLabel(t, a.done)}</span>
+        ) : (
+          <Meta item={item} />
+        )}
         <div className="clip-hero-buttons">
           <button className="clip-pill" title={t("clipboard.copy")} onClick={a.copy}>
             <Glyph name="copy" size={11} /> {t("clipboard.short.copy")}
@@ -193,9 +231,22 @@ function Hero({ item }: { item: ClipItem }) {
               <Glyph name="chat" size={11} /> {t("clipboard.short.ask")}
             </button>
           )}
-          <button className="clip-pill" title={t("clipboard.keep")} onClick={a.keep}>
-            <Glyph name="folder" size={11} /> {t("clipboard.short.keep")}
-          </button>
+          {pending ? (
+            <button className="clip-pill is-keep" title={t("clipboard.keep")} onClick={a.keep}>
+              <Glyph name="folder" size={11} /> {t("clipboard.cleanup.keep")}
+            </button>
+          ) : (
+            item.kind !== "text" && (
+              <button className="clip-pill" title={t("clipboard.keep")} onClick={a.keep}>
+                <Glyph name="folder" size={11} /> {t("clipboard.short.shelf")}
+              </button>
+            )
+          )}
+          {pending && (
+            <button className="clip-pill is-danger" title={t("clipboard.cleanup.deleteHint")} onClick={a.remove}>
+              × {t("clipboard.cleanup.delete")}
+            </button>
+          )}
           <button className="clip-pill" title={t("clipboard.open")} onClick={a.open}>
             <Glyph name="open" size={11} /> {t("clipboard.open")}
           </button>

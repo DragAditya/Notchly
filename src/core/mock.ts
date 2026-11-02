@@ -23,8 +23,11 @@ export function startMock() {
 	const params = new URLSearchParams(location.search);
 	const demo = params.has("demo");
 	const signals = params.has("signals");
+	const signalOnly = params.get("signal");
+	const musicOnly = params.has("music");
+	const notifOnly = params.has("notif");
 	let start = Date.now();
-	let playing = true;
+	let playing = !notifOnly;
 	let track = 0;
 
 	const publish = () =>
@@ -47,8 +50,39 @@ export function startMock() {
 
 	publish();
 	setInterval(publish, 1000);
-	if (signals) {
-		publishSignalPreview();
+	if (musicOnly) {
+		publishLocal("activities", { apiPort: null, hasBattery: true, items: [] });
+		publishLocal("notifications", { access: "allowed", error: null, items: [] });
+	} else if (notifOnly) {
+		publishLocal("activities", { apiPort: null, hasBattery: true, items: [] });
+		publishLocal("notifications", {
+			access: "allowed",
+			error: null,
+			items: [
+				{
+					id: 7,
+					app: "WhatsApp",
+					aumid: "",
+					logo: null,
+					title: "Maya: Are you free at 6?",
+					body: "I can move it later if that helps.",
+					receivedAt: Date.now() - 20_000,
+					read: false,
+				},
+				{
+					id: 6,
+					app: "Outlook",
+					aumid: "",
+					logo: null,
+					title: "Weekly sync moved to 3 PM",
+					body: "Calendar update",
+					receivedAt: Date.now() - 180_000,
+					read: false,
+				},
+			],
+		});
+	} else if (signals) {
+		publishSignalPreview(signalOnly);
 	} else if (demo) {
 		startDemo(start, () => {
 			track = 1;
@@ -63,7 +97,7 @@ export function startMock() {
 		publishClipboard(start);
 		publishCalendar(start);
 	}
-	publishMonitor();
+	if (!musicOnly && !notifOnly) publishMonitor();
 	setInterval(() => {
 		if (playing) emitLocal("music://level", 0.25 + Math.random() * 0.6);
 	}, 33);
@@ -209,10 +243,10 @@ function publishGithub(now: number) {
 		author: "octocat",
 		createdAt: new Date(now - 3_600_000).toISOString(),
 	});
-	const newest = issue(128, "Island flickers when switching monitors", "DragAditya/Notchly");
+	const newest = issue(128, "Island flickers when switching monitors", "notchly/app");
 	publishLocal("github", {
 		repos: [
-			{ name: "DragAditya/Notchly", openIssues: 7, latest: newest, error: null },
+			{ name: "notchly/app", openIssues: 7, latest: newest, error: null },
 			{ name: "tauri-apps/tauri", openIssues: 1284, latest: issue(14210, "[bug] Webview2 crash on resume", "tauri-apps/tauri"), error: null },
 			{ name: "someone/private-thing", openIssues: null, latest: null, error: "notFound" },
 		],
@@ -222,7 +256,7 @@ function publishGithub(now: number) {
 		rateLimitedUntil: null,
 		loading: false,
 		updatedAt: now - 90_000,
-		newIssue: { repo: "DragAditya/Notchly", issue: newest, seenAt: now },
+		newIssue: { repo: "notchly/app", issue: newest, seenAt: now },
 	});
 }
 
@@ -358,17 +392,23 @@ function publishWindowsIsland(now: number) {
 }
 
 /** `?signals` cycles every premium system-card tone for visual review. */
-function publishSignalPreview() {
-	const states = [
-		{ title: "Volume", subtitle: "System output", icon: "volume", color: "#0A84FF", progress: 0.68, tone: "wave", source: "volume" },
-		{ title: "Brightness", subtitle: "Display brightness", icon: "brightness", color: "#FFD60A", progress: 0.42, tone: "slide", source: "brightness" },
-		{ title: "Charging", subtitle: "Plugged in", icon: "charging", color: "#30D158", progress: 0.64, tone: "zap", source: "battery" },
-		{ title: "Fully charged", subtitle: "Ready to unplug", icon: "charging", color: "#30D158", progress: 1, tone: "burst", source: "battery" },
-		{ title: "Low battery", subtitle: "12% left. Plug in the charger.", icon: "battery", color: "#FF9F0A", progress: 0.12, tone: "shake", source: "battery" },
-		{ title: "AirBuds Pro", subtitle: "Connected", icon: "headphones", color: "#0A84FF", progress: null, tone: "orbit", source: "bluetooth" },
-		{ title: "AirBuds Pro", subtitle: "Disconnected", icon: "headphones", color: "#FF453A", progress: null, tone: "glitch", source: "bluetooth" },
-		{ title: "On battery", subtitle: "Unplugged", icon: "battery", color: "#30D158", progress: 0.8, tone: "drop", source: "battery" },
+function publishSignalPreview(only: string | null = null) {
+	const all = [
+		{ key: "volume", title: "Volume", subtitle: "System output", icon: "volume", color: "#0A84FF", progress: 0.68, tone: "wave", source: "volume" },
+		{ key: "brightness", title: "Brightness", subtitle: "Display brightness", icon: "brightness", color: "#FFD60A", progress: 0.42, tone: "slide", source: "brightness" },
+		{ key: "charging", title: "Charging", subtitle: "Plugged in", icon: "charging", color: "#30D158", progress: 0.64, tone: "zap", source: "battery" },
+		{ key: "full", title: "Fully charged", subtitle: "Ready to unplug", icon: "charging", color: "#30D158", progress: 1, tone: "burst", source: "battery" },
+		{ key: "low", title: "Low battery", subtitle: "12% left. Plug in the charger.", icon: "battery", color: "#FF9F0A", progress: 0.12, tone: "shake", source: "battery" },
+		{ key: "bluetooth", title: "AirBuds Pro", subtitle: "Connected", icon: "headphones", color: "#0A84FF", progress: null, tone: "orbit", source: "bluetooth" },
+		{ key: "bluetooth-search", title: "AirBuds Pro", subtitle: "Searching nearby", icon: "headphones", color: "#0A84FF", progress: null, tone: "scan", source: "bluetooth" },
+		{ key: "bluetooth-off", title: "AirBuds Pro", subtitle: "Disconnected", icon: "headphones", color: "#FF453A", progress: null, tone: "glitch", source: "bluetooth" },
+		{ key: "wifi", title: "Home Wi-Fi", subtitle: "Connected · signal 86%", icon: "wifi", color: "#0A84FF", progress: 0.86, tone: "wifi", source: "wifi" },
+		{ key: "wifi-search", title: "Wi-Fi", subtitle: "Searching for networks", icon: "wifi", color: "#0A84FF", progress: null, tone: "scan", source: "wifi" },
+		{ key: "wifi-off", title: "Wi-Fi", subtitle: "Disconnected", icon: "wifi", color: "#FF453A", progress: null, tone: "wifi-off", source: "wifi" },
+		{ key: "battery", title: "On battery", subtitle: "Unplugged", icon: "battery", color: "#30D158", progress: 0.8, tone: "drop", source: "battery" },
 	];
+	const states = only ? all.filter((state) => state.key === only) : all;
+	if (!states.length) return;
 	let index = 0;
 	const tick = () => {
 		const state = states[index++ % states.length];
@@ -415,7 +455,7 @@ function publishClipboard(now: number) {
 	const history = [
 		item(3, { preview: "netstat -ano | findstr :5199", chars: 28, source: "Visual Studio Code", copiedAt: now - 40_000 }),
 		item(2, { kind: "files", names: ["report.pdf", "cover.png"], source: "Windows Explorer", copiedAt: now - 300_000 }),
-		item(1, { preview: "https://github.com/DragAditya/Notchly/issues/128", chars: 61, source: "Google Chrome", copiedAt: now - 900_000 }),
+		item(1, { preview: "https://github.com/notchly/app/issues/128", chars: 61, source: "Google Chrome", copiedAt: now - 900_000 }),
 	];
 	publishLocal("clipboard", { items: history });
 	setTimeout(() => {

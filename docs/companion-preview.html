@@ -1,0 +1,1316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notchly companion — live preview</title>
+<style>
+	:root {
+		color-scheme: dark;
+		--ink: #f5f5f7;
+		--muted: #a3a3af;
+		--faint: #73737f;
+		--line: rgba(255, 255, 255, 0.09);
+		--panel: rgba(255, 255, 255, 0.045);
+	}
+	* { box-sizing: border-box; }
+	html { min-height: 100%; background: #08080b; }
+	body {
+		margin: 0;
+		min-height: 100vh;
+		color: var(--ink);
+		font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		background:
+			radial-gradient(circle at 18% -5%, rgba(78, 122, 255, 0.2), transparent 34%),
+			radial-gradient(circle at 82% 2%, rgba(191, 90, 242, 0.13), transparent 30%),
+			#08080b;
+	}
+	body::before {
+		content: "";
+		position: fixed;
+		inset: 0;
+		pointer-events: none;
+		opacity: 0.25;
+		background-image:
+			linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+		background-size: 48px 48px;
+		mask-image: linear-gradient(to bottom, #000, transparent 80%);
+	}
+	button { font: inherit; }
+	.page {
+		position: relative;
+		width: min(1120px, calc(100% - 48px));
+		margin: 0 auto;
+		padding: 52px 0 72px;
+	}
+	.top {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 28px;
+		margin-bottom: 34px;
+	}
+	.eyebrow {
+		margin: 0 0 10px;
+		color: var(--faint);
+		font-size: 11px;
+		font-weight: 650;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+	}
+	h1 {
+		margin: 0;
+		font-size: clamp(34px, 5.4vw, 58px);
+		font-weight: 720;
+		line-height: 1.01;
+		letter-spacing: -0.045em;
+	}
+	h1 span { color: var(--faint); font-weight: 420; }
+	.lede {
+		max-width: 650px;
+		margin: 17px 0 0;
+		color: var(--muted);
+		font-size: 15px;
+		line-height: 1.65;
+	}
+	.status {
+		display: inline-flex;
+		align-items: center;
+		gap: 9px;
+		flex: none;
+		padding: 9px 13px;
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.045);
+		color: #cfcfda;
+		font-size: 12px;
+		white-space: nowrap;
+	}
+	.status-dot {
+		width: 7px;
+		height: 7px;
+		border-radius: 50%;
+		background: #30d158;
+		box-shadow: 0 0 12px rgba(48, 209, 88, 0.9);
+		animation: status-pulse 2.2s ease-in-out infinite;
+	}
+	.hero {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 18px;
+	}
+	.stage-card {
+		padding: 18px;
+		border: 1px solid var(--line);
+		border-radius: 24px;
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.016));
+		box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+	}
+	.stage-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 16px;
+		margin-bottom: 14px;
+		color: #dedee6;
+		font-size: 13px;
+	}
+	.tag {
+		color: var(--faint);
+		font-size: 11px;
+		font-variant-numeric: tabular-nums;
+		letter-spacing: 0.02em;
+	}
+	.stage {
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		height: 172px;
+		overflow: hidden;
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 18px;
+		background:
+			radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.09), transparent 54%),
+			linear-gradient(145deg, #121217, #09090d 72%);
+	}
+	.stage::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		opacity: 0.55;
+		background-image:
+			linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+		background-size: 28px 28px;
+		mask-image: linear-gradient(to bottom, #000, transparent 88%);
+	}
+	.stage::after {
+		content: "";
+		position: absolute;
+		top: -68px;
+		left: 50%;
+		width: 300px;
+		height: 140px;
+		border-radius: 50%;
+		background: rgba(92, 140, 255, 0.16);
+		filter: blur(58px);
+		transform: translateX(-50%);
+	}
+	.island-scale {
+		position: relative;
+		z-index: 1;
+		margin-top: 8px;
+		transform: scale(2.2);
+		transform-origin: top center;
+	}
+	.island-scale.windows-scale { margin-top: 24px; }
+	.island {
+		display: flex;
+		width: 150px;
+		height: 34px;
+		overflow: visible;
+		background: #000;
+		box-shadow:
+			0 12px 34px rgba(0, 0, 0, 0.7),
+			0 0 0 1px rgba(255, 255, 255, 0.06);
+	}
+	.island.dynamic { border-radius: 0 0 17px 17px; }
+	.island.windows { width: 176px; border-radius: 17px; }
+	.island .companion-idle { width: 100%; height: 100%; }
+	.island .idle-clock { color: #fff; }
+	.stage-note {
+		margin: 14px 2px 0;
+		color: var(--faint);
+		font-size: 12px;
+		line-height: 1.5;
+	}
+	.pet-section {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) minmax(330px, 0.92fr);
+		gap: 28px;
+		align-items: center;
+		margin-top: 22px;
+		padding: 26px;
+		border: 1px solid var(--line);
+		border-radius: 28px;
+		background:
+			radial-gradient(circle at 78% 45%, rgba(120, 90, 255, 0.12), transparent 38%),
+			linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.014));
+	}
+	.pet-copy h2 {
+		margin: 0;
+		font-size: clamp(26px, 3.2vw, 38px);
+		letter-spacing: -0.04em;
+	}
+	.pet-copy > p:not(.eyebrow) {
+		max-width: 500px;
+		margin: 13px 0 0;
+		color: var(--muted);
+		font-size: 14px;
+		line-height: 1.65;
+	}
+	.controls-label {
+		margin: 20px 0 0;
+		color: var(--faint);
+		font-size: 10px;
+		font-weight: 650;
+		letter-spacing: 0.18em;
+		text-transform: uppercase;
+	}
+	.mood-picker,
+	.action-picker {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 7px;
+		margin-top: 9px;
+	}
+	.mood-picker button,
+	.action-picker button {
+		appearance: none;
+		padding: 7px 11px;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+		border-radius: 999px;
+		background: rgba(255, 255, 255, 0.035);
+		color: #c9c9d4;
+		font-size: 11.5px;
+		cursor: pointer;
+		transition:
+			background 0.18s ease,
+			border-color 0.18s ease,
+			color 0.18s ease,
+			transform 0.18s ease;
+	}
+	.mood-picker button:hover,
+	.action-picker button:hover {
+		border-color: rgba(255, 255, 255, 0.24);
+		background: rgba(255, 255, 255, 0.075);
+		transform: translateY(-1px);
+	}
+	.mood-picker button.active {
+		border-color: #f5f5f7;
+		background: #f5f5f7;
+		color: #09090d;
+	}
+	.mood-picker button:focus-visible,
+	.action-picker button:focus-visible,
+	.mood-card:focus-visible {
+		outline: 2px solid rgba(255, 255, 255, 0.75);
+		outline-offset: 3px;
+	}
+	.pet-cam {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		min-height: 268px;
+		overflow: hidden;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 24px;
+		background:
+			radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.1), transparent 56%),
+			#050507;
+	}
+	.pet-cam::before,
+	.pet-cam::after {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		border: 1px solid rgba(255, 255, 255, 0.055);
+		border-radius: 50%;
+		transform: translate(-50%, -50%);
+	}
+	.pet-cam::before { width: 210px; height: 210px; }
+	.pet-cam::after { width: 300px; height: 300px; opacity: 0.55; }
+	.pet-cam-inner {
+		position: relative;
+		z-index: 1;
+		width: 150px;
+		height: 34px;
+		transform: scale(2.8);
+		transform-origin: center;
+	}
+	.pet-cam-inner .companion-idle { height: 100%; padding: 0; }
+	.pet-label {
+		position: absolute;
+		bottom: 18px;
+		left: 50%;
+		z-index: 2;
+		color: var(--faint);
+		font-size: 10px;
+		font-weight: 650;
+		letter-spacing: 0.2em;
+		text-transform: uppercase;
+		transform: translateX(-50%);
+	}
+	.moods { margin-top: 42px; }
+	.section-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-end;
+		gap: 24px;
+		margin-bottom: 18px;
+	}
+	.section-head h2 {
+		margin: 0;
+		font-size: clamp(24px, 3vw, 32px);
+		letter-spacing: -0.035em;
+	}
+	.hint { margin: 0 0 4px; color: var(--faint); font-size: 12px; }
+	.mood-grid {
+		display: grid;
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+		gap: 12px;
+	}
+	.mood-card {
+		appearance: none;
+		padding: 16px 10px 13px;
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		border-radius: 18px;
+		background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.012));
+		color: var(--ink);
+		text-align: center;
+		cursor: pointer;
+		transition:
+			border-color 0.2s ease,
+			background 0.2s ease,
+			transform 0.2s ease;
+	}
+	.mood-card:hover {
+		border-color: rgba(255, 255, 255, 0.22);
+		background: rgba(255, 255, 255, 0.06);
+		transform: translateY(-2px);
+	}
+	.mood-card.active {
+		border-color: rgba(255, 255, 255, 0.38);
+		background: rgba(255, 255, 255, 0.075);
+	}
+	.mini-island {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 150px;
+		height: 34px;
+		margin: 0 auto 11px;
+		border-radius: 17px;
+		background: #000;
+		box-shadow:
+			0 8px 22px rgba(0, 0, 0, 0.48),
+			0 0 0 1px rgba(255, 255, 255, 0.055);
+	}
+	.mini-island .companion-idle { width: 100%; height: 100%; padding: 0; }
+	.mood-name { display: block; font-size: 12px; color: #d4d4de; }
+	.mood-note { display: block; margin-top: 3px; color: var(--faint); font-size: 10px; }
+	.footer {
+		margin-top: 42px;
+		padding-top: 18px;
+		border-top: 1px solid rgba(255, 255, 255, 0.07);
+		color: var(--faint);
+		font-size: 12px;
+		line-height: 1.7;
+	}
+	.footer strong { color: #b8b8c4; font-weight: 560; }
+	@keyframes status-pulse {
+		0%, 100% { opacity: 0.65; transform: scale(0.9); }
+		50% { opacity: 1; transform: scale(1.15); }
+	}
+	@media (max-width: 900px) {
+		.hero,
+		.pet-section { grid-template-columns: 1fr; }
+		.mood-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+		.top { flex-direction: column; }
+	}
+	@media (max-width: 620px) {
+		.page { width: min(100% - 28px, 1120px); padding-top: 34px; }
+		.mood-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+		.section-head { align-items: flex-start; flex-direction: column; gap: 8px; }
+		.stage { height: 148px; }
+		.island-scale { transform: scale(1.9); }
+		.pet-section { padding: 18px; }
+	}
+</style>
+<style>
+/* The live component styles are injected here by the preview builder. */
+/* The companion at rest: two eyes in the island, no face or mouth. */
+.companion-idle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	height: 100%;
+	padding: 0 12px;
+}
+
+.companion-idle.has-clock {
+	justify-content: space-between;
+	padding-left: 18px;
+	padding-right: 14px;
+}
+
+.companion-idle .idle-clock {
+	flex: none;
+	font-size: 13px;
+	opacity: 0.9;
+}
+
+/* ------------------------------------------------------------------ */
+/* Eyes                                                               */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+	--eye-w: 17px;
+	--eye-h: 24px;
+	--eye-radius: 50%;
+	--gaze-x: 0px;
+	--gaze-y: 0px;
+	--action-look-x: 0px;
+	--action-look-y: 0px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+	filter: drop-shadow(0 0 9px var(--eye-glow));
+	translate: calc(var(--gaze-x) + var(--action-look-x)) calc(var(--gaze-y) + var(--action-look-y));
+	scale: var(--pet-scale, 1);
+	animation: pet-breathe 4.8s ease-in-out infinite;
+	transition:
+		translate 0.22s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, translate, scale;
+}
+
+/* A faint aura keeps the eyes from looking like two stickers. */
+.companion-eyes::before {
+	content: "";
+	position: absolute;
+	width: 78px;
+	height: 26px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, var(--eye-glow), transparent 70%);
+	opacity: 0.22;
+	filter: blur(5px);
+	pointer-events: none;
+	animation: pet-aura 4.8s ease-in-out infinite;
+}
+
+.companion-eye {
+	position: relative;
+	display: block;
+	width: var(--eye-w);
+	height: var(--eye-h);
+	transform-origin: center;
+	scale: var(--eye-scale-x, 1) var(--eye-scale-y, 1);
+	translate: var(--eye-x, 0px) var(--eye-y, 0px);
+	rotate: var(--eye-rotate, 0deg);
+	transition:
+		width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		rotate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, scale, translate, width, height;
+}
+
+.companion-eye.left {
+	--eye-rotate: -1deg;
+}
+.companion-eye.right {
+	--eye-rotate: 1deg;
+}
+
+.companion-blinker {
+	position: absolute;
+	inset: 0;
+	display: block;
+	transform-origin: center;
+	scale: var(--action-scale-x, 1) var(--action-scale-y, 1);
+	translate: var(--action-x, 0px) var(--action-y, 0px);
+	animation: pet-blink 7.2s ease-in-out infinite;
+	transition:
+		scale 0.16s ease-out,
+		translate 0.16s ease-out;
+	will-change: transform, scale, translate;
+}
+
+.companion-eye.right .companion-blinker {
+	animation-delay: 0.16s;
+}
+
+.companion-eye-shape {
+	position: absolute;
+	inset: 0;
+	display: block;
+	border-radius: var(--eye-radius);
+	background:
+		radial-gradient(circle at 50% 38%, #fff 0 18%, transparent 60%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 58%, color-mix(in srgb, var(--eye-color) 60%, transparent) 100%);
+	box-shadow:
+		0 0 12px var(--eye-glow),
+		inset 0 0 4px rgba(255, 255, 255, 0.55);
+	transition:
+		background 0.35s ease,
+		box-shadow 0.35s ease,
+		border-radius 0.35s ease;
+}
+
+/* ------------------------------------------------------------------ */
+/* Autonomous pet behaviours                                          */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes[data-action="look-left"] {
+	--action-look-x: -2.4px;
+}
+.companion-eyes[data-action="look-right"] {
+	--action-look-x: 2.4px;
+}
+.companion-eyes[data-action="peek"] {
+	--action-look-x: 1.4px;
+}
+.companion-eyes[data-action="peek"] .companion-eye.right .companion-blinker {
+	--action-scale-y: 0.1;
+}
+.companion-eyes[data-action="squint"] .companion-blinker {
+	--action-scale-y: 0.56;
+}
+.companion-eyes[data-action="perk"] {
+	--pet-scale: 1.07;
+	--action-look-y: -1px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Moods                                                              */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes[data-mood="calm"] {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+}
+
+.companion-eyes[data-mood="curious"] {
+	--eye-w: 19px;
+	--eye-h: 25px;
+	--eye-color: #bdefff;
+	--eye-glow: rgba(100, 210, 255, 0.62);
+	animation: pet-curious 5.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="curious"] .companion-eye.right {
+	--eye-rotate: 6deg;
+	--eye-x: 1px;
+	--eye-scale-x: 1.05;
+	--eye-scale-y: 1.08;
+}
+
+.companion-eyes[data-mood="happy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-happy 2.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.left {
+	--eye-rotate: -4deg;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.right {
+	--eye-rotate: 4deg;
+}
+
+.companion-eyes[data-mood="excited"] {
+	--eye-w: 22px;
+	--eye-h: 24px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+	animation: pet-excited 0.9s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye {
+	animation: companion-hop 0.72s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye.right {
+	animation-delay: 0.12s;
+}
+.companion-eye.is-chevron svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+}
+.companion-eye.is-arc {
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-arc svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.4;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+
+.companion-eyes[data-mood="alert"] {
+	--eye-w: 15px;
+	--eye-h: 25px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+}
+.companion-eyes[data-mood="alert"] .companion-eye {
+	animation: companion-alert 1.5s ease-in-out infinite;
+}
+/* The little emphasis lines on either side of an alert eye. */
+.companion-eyes[data-mood="alert"] .companion-eye::before,
+.companion-eyes[data-mood="alert"] .companion-eye::after {
+	content: "";
+	position: absolute;
+	width: 6px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--eye-color);
+	box-shadow:
+		0 6px 0 -0.2px var(--eye-color),
+		0 0 7px var(--eye-glow);
+	pointer-events: none;
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::before {
+	left: -10px;
+	top: 5px;
+	transform: rotate(-20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::after {
+	left: -11px;
+	top: 14px;
+	transform: rotate(20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.right::before {
+	right: -10px;
+	top: 5px;
+	transform: rotate(20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.right::after {
+	right: -11px;
+	top: 14px;
+	transform: rotate(-20deg);
+}
+
+.companion-eyes[data-mood="dizzy"] {
+	--eye-color: #b6ffb0;
+	--eye-glow: rgba(140, 255, 140, 0.6);
+}
+.companion-eye.is-spiral {
+	width: 23px;
+	height: 23px;
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-spiral .companion-blinker {
+	position: absolute;
+	inset: 0;
+	animation: none;
+}
+.companion-eye.is-spiral svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+	animation: companion-spin 1.4s linear infinite;
+	transform-origin: center;
+}
+.companion-eyes[data-mood="dizzy"] .companion-eye.left svg {
+	animation-direction: reverse;
+}
+
+.companion-eyes[data-mood="sleepy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #eaffdf;
+	--eye-glow: rgba(210, 255, 200, 0.48);
+	animation: pet-sleep 4.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"] .companion-blinker {
+	animation: none;
+}
+.companion-eyes[data-mood="sleepy"] .companion-eye {
+	animation: companion-sleep 4.2s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"]::after {
+	content: "z";
+	position: absolute;
+	top: -10px;
+	right: -8px;
+	color: var(--eye-color);
+	font-size: 10px;
+	font-weight: 650;
+	line-height: 1;
+	text-shadow: 0 0 7px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-zzz 3.2s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="charging"] {
+	--eye-w: 18px;
+	--eye-h: 25px;
+	--eye-color: #30d158;
+	--eye-glow: rgba(48, 209, 88, 0.65);
+	animation: pet-charge 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="charging"] .companion-eye-shape {
+	animation: companion-charge 1.5s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="low"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #ff7a8a;
+	--eye-glow: rgba(255, 110, 125, 0.62);
+	animation: pet-low 3.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="low"] .companion-eye {
+	--eye-rotate: 7deg;
+	--eye-y: 1px;
+}
+
+.companion-eyes[data-mood="music"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-music 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="music"]::after {
+	content: "♪";
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	color: var(--eye-color);
+	font-size: 13px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-note 2.4s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="love"] {
+	--eye-w: 22px;
+	--eye-h: 22px;
+	--eye-color: #ff5c8a;
+	--eye-glow: rgba(255, 92, 138, 0.65);
+	animation: pet-love 1.8s ease-in-out infinite;
+}
+.companion-eye.is-heart {
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-heart svg {
+	width: 100%;
+	height: 100%;
+	fill: var(--eye-color);
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+.companion-eyes[data-mood="love"]::after {
+	content: "✦";
+	position: absolute;
+	top: -8px;
+	right: -9px;
+	color: var(--eye-color);
+	font-size: 10px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-sparkle 1.8s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="surprised"] {
+	--eye-w: 22px;
+	--eye-h: 28px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.7);
+	animation:
+		pet-surprised 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both,
+		pet-breathe 4.8s 0.5s ease-in-out infinite;
+}
+.companion-eyes[data-mood="surprised"] .companion-eye {
+	animation: companion-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+/* ------------------------------------------------------------------ */
+/* Keyframes                                                          */
+/* ------------------------------------------------------------------ */
+
+@keyframes pet-breathe {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	50% {
+		transform: translateY(-0.7px) scale(1.018, 1.032);
+	}
+}
+
+@keyframes pet-aura {
+	0%,
+	100% {
+		opacity: 0.16;
+		transform: scale(0.94);
+	}
+	50% {
+		opacity: 0.28;
+		transform: scale(1.04);
+	}
+}
+
+@keyframes pet-blink {
+	0%,
+	39%,
+	43%,
+	90%,
+	94%,
+	100% {
+		transform: scaleY(1);
+	}
+	41%,
+	92% {
+		transform: scaleY(0.08);
+	}
+}
+
+@keyframes pet-curious {
+	0%,
+	100% {
+		transform: translateY(0) rotate(-1deg);
+	}
+	50% {
+		transform: translateY(-1px) rotate(1.5deg);
+	}
+}
+
+@keyframes pet-happy {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	40% {
+		transform: translateY(-1.5px) scale(1.02);
+	}
+	60% {
+		transform: translateY(-0.5px) scale(1.01);
+	}
+}
+
+@keyframes pet-excited {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	50% {
+		transform: translateY(-1.5px) scale(1.03);
+	}
+}
+
+@keyframes pet-sleep {
+	0%,
+	100% {
+		transform: translateY(0) scaleX(0.96);
+		opacity: 0.72;
+	}
+	50% {
+		transform: translateY(0.5px) scaleX(1.02);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-charge {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 7px var(--eye-glow));
+	}
+	50% {
+		filter: drop-shadow(0 0 14px var(--eye-glow));
+	}
+}
+
+@keyframes pet-low {
+	0%,
+	100% {
+		transform: translateY(0);
+		opacity: 0.82;
+	}
+	50% {
+		transform: translateY(0.6px);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-music {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-1.2px) rotate(0.6deg);
+	}
+}
+
+@keyframes pet-love {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+}
+
+@keyframes pet-surprised {
+	0% {
+		transform: scale(0.72);
+		opacity: 0.4;
+	}
+	70% {
+		transform: scale(1.06);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-note {
+	0%,
+	100% {
+		opacity: 0.55;
+		transform: translateY(0) rotate(-6deg);
+	}
+	50% {
+		opacity: 1;
+		transform: translateY(-3px) rotate(6deg);
+	}
+}
+
+@keyframes pet-sparkle {
+	0%,
+	100% {
+		opacity: 0.45;
+		transform: scale(0.8) rotate(0deg);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.15) rotate(18deg);
+	}
+}
+
+@keyframes pet-zzz {
+	0%,
+	100% {
+		opacity: 0.35;
+		transform: translateY(1px) scale(0.9);
+	}
+	50% {
+		opacity: 0.9;
+		transform: translateY(-2px) scale(1.08);
+	}
+}
+
+@keyframes companion-hop {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	45% {
+		transform: translateY(-2px) scale(1.06);
+	}
+}
+
+@keyframes companion-alert {
+	0%,
+	100% {
+		transform: translateX(0) scaleY(1);
+	}
+	25% {
+		transform: translateX(-0.8px) scaleY(0.94);
+	}
+	60% {
+		transform: translateX(0.8px) scaleY(1.02);
+	}
+}
+
+@keyframes companion-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes companion-sleep {
+	0%,
+	100% {
+		transform: scaleX(0.9);
+	}
+	50% {
+		transform: scaleX(1.05);
+	}
+}
+
+@keyframes companion-charge {
+	0%,
+	100% {
+		transform: scale(1);
+		box-shadow:
+			0 0 9px var(--eye-glow),
+			inset 0 0 4px rgba(255, 255, 255, 0.55);
+	}
+	50% {
+		transform: scale(1.06);
+		box-shadow:
+			0 0 16px var(--eye-glow),
+			inset 0 0 4px rgba(255, 255, 255, 0.7);
+	}
+}
+
+@keyframes companion-pop {
+	0% {
+		transform: scale(0.55);
+		opacity: 0.4;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.companion-eyes,
+	.companion-eyes::before,
+	.companion-eyes::after,
+	.companion-eye,
+	.companion-blinker,
+	.companion-eye-shape,
+	.companion-eye.is-spiral svg {
+		animation: none !important;
+	}
+}
+
+</style>
+</head>
+<body>
+<main class="page">
+	<header class="top">
+		<div>
+			<p class="eyebrow">Notchly · Companion</p>
+			<h1>Eyes-only pet <span>live preview</span></h1>
+			<p class="lede">
+				Simple glowing eyes, constant breathing, blinks, glances, squints and little winks.
+				No face, no mouth, no body — just two eyes that feel alive.
+			</p>
+		</div>
+		<div class="status"><span class="status-dot"></span> Always animated</div>
+	</header>
+
+	<section class="hero" aria-label="Island previews">
+		<article class="stage-card">
+			<div class="stage-head"><span>Dynamic island</span><span class="tag">150 × 34</span></div>
+			<div class="stage">
+				<div class="island-scale">
+					<div class="island dynamic">
+						<div class="companion-idle">
+							<div class="companion-eyes" data-featured data-mood="calm"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p class="stage-note">Hangs from the top edge, like the notch.</p>
+		</article>
+
+		<article class="stage-card">
+			<div class="stage-head"><span>Windows island</span><span class="tag">176 × 34</span></div>
+			<div class="stage">
+				<div class="island-scale windows-scale">
+					<div class="island windows">
+						<div class="companion-idle has-clock">
+							<div class="companion-eyes" data-featured data-mood="calm"></div>
+							<span class="idle-clock">14:32</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p class="stage-note">Keeps the clock beside the pet.</p>
+		</article>
+	</section>
+
+	<section class="pet-section" aria-label="Close-up pet preview">
+		<div class="pet-copy">
+			<p class="eyebrow">Close-up</p>
+			<h2>Always moving</h2>
+			<p>
+				It breathes, blinks, looks around, squints and perks up. The whole eye pair leans
+				toward your pointer in this preview. Pick a mood below to see every expression.
+			</p>
+			<p class="controls-label">Mood</p>
+			<div class="mood-picker" id="mood-picker"></div>
+			<p class="controls-label">Force a behaviour</p>
+			<div class="action-picker" id="action-picker"></div>
+		</div>
+		<div class="pet-cam">
+			<div class="pet-cam-inner">
+				<div class="companion-idle">
+					<div class="companion-eyes" data-featured data-mood="calm"></div>
+				</div>
+			</div>
+			<span class="pet-label" id="pet-label">calm</span>
+		</div>
+	</section>
+
+	<section class="moods" aria-label="All moods">
+		<div class="section-head">
+			<div>
+				<p class="eyebrow">Moods</p>
+				<h2>Every expression</h2>
+			</div>
+			<p class="hint">Click a card to preview it above.</p>
+		</div>
+		<div class="mood-grid" id="mood-grid"></div>
+	</section>
+
+	<footer class="footer">
+		<strong>This is a live HTML preview.</strong> It uses the real companion CSS and the same
+		markup as the React component. The only difference is the page around it.
+	</footer>
+</main>
+
+<script>
+	const MOODS = [
+		{ id: "calm", label: "Calm", note: "soft mint" },
+		{ id: "curious", label: "Curious", note: "cyan tilt" },
+		{ id: "happy", label: "Happy", note: "green arcs" },
+		{ id: "excited", label: "Excited", note: "red bounce" },
+		{ id: "alert", label: "Alert", note: "red scan" },
+		{ id: "dizzy", label: "Dizzy", note: "spinning" },
+		{ id: "sleepy", label: "Sleepy", note: "dim lines" },
+		{ id: "charging", label: "Charging", note: "green pulse" },
+		{ id: "low", label: "Low", note: "red droop" },
+		{ id: "music", label: "Music", note: "green groove" },
+		{ id: "love", label: "Love", note: "pink hearts" },
+		{ id: "surprised", label: "Surprised", note: "wide pop" },
+	];
+	const ACTIONS = [
+		{ id: "rest", label: "Rest" },
+		{ id: "look-left", label: "Look left" },
+		{ id: "look-right", label: "Look right" },
+		{ id: "peek", label: "Wink" },
+		{ id: "squint", label: "Squint" },
+		{ id: "perk", label: "Perk up" },
+	];
+	const PET_ACTIONS = ["look-left", "look-right", "peek", "squint", "perk"];
+	const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+	function eyeMarkup(side, mood) {
+		if (mood === "dizzy") {
+			return `<span class="companion-eye is-spiral ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 12c0-2 3-2 3 0s-4 3-5 0 2-5 5-3 3 7-2 8-8-4-6-8 8-4 9 1"/></svg></span></span>`;
+		}
+		if (mood === "love") {
+			return `<span class="companion-eye is-heart ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 21s-8-4.8-8-11a4.6 4.6 0 0 1 8-3.1A4.6 4.6 0 0 1 20 10c0 6.2-8 11-8 11z"/></svg></span></span>`;
+		}
+		if (mood === "excited") {
+			const path = side === "left" ? "M8 4 L17 12 L8 20" : "M16 4 L7 12 L16 20";
+			return `<span class="companion-eye is-chevron ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="${path}"/></svg></span></span>`;
+		}
+		if (mood === "happy" || mood === "music" || mood === "sleepy" || mood === "low") {
+			const path = mood === "sleepy" || mood === "low" ? "M3 3 Q12 10 21 3" : "M3 9 Q12 2 21 9";
+			return `<span class="companion-eye is-arc ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 12"><path d="${path}"/></svg></span></span>`;
+		}
+		return `<span class="companion-eye ${side}"><span class="companion-blinker"><span class="companion-eye-shape"></span></span></span>`;
+	}
+
+	function eyesMarkup(mood) {
+		return eyeMarkup("left", mood) + eyeMarkup("right", mood);
+	}
+
+	function stopPet(el) {
+		clearTimeout(el._petWait);
+		clearTimeout(el._petHold);
+	}
+
+	function startPet(el) {
+		stopPet(el);
+		if (el.dataset.mood === "dizzy" || el.dataset.mood === "sleepy") return;
+		el._petWait = setTimeout(() => {
+			const action = PET_ACTIONS[Math.floor(Math.random() * PET_ACTIONS.length)];
+			el.dataset.action = action;
+			el._petHold = setTimeout(() => {
+				el.dataset.action = "rest";
+				startPet(el);
+			}, 650 + Math.random() * 700);
+		}, 2300 + Math.random() * 3900);
+	}
+
+	function renderEyes(el, mood) {
+		stopPet(el);
+		el.dataset.mood = mood;
+		el.dataset.action = "rest";
+		el.innerHTML = eyesMarkup(mood);
+		startPet(el);
+	}
+
+	function featuredEyes() {
+		return [...document.querySelectorAll("[data-featured]")];
+	}
+
+	let selectedMood = "calm";
+	let actionToken = 0;
+
+	function setMood(mood) {
+		selectedMood = mood;
+		for (const el of featuredEyes()) renderEyes(el, mood);
+		for (const button of document.querySelectorAll("[data-mood-button]")) {
+			button.classList.toggle("active", button.dataset.moodButton === mood);
+		}
+		for (const card of document.querySelectorAll(".mood-card")) {
+			card.classList.toggle("active", card.dataset.mood === mood);
+		}
+		document.getElementById("pet-label").textContent = mood;
+	}
+
+	function setAction(action) {
+		const token = ++actionToken;
+		for (const el of featuredEyes()) el.dataset.action = action;
+		if (action !== "rest") {
+			setTimeout(() => {
+				if (token !== actionToken) return;
+				for (const el of featuredEyes()) el.dataset.action = "rest";
+			}, 900);
+		}
+	}
+
+	const moodPicker = document.getElementById("mood-picker");
+	for (const mood of MOODS) {
+		const button = document.createElement("button");
+		button.type = "button";
+		button.textContent = mood.label;
+		button.dataset.moodButton = mood.id;
+		button.addEventListener("click", () => setMood(mood.id));
+		moodPicker.appendChild(button);
+	}
+
+	const actionPicker = document.getElementById("action-picker");
+	for (const action of ACTIONS) {
+		const button = document.createElement("button");
+		button.type = "button";
+		button.textContent = action.label;
+		button.addEventListener("click", () => setAction(action.id));
+		actionPicker.appendChild(button);
+	}
+
+	const moodGrid = document.getElementById("mood-grid");
+	for (const mood of MOODS) {
+		const card = document.createElement("button");
+		card.type = "button";
+		card.className = "mood-card";
+		card.dataset.mood = mood.id;
+		card.innerHTML = `<span class="mini-island"><span class="companion-idle"><span class="companion-eyes" data-mood="${mood.id}"></span></span></span><span class="mood-name">${mood.label}</span><span class="mood-note">${mood.note}</span>`;
+		card.addEventListener("click", () => setMood(mood.id));
+		moodGrid.appendChild(card);
+	}
+
+	for (const el of document.querySelectorAll(".companion-eyes")) {
+		renderEyes(el, el.dataset.mood || "calm");
+	}
+
+	let lastMove = 0;
+	document.addEventListener("pointermove", (event) => {
+		const now = performance.now();
+		if (now - lastMove < 32) return;
+		lastMove = now;
+		for (const el of document.querySelectorAll(".companion-eyes")) {
+			const rect = el.getBoundingClientRect();
+			if (!rect.width || !rect.height) continue;
+			const x = clamp((event.clientX - (rect.left + rect.width / 2)) / 180, -1, 1);
+			const y = clamp((event.clientY - (rect.top + rect.height / 2)) / 100, -1, 1);
+			el.style.setProperty("--gaze-x", `${(x * 2.4).toFixed(2)}px`);
+			el.style.setProperty("--gaze-y", `${(y * 1.6).toFixed(2)}px`);
+		}
+	}, { passive: true });
+
+	document.addEventListener("pointerleave", () => {
+		for (const el of document.querySelectorAll(".companion-eyes")) {
+			el.style.setProperty("--gaze-x", "0px");
+			el.style.setProperty("--gaze-y", "0px");
+		}
+	});
+
+	setMood(selectedMood);
+</script>
+</body>
+</html>

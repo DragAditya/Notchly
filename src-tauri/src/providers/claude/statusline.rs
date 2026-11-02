@@ -22,7 +22,11 @@ pub const BRIDGE_FLAG: &str = "--claude-statusline";
 /// `identifier` from `tauri.conf.json` (see `build.rs`).
 const IDENTIFIER: &str = env!("APP_IDENTIFIER");
 /// Folders older versions used, whatever the identifier was.
-const LEGACY_IDENTIFIERS: [&str; 2] = ["com.heyyczer.dynamicisland", "dev.rafap.dynamicisland"];
+const LEGACY_IDENTIFIERS: [&str; 3] = [
+    "com.dragaditya.notchly",
+    "com.heyyczer.dynamicisland",
+    "dev.rafap.dynamicisland",
+];
 const LIMITS_FILE: &str = "claude-limits.json";
 pub const ORIGINAL_FILE: &str = "claude-statusline-original.json";
 

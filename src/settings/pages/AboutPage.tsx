@@ -1,11 +1,7 @@
 import { useState } from "react";
-import { AppLogo, GitHubIcon } from "../../components/icons";
-import { command, isTauri } from "../../core/bridge";
+import { AppLogo } from "../../components/icons";
+import { command } from "../../core/bridge";
 import { useT } from "../../core/i18n";
-
-const REPO_URL = "https://github.com/DragAditya/Notchly";
-const AUTHOR_URL = "https://github.com/DragAditya";
-const UPSTREAM_URL = "https://github.com/HeyyCzer/windows-dynamic-island";
 
 type UpdateStatus =
   | { state: "idle" | "checking" | "latest" | "dev" | "portable" | "error" }
@@ -52,7 +48,6 @@ function UpdateRow() {
 
 export function AboutPage() {
   const t = useT();
-  const openLink = (url: string) => (isTauri ? command("open_external", { url }) : window.open(url, "_blank"));
 
   return (
     <>
@@ -62,41 +57,11 @@ export function AboutPage() {
         <span className="about-version">{t("settings.about.version", { version: __APP_VERSION__ })}</span>
       </div>
       <section className="settings-card">
-        <div className="settings-row about-row">
-          <div className="settings-text">
-            <span className="settings-label">{t("settings.about.author")}</span>
-            <span className="settings-desc">DragAditya</span>
-          </div>
-          <button type="button" className="settings-btn about-btn" onClick={() => openLink(AUTHOR_URL)}>
-            <GitHubIcon size={14} />
-            GitHub
-          </button>
-        </div>
-        <div className="settings-row about-row">
-          <div className="settings-text">
-            <span className="settings-label">{t("settings.about.source")}</span>
-            <span className="settings-desc">{REPO_URL.replace("https://", "")}</span>
-          </div>
-          <button type="button" className="settings-btn about-btn" onClick={() => openLink(REPO_URL)}>
-            <GitHubIcon size={14} />
-            GitHub
-          </button>
-        </div>
-        <div className="settings-row about-row">
-          <div className="settings-text">
-            <span className="settings-label">{t("settings.about.basedOn")}</span>
-            <span className="settings-desc">Dynamic Island for Windows by HeyyCzer</span>
-          </div>
-          <button type="button" className="settings-btn about-btn" onClick={() => openLink(UPSTREAM_URL)}>
-            <GitHubIcon size={14} />
-            GitHub
-          </button>
-        </div>
         <UpdateRow />
         <div className="settings-row about-row">
           <div className="settings-text">
             <span className="settings-label">{t("settings.about.license")}</span>
-            <span className="settings-desc">GNU GPL v3.0</span>
+            <span className="settings-desc">GNU GPL v3.0 or later</span>
           </div>
         </div>
       </section>

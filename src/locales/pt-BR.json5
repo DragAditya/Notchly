@@ -13,6 +13,7 @@
       island: "Ilha",
     },
     general: "Geral",
+    advanced: "Avançado",
     minimize: "Minimizar",
     close: "Fechar",
     module: {
@@ -35,6 +36,17 @@
     expandOnHover: {
       label: "Expandir ao passar o mouse",
       desc: "Desligado: expande só com clique.",
+    },
+    hoverDelay: {
+      label: "Atraso do hover",
+      desc: "Quanto tempo o ponteiro descansa na ilha antes da ação de hover.",
+    },
+    hoverAction: {
+      label: "Ao passar o mouse",
+      desc: "O que acontece quando o ponteiro descansa na ilha ociosa. Expandir ao passar o mouse precisa estar ligado para expandir.",
+      expand: "Expandir a ilha",
+      companion: "Chamar o companheiro",
+      none: "Não fazer nada",
     },
     monitor: {
       label: "Monitor",
@@ -76,6 +88,194 @@
         install: "Reiniciar e atualizar",
       },
     },
+  },
+
+  // Página Avançado: busca, importar/exportar, redefinições e atalhos
+  advanced: {
+    search: {
+      label: "Encontrar uma configuração",
+      desc: "Pesquise em todas as configurações por nome, chave ou valor.",
+      placeholder: "Pesquisar configurações…",
+      empty: "Nenhuma configuração corresponde à busca.",
+    },
+    export: {
+      label: "Exportar configurações",
+      desc: "Baixe todas as configurações como um arquivo JSON.",
+      button: "Exportar",
+      done: "Configurações exportadas.",
+    },
+    import: {
+      label: "Importar configurações",
+      desc: "Substitui todas as configurações por um arquivo JSON exportado.",
+      button: "Importar",
+      done: "Configurações importadas.",
+      invalid: "Esse arquivo não é uma exportação válida.",
+    },
+    reset: {
+      sectionLabel: "Redefinir uma seção",
+      sectionDesc: "Restaura uma página ou módulo para os padrões.",
+      sectionButton: "Redefinir seção",
+      allLabel: "Redefinir tudo",
+      allDesc: "Restaura todas as configurações para os padrões, incluindo as de versões antigas.",
+      allButton: "Redefinir tudo",
+      confirm: "Redefinir estas configurações para os padrões?",
+      done: "Configurações redefinidas.",
+    },
+    shortcuts: {
+      label: "Atalhos globais",
+      desc: "Clique em Definir e pressione a combinação. Esc cancela. Vazio significa desligado.",
+      set: "Definir",
+      recording: "Pressione uma combinação…",
+      clear: "Limpar",
+      off: "Desligado",
+      invalid: "Use Ctrl, Alt ou Shift com uma letra, número ou tecla F.",
+      taken: "Outro app já usa essa combinação.",
+    },
+    value: {
+      on: "Ligado",
+      off: "Desligado",
+    },
+  },
+
+  // Nomes dos atalhos globais
+  shortcuts: {
+    ask: {
+      label: "Abrir Pergunte ao Gemini",
+      desc: "Abre a página Pergunte de qualquer lugar.",
+    },
+    find: {
+      label: "Procurar na tela",
+      desc: "Lê a tela e procura um texto.",
+    },
+    companionSummon: {
+      label: "Chamar o companheiro",
+      desc: "Chama o companheiro, ou o dispensa quando já está fora.",
+    },
+    companionToggle: {
+      label: "Alternar o companheiro",
+      desc: "Alterna o companheiro entre o modo ativo e Desligado.",
+    },
+  },
+
+  // Olhos do companheiro (sinais de atividade locais e seguros)
+  companion: {
+    title: "Companheiro",
+    mode: {
+      label: "Apresentação",
+      desc: "Escolha como os olhos e as atividades ao vivo dividem a ilha compacta. Olhos deixa o texto mínimo; Atividades ao vivo usa os cartões normais; Misto mantém os dois.",
+      off: "Desligado",
+      offDesc: "Sem olhos nem reações do companheiro. As atividades ao vivo mantêm os cartões normais.",
+      eyes: "Olhos",
+      eyesDesc: "Os olhos lideram cada superfície compacta, com texto e detalhes extras reduzidos.",
+      activities: "Atividades ao vivo",
+      activitiesDesc: "Cartões de atividade normais com capa, selos e texto. Sem olhos.",
+      mixed: "Misto",
+      mixedDesc: "Olhos mais o detalhe completo da atividade. O padrão expressivo.",
+    },
+    resting: {
+      label: "Mostrar olhos em repouso",
+      desc: "Mantém o companheiro visível na ilha ociosa. Desligue para mostrá-lo só depois de um sinal.",
+    },
+    eyeColor: {
+      label: "Cor dos olhos",
+      desc: "Automático segue o humor. Escolha uma cor para manter os olhos consistentes.",
+      auto: "Automático",
+    },
+    blinkRate: {
+      label: "Frequência de piscar",
+      desc: "Com que frequência os olhos piscam em repouso.",
+      slow: "Lenta",
+      normal: "Normal",
+      fast: "Rápida",
+    },
+    gaze: {
+      label: "Seguir o ponteiro",
+      desc: "Os olhos se inclinam para o ponteiro enquanto ele está perto da ilha.",
+    },
+    intensity: {
+      label: "Intensidade da animação",
+      desc: "Quanto movimento e quantas camadas extras cada apresentação usa.",
+      calm: "Calma",
+      balanced: "Equilibrada",
+      energetic: "Energética",
+    },
+    speed: {
+      label: "Velocidade da animação",
+      desc: "Ajusta as danças do companheiro e as apresentações dos sinais.",
+      "075": "0,75×",
+      "1": "1×",
+      "125": "1,25×",
+      "15": "1,5×",
+    },
+    glow: {
+      label: "Brilho dos sinais",
+      desc: "A aura colorida ao redor dos cartões de sinal e dos olhos.",
+    },
+    reduceMotion: {
+      label: "Reduzir movimento",
+      desc: "Para os loops e mantém apenas as entradas curtas.",
+    },
+    effect: {
+      label: "Efeitos dos sinais",
+      desc: "Escolha quais sinais recebem a apresentação completa. Os olhos ainda reagem quando um efeito está desligado.",
+      volume: "Volume: ondas de alto-falante + equalizador",
+      brightness: "Brilho: sol + reflexo de lente",
+      charging: "Carregando: aura + raios + partículas",
+      battery: "Bateria: nível e corpo de bateria fraca",
+      bluetooth: "Bluetooth: conexão, sonar e conexão quebrada",
+      wifi: "Wi-Fi: arcos, radar e desconexão",
+      notifications: "Notificações: anéis de susto",
+    },
+    test: {
+      label: "Testar animações",
+      desc: "Reproduza um sinal na ilha agora. Confira cada apresentação sem mudar o volume, a bateria ou a conexão reais.",
+      all: "Reproduzir tudo",
+      stop: "Parar",
+      browser: "Abra o app para reproduzir estas animações na ilha.",
+      volume: "Volume",
+      brightness: "Brilho",
+      charging: "Carregando",
+      full: "Bateria cheia",
+      low: "Bateria fraca",
+      battery: "Na bateria",
+      bluetooth: "Bluetooth",
+      bluetoothSearch: "BT procurando",
+      bluetoothLost: "BT perdido",
+      wifi: "Wi-Fi",
+      wifiSearch: "Wi-Fi procurando",
+      wifiLost: "Wi-Fi perdido",
+      notification: "Notificação",
+    },
+    music: {
+      label: "Música compacta",
+      desc: "Os olhos podem dançar com a faixa em vez de mostrar apenas a capa.",
+      eyes: {
+        label: "Olhos dançantes",
+        desc: "Substitui a capa compacta por um par de olhos que se move com a reprodução.",
+      },
+      dance: {
+        label: "Estilo de dança",
+        desc: "Escolha uma coreografia ou deixe o companheiro alternar entre elas.",
+        auto: "Alternar automaticamente",
+        groove: "Groove",
+        bounce: "Quique",
+        shimmy: "Rebola",
+        wave: "Onda",
+        spin: "Giro",
+        hop: "Salto",
+      },
+    },
+    reset: {
+      label: "Redefinir companheiro",
+      desc: "Restaura a apresentação, o movimento e os efeitos para os padrões.",
+      button: "Redefinir padrões",
+    },
+    shortcuts: {
+      label: "Atalhos",
+      desc: "Ctrl+Alt+R chama ou dispensa · Ctrl+Alt+Shift+R alterna o Misto entre ligado e desligado.",
+    },
+    privacy:
+      "Só reage a música, volume, brilho, bateria, Bluetooth, Wi-Fi, notificações e tempo ocioso. Nunca lê o que você digita nem o que está na tela.",
   },
 
   // Renderizado pelo backend (src-tauri/src/i18n.rs)
@@ -129,6 +329,25 @@
     video: {
       label: "Vídeo do YouTube na ilha",
       desc: "Toca sem som o vídeo do YouTube do navegador no lugar da capa. Pesquisa cada faixa no youtube.com.",
+    },
+    showArtwork: {
+      label: "Mostrar capa",
+      desc: "Capa do álbum na pílula compacta e no painel expandido. Desligado usa o ícone do módulo.",
+    },
+    showProgress: {
+      label: "Mostrar progresso",
+      desc: "A barra de busca e o tempo decorrido/restante no painel expandido.",
+    },
+    hideWhenPaused: {
+      label: "Ocultar quando pausado",
+      desc: "Mantém o espaço do player na ilha só enquanto algo está tocando.",
+    },
+    source: {
+      label: "Prioridade do player",
+      desc: "Qual app vence quando mais de um expõe uma sessão de mídia.",
+      system: "Padrão do sistema",
+      spotify: "Spotify primeiro",
+      browser: "Navegador primeiro",
     },
     lyrics: {
       label: "Letras sincronizadas",
@@ -410,6 +629,54 @@
       windowsDesc: "Uma pílula flutuante com relógio em repouso, borda colorida e abas embaixo.",
     },
     windowsOnly: "Disponível no estilo Windows Island.",
+    blur: {
+      label: "Desfoque do fundo",
+      desc: "Deixa a área de trabalho aparecer através da ilha. Desligado mantém totalmente opaca.",
+      off: "Desligado",
+    },
+    radius: {
+      label: "Raio dos cantos",
+      desc: "Substitui o arredondamento do estilo selecionado.",
+      auto: "Padrão do estilo",
+    },
+    scale: {
+      label: "Escala da ilha",
+      desc: "Escala a ilha inteira ao redor do topo central.",
+    },
+    density: {
+      label: "Densidade",
+      desc: "Espaçamento dentro das superfícies compacta e expandida.",
+      compact: "Compacta",
+      cozy: "Confortável",
+      roomy: "Espaçosa",
+    },
+    animationSpeed: {
+      label: "Velocidade da animação",
+      desc: "Ajusta as molas de abrir/fechar e as transições de conteúdo.",
+      slow: "0,75×",
+      normal: "1×",
+      fast: "1,25×",
+      faster: "1,5×",
+    },
+    borderSpeed: {
+      label: "Velocidade do degradê",
+      desc: "Quanto tempo uma volta da borda animada leva.",
+      slow: "Lenta",
+      normal: "Normal",
+      fast: "Rápida",
+    },
+    clockFormat: {
+      label: "Relógio em repouso",
+      desc: "O que o relógio da Windows Island mostra em repouso.",
+      time: "Hora",
+      date: "Data",
+      both: "Data + hora",
+    },
+    reset: {
+      label: "Redefinir aparência",
+      desc: "Restaura estilo, borda, espaçamento e movimento para os padrões.",
+      button: "Redefinir",
+    },
     border: {
       label: "Borda",
       desc: "A ilha continua preta; só a borda muda de cor.",
@@ -472,6 +739,10 @@
     bluetooth: {
       label: "Fones Bluetooth",
       desc: "Nome e bateria ao conectar, e um aviso quando a bateria deles fica fraca.",
+    },
+    wifi: {
+      label: "Wi-Fi",
+      desc: "Um cartão de sinal quando o Wi-Fi conecta, procura ou cai.",
     },
     power: {
       label: "Modo de energia",
@@ -590,6 +861,36 @@
     clear: "Limpar",
     ask: "Perguntar ao Gemini sobre isto",
     remove: "Tirar da prateleira",
+    pending: {
+      title: "Exclusão pendente",
+      hint: "Mantenha antes do tempo acabar",
+      deletesIn: "Exclui em {time}",
+      deleting: "Excluindo…",
+    },
+    settings: {
+      maxItems: {
+        label: "Máximo de itens",
+        desc: "Os arquivos mais antigos saem da prateleira quando esse limite é atingido.",
+      },
+      autoClear: {
+        label: "Limpar automaticamente",
+        desc: "Esvazia a prateleira depois desse tempo sem novos arquivos.",
+        never: "Nunca",
+        minutes: "{n} min",
+      },
+      drop: {
+        label: "Ao soltar um arquivo",
+        desc: "Link mantém o caminho original. Copiar e mover colocam uma cópia nos dados do Notchly.",
+        link: "Manter um link",
+        copy: "Copiar para o Notchly",
+        move: "Mover para o Notchly",
+      },
+      reset: {
+        label: "Redefinir prateleira",
+        desc: "Restaura os limites e o comportamento ao soltar.",
+        button: "Redefinir",
+      },
+    },
   },
 
   clipboard: {
@@ -611,6 +912,18 @@
       copy: "Copiar",
       ask: "Perguntar ao Gemini",
       keep: "Guardar",
+      shelf: "Prateleira",
+    },
+    cleanup: {
+      deletesIn: "Manter? Exclui em {time}",
+      keepTitle: "Manter captura?",
+      autoDeletesIn: "Exclui automaticamente em {time}",
+      captured: "Captura de tela",
+      keep: "Manter",
+      delete: "Excluir",
+      deleteHint: "Excluir quando o tempo acabar",
+      deleteNow: "Excluir agora",
+      kept: "Mantida",
     },
     open: "Abrir",
     remove: "Remover",
@@ -623,6 +936,51 @@
     peekOnScreenshot: {
       label: "Abrir em capturas de tela",
       desc: "Abre a ilha com a imagem quando você tira um print (Win+Shift+S, Print Screen…).",
+    },
+    screenshotCleanup: {
+      label: "Excluir capturas de tela automaticamente",
+      desc: "Exclui o arquivo original da captura depois de um tempo, a menos que você clique em Manter.",
+    },
+    screenshotTtl: {
+      label: "Excluir capturas depois de",
+      desc: "O PNG salvo pela ferramenta de captura é removido automaticamente. Manter cancela isso.",
+      custom: "Personalizado…",
+      min: "min",
+    },
+    screenshotPrompt: {
+      label: "Recolher cartão de captura após",
+      desc: "O cartão volta para o notch depois desse número de segundos. O arquivo fica na Prateleira até você mantê-lo ou o timer de exclusão acabar.",
+      seconds: "s",
+    },
+    screenshotCardSize: {
+      label: "Tamanho do cartão de captura",
+      desc: "O tamanho com que o cartão abre a partir do notch.",
+      compact: "Compacto (480 × 150)",
+      balanced: "Equilibrado (540 × 165)",
+      large: "Grande (600 × 185)",
+    },
+    imagePreview: {
+      label: "Prévia de imagens",
+      desc: "Mostra miniaturas e a prévia grande de imagens. Desligado usa um ícone genérico.",
+    },
+    retention: {
+      label: "Manter histórico por",
+      desc: "Itens antigos da área de transferência são removidos automaticamente.",
+      never: "Manter até limpar",
+      minutes: "{n} min",
+      hours: "{n} h",
+    },
+    paste: {
+      label: "Ao clicar num item",
+      desc: "Copiar devolve o item à área de transferência. Colar também envia Ctrl+V ao app que você estava usando.",
+      copy: "Copiar de novo",
+      paste: "Copiar e colar",
+    },
+    pasted: "Colado!",
+    reset: {
+      label: "Redefinir área de transferência",
+      desc: "Restaura a prévia, o histórico e o comportamento do clique.",
+      button: "Redefinir",
     },
   },
 
@@ -760,6 +1118,13 @@
       connectedBattery: "Conectado · bateria {n}%",
       disconnected: "Desconectado",
       low: "{name}: bateria fraca",
+    },
+    wifi: {
+      title: "Wi-Fi",
+      connected: "Conectado",
+      connectedSignal: "Conectado · sinal {n}%",
+      disconnected: "Desconectado",
+      searching: "Procurando redes",
     },
     power: {
       title: "Modo de energia",

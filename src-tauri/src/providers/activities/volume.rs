@@ -116,6 +116,6 @@ fn show(activities: &Activities, level: f32, muted: bool) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some("wave".into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }

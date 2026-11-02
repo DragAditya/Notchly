@@ -10,7 +10,7 @@
 import { Badge, Glyph } from "../../components/Glyph";
 import { useProvider } from "../../core/bridge";
 import { useT } from "../../core/i18n";
-import { moduleEnabled, readSetting, useSettings } from "../../core/settings";
+import { moduleEnabled, readSetting, useCompanionMode, useSettings } from "../../core/settings";
 import type { IslandModule, ModuleView } from "../../core/types";
 import { ActivityCard } from "./components/ActivityCard";
 import { ActivityCompactLeft, ActivityCompactRight } from "./components/ActivityCompact";
@@ -46,8 +46,12 @@ export const activitiesModule: IslandModule = {
   useView(): ModuleView {
     const state = useProvider<ActivitiesState>(ACTIVITIES_PROVIDER);
     const settings = useSettings();
+    const companionMode = useCompanionMode();
 
     const shown = (a: Activity) => {
+      // Companion test lab: always show the requested performance, even when
+      // that signal is switched off in settings.
+      if (a.id.startsWith("test.")) return true;
       const owner = MODULE_SOURCES[a.source];
       if (owner) return readSetting(settings, moduleEnabled({ id: owner, title: "activities.title" }));
       return readSetting(settings, SOURCE_SETTING[a.source] ?? activitySettings.api);
@@ -71,7 +75,7 @@ export const activitiesModule: IslandModule = {
               left: null,
               right: null,
               node: <SignalCard activity={top} />,
-              width: 520,
+              width: companionMode === "eyes" ? 380 : 520,
               height: 108,
               radius: 30,
               // Same alert updates (volume ticks) stay put; a new alert/tone replays the entrance.
@@ -98,7 +102,9 @@ export const activitiesModule: IslandModule = {
         ? { width: 560, height: alert.progress != null || alert.subtitle ? 128 : 104 }
         : { width: 560, height: 40 + Math.min(Math.max(ongoing.length, 1), MAX_ROWS) * ROW },
       // Alerts that ask for it (notifications and system OSDs) open the island.
-      activityKey: alert?.expand ? `${alert.id}:${alert.updatedAt}` : undefined,
+      // Signal cards are already the performance; never replace them with the
+      // old expanded card just because an older provider asked for a peek.
+      activityKey: alert?.expand && !signal ? `${alert.id}:${alert.updatedAt}` : undefined,
     };
   },
 };

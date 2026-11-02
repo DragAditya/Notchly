@@ -46,6 +46,7 @@ button {
   justify-content: center;
   align-items: flex-start;
   pointer-events: none;
+  --island: rgba(0, 0, 0, var(--island-bg-alpha, 1));
 }
 
 .shell {
@@ -53,6 +54,8 @@ button {
   pointer-events: auto;
   will-change: width, height, transform;
   touch-action: none;
+  scale: var(--island-scale, 1);
+  transform-origin: 50% 0;
 }
 .shell.is-dragging,
 .shell.is-dragging * {
@@ -103,6 +106,11 @@ button {
   justify-content: space-between;
   height: 100%;
   padding: 0 12px 0 8px;
+}
+/* Eyes-only surfaces have no right slot; center the face instead of leaving it
+   pinned to the notch edge. */
+.compact:has(.compact-slot.right:empty) {
+  justify-content: center;
 }
 .compact-slot {
   display: flex;
@@ -156,6 +164,41 @@ button {
 .expanded-body {
   flex: 1;
   min-height: 0;
+}
+
+/* Compact density: only spacing changes, never the hit area or type scale. */
+.stage[data-density="compact"] .compact {
+  padding: 0 8px 0 5px;
+}
+.stage[data-density="compact"] .compact-slot {
+  gap: 5px;
+}
+.stage[data-density="compact"] .expanded {
+  padding: 10px 14px 14px;
+}
+.stage[data-density="compact"] .tabs {
+  gap: 2px;
+  margin-bottom: 7px;
+}
+.stage[data-density="compact"] .tab {
+  gap: 5px;
+  padding: 0 9px 0 6px;
+}
+.stage[data-density="roomy"] .compact {
+  padding: 0 16px 0 12px;
+}
+.stage[data-density="roomy"] .compact-slot {
+  gap: 10px;
+}
+.stage[data-density="roomy"] .expanded {
+  padding: 18px 26px 22px;
+}
+.stage[data-density="roomy"] .tabs {
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.stage[data-density="roomy"] .tab {
+  padding: 0 14px 0 10px;
 }
 
 .tabs {
@@ -353,7 +396,7 @@ body.preview {
   background: rgba(255, 255, 255, 0.09);
 }
 .rim.is-animated {
-  animation: rim-spin 7s linear infinite;
+  animation: rim-spin var(--rim-speed, 7s) linear infinite;
 }
 @keyframes rim-spin {
   to {
@@ -369,6 +412,25 @@ body.preview {
   font-weight: 650;
   letter-spacing: 0.01em;
   font-variant-numeric: tabular-nums;
+}
+.idle-clock.is-both {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  line-height: 1.05;
+  font-size: 12.5px;
+}
+.idle-clock .idle-date {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.idle-clock.is-date {
+  font-size: 12px;
+  color: var(--text-dim);
 }
 
 /* Tabs at the bottom, icons only, with a ring in the module's color. */

@@ -1,17 +1,46 @@
 import { useEffect, useState } from "react";
 import { useT } from "../../../core/i18n";
 import { setSetting, useSetting } from "../../../core/settings";
-import { Toggle } from "../../../settings/components/Toggle";
-import { lyricsSettings } from "../settings";
+import { Toggle, ToggleRow } from "../../../settings/components/Toggle";
+import { lyricsSettings, musicSettings, musicSourceSettings, type MusicSource } from "../settings";
 import { SpotifySettings } from "./SpotifySettings";
 
-/** The music module's settings: lyrics first, then the Spotify account block. */
+/** The music module's settings: display, lyrics, then the Spotify account block. */
 export function MusicSettings() {
   return (
     <>
+      <DisplaySettings />
       <LyricsSettings />
       <SpotifySettings />
     </>
+  );
+}
+
+function DisplaySettings() {
+  const t = useT();
+  const source = useSetting(musicSourceSettings.sourcePriority);
+
+  return (
+    <div className="settings-block">
+      <ToggleRow def={musicSettings.showArtwork} value={useSetting(musicSettings.showArtwork)} />
+      <ToggleRow def={musicSettings.showProgress} value={useSetting(musicSettings.showProgress)} />
+      <ToggleRow def={musicSettings.hideWhenPaused} value={useSetting(musicSettings.hideWhenPaused)} />
+      <label className="settings-row">
+        <div className="settings-text">
+          <span className="settings-label">{t(musicSourceSettings.sourcePriority.label)}</span>
+          <span className="settings-desc">{t(musicSourceSettings.sourcePriority.description!)}</span>
+        </div>
+        <select
+          className="settings-select"
+          value={source}
+          onChange={(event) => setSetting(musicSourceSettings.sourcePriority, event.target.value as MusicSource)}
+        >
+          <option value="system">{t("music.source.system")}</option>
+          <option value="spotify">{t("music.source.spotify")}</option>
+          <option value="browser">{t("music.source.browser")}</option>
+        </select>
+      </label>
+    </div>
   );
 }
 

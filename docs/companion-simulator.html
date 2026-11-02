@@ -1,0 +1,3878 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notchly Companion Lab — island behavior simulator</title>
+<style>
+/* ========================================================================== */
+/* Demo shell                                                                  */
+/* ========================================================================== */
+
+:root {
+	color-scheme: dark;
+	--bg: #07080c;
+	--ink: #f4f5f8;
+	--muted: #a5a8b7;
+	--faint: #6f7280;
+	--line: rgba(255, 255, 255, 0.09);
+	--line-strong: rgba(255, 255, 255, 0.16);
+	--panel: rgba(255, 255, 255, 0.045);
+	--panel-2: rgba(255, 255, 255, 0.028);
+	--accent: #9a96ff;
+	--accent-2: #7ef0b4;
+	--pink: #ff6b9a;
+	--blue: #74b9ff;
+	--orange: #ffb45c;
+	--text: var(--ink);
+	--text-dim: var(--muted);
+	--text-faint: var(--faint);
+	--hairline: var(--line);
+	--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+	--font: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+	--mono: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
+body {
+	margin: 0;
+	min-height: 100vh;
+	color: var(--ink);
+	font-family: var(--font);
+	font-feature-settings: "tnum" 1, "cv11" 1;
+	-webkit-font-smoothing: antialiased;
+	background:
+		radial-gradient(1100px 620px at 12% -8%, rgba(80, 108, 255, 0.20), transparent 62%),
+		radial-gradient(900px 520px at 92% 2%, rgba(255, 92, 138, 0.12), transparent 58%),
+		radial-gradient(700px 500px at 50% 108%, rgba(48, 209, 88, 0.07), transparent 62%),
+		var(--bg);
+}
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0.3;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+	background-size: 54px 54px;
+	mask-image: linear-gradient(to bottom, #000, transparent 74%);
+}
+body::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0.22;
+	background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+	mix-blend-mode: soft-light;
+}
+button, input, select { font: inherit; }
+button { color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible {
+	outline: 2px solid color-mix(in srgb, var(--accent) 72%, #fff);
+	outline-offset: 2px;
+}
+::selection { background: rgba(154, 150, 255, 0.35); }
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.icon {
+	width: 16px;
+	height: 16px;
+	flex: none;
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 1.8;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+}
+
+.page {
+	position: relative;
+	width: min(1280px, calc(100% - 48px));
+	margin: 0 auto;
+	padding: 26px 0 54px;
+}
+
+.site-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	margin-bottom: 30px;
+}
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 11px;
+	font-size: 13px;
+	font-weight: 650;
+	letter-spacing: -0.01em;
+}
+.brand-mark {
+	position: relative;
+	width: 34px;
+	height: 22px;
+	border-radius: 999px;
+	background: #000;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.09), 0 8px 24px rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+}
+.brand-mark i {
+	width: 5px;
+	height: 9px;
+	border-radius: 50%;
+	background: #d9ffd1;
+	box-shadow: 0 0 8px rgba(150, 255, 135, 0.8);
+}
+.brand span { color: var(--faint); font-weight: 450; }
+.head-meta {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 12px;
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.035);
+	color: var(--muted);
+	font-size: 11px;
+	white-space: nowrap;
+}
+.live-dot {
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #43e37d;
+	box-shadow: 0 0 12px rgba(67, 227, 125, 0.9);
+	animation: live-pulse 2.4s ease-in-out infinite;
+}
+@keyframes live-pulse {
+	0%, 100% { opacity: 0.6; transform: scale(0.88); }
+	50% { opacity: 1; transform: scale(1.08); }
+}
+
+.hero {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: end;
+	gap: 34px;
+	margin-bottom: 24px;
+}
+.eyebrow {
+	margin: 0 0 12px;
+	color: var(--faint);
+	font-size: 10.5px;
+	font-weight: 700;
+	letter-spacing: 0.22em;
+	text-transform: uppercase;
+}
+h1 {
+	margin: 0;
+	max-width: 760px;
+	font-size: clamp(36px, 5vw, 62px);
+	font-weight: 720;
+	line-height: 0.98;
+	letter-spacing: -0.052em;
+}
+h1 em {
+	font-style: normal;
+	color: transparent;
+	background: linear-gradient(100deg, #d9ffd1 0%, #9a96ff 46%, #ff9fba 100%);
+	-webkit-background-clip: text;
+	background-clip: text;
+}
+.lede {
+	max-width: 660px;
+	margin: 18px 0 0;
+	color: var(--muted);
+	font-size: 14px;
+	line-height: 1.65;
+}
+.hero-notes {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 8px;
+	padding-bottom: 4px;
+}
+.hero-note {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	color: var(--faint);
+	font-size: 11px;
+	white-space: nowrap;
+}
+.hero-note b { color: var(--ink); font-weight: 600; }
+
+.sim-grid {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) 330px;
+	gap: 16px;
+	align-items: stretch;
+}
+.card {
+	border: 1px solid var(--line);
+	border-radius: 24px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.018));
+	box-shadow: 0 28px 80px -38px rgba(0, 0, 0, 0.9);
+}
+.stage-card { overflow: hidden; display: flex; flex-direction: column; }
+.desktop {
+	position: relative;
+	flex: 1;
+	min-height: 342px;
+	overflow: hidden;
+	background:
+		radial-gradient(900px 420px at 20% -10%, rgba(68, 93, 255, 0.27), transparent 62%),
+		radial-gradient(760px 420px at 86% 0%, rgba(255, 94, 142, 0.14), transparent 62%),
+		linear-gradient(180deg, #111421 0%, #0a0c13 54%, #08090e 100%);
+}
+.desktop::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+	background-size: 42px 42px;
+	mask-image: linear-gradient(to bottom, #000, transparent 86%);
+	opacity: 0.45;
+	pointer-events: none;
+}
+.desktop::after {
+	content: "";
+	position: absolute;
+	left: 8%;
+	right: 8%;
+	bottom: -32%;
+	height: 60%;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, rgba(120, 110, 255, 0.13), transparent 68%);
+	filter: blur(36px);
+	pointer-events: none;
+}
+.desktop-top {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 34px;
+	padding: 0 16px;
+	color: rgba(255, 255, 255, 0.42);
+	font-size: 10px;
+	letter-spacing: 0.04em;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.055);
+	background: rgba(8, 9, 14, 0.3);
+	backdrop-filter: blur(10px);
+}
+.desktop-top .fake-dots { display: flex; gap: 5px; }
+.desktop-top .fake-dots i {
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.18);
+}
+.desktop-top .fake-clock { font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
+.screen-edge {
+	position: absolute;
+	z-index: 1;
+	top: 34px;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.09), transparent);
+}
+.island-stage {
+	position: relative;
+	z-index: 3;
+	min-height: 256px;
+	padding: 0 16px;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+}
+.lanes {
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 22px;
+	width: 100%;
+	padding-top: 0;
+}
+.island-lane {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	animation: lane-in 0.5s var(--ease-out) both;
+}
+@keyframes lane-in {
+	from { opacity: 0; transform: translateY(-6px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+.island-wrap {
+	position: relative;
+	width: 100%;
+	min-height: 176px;
+	display: flex;
+	align-items: flex-start;
+	justify-content: center;
+}
+.island-assembly {
+	position: relative;
+	display: inline-block;
+	transform-origin: top center;
+	transition: transform 0.45s var(--ease-out);
+}
+.is-compare .island-assembly { transform: none; zoom: 0.82; }
+.is-compare .island-wrap { min-height: 142px; }
+.is-compare .island-lane { flex: 1 1 0; }
+.island-lane[data-lane="reaction"] .island-assembly { overflow: visible; }
+.lane-caption {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3px;
+	margin-top: 14px;
+	text-align: center;
+}
+.lane-name {
+	font-size: 12.5px;
+	font-weight: 650;
+	letter-spacing: -0.01em;
+}
+.lane-sub {
+	font-size: 10.5px;
+	color: var(--faint);
+	line-height: 1.35;
+	max-width: 240px;
+}
+.lane-status {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 5px;
+	margin-top: 8px;
+	min-height: 20px;
+}
+.mini-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 7px;
+	border: 1px solid rgba(255, 255, 255, 0.075);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.035);
+	color: var(--muted);
+	font-size: 9.5px;
+	line-height: 1;
+	white-space: nowrap;
+}
+.mini-chip i {
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: var(--c, var(--accent));
+	box-shadow: 0 0 7px var(--c, var(--accent));
+}
+.desktop-hint {
+	position: absolute;
+	z-index: 2;
+	left: 50%;
+	bottom: 13px;
+	translate: -50% 0;
+	color: rgba(255, 255, 255, 0.26);
+	font-size: 10px;
+	white-space: nowrap;
+	pointer-events: none;
+}
+.fullscreen-cover {
+	position: absolute;
+	z-index: 8;
+	inset: 34px 0 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(5, 6, 10, 0.72);
+	backdrop-filter: blur(7px);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.35s ease;
+}
+.fullscreen-cover.is-on { opacity: 1; pointer-events: auto; }
+.fullscreen-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 7px;
+	padding: 18px 24px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 18px;
+	background: rgba(12, 13, 19, 0.88);
+	box-shadow: 0 18px 60px rgba(0, 0, 0, 0.5);
+	text-align: center;
+}
+.fullscreen-card strong { font-size: 13px; }
+.fullscreen-card span { color: var(--muted); font-size: 11px; }
+.fullscreen-card .lock {
+	display: grid;
+	place-items: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 12px;
+	background: rgba(154, 150, 255, 0.12);
+	color: var(--accent);
+}
+
+.stage-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 14px;
+	padding: 13px 15px;
+	border-top: 1px solid var(--line);
+	background: rgba(8, 9, 14, 0.28);
+}
+.seg {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: rgba(255, 255, 255, 0.035);
+}
+.seg button {
+	border: 0;
+	border-radius: 9px;
+	background: transparent;
+	color: var(--muted);
+	padding: 7px 10px;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s, transform 0.2s;
+	white-space: nowrap;
+}
+.seg button:hover { color: var(--ink); }
+.seg button.is-active {
+	background: #f3f4f8;
+	color: #0a0b10;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.readout {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 5px;
+}
+.readout .mini-chip { font-size: 9.5px; }
+
+.side-panel { display: flex; flex-direction: column; gap: 14px; min-height: 0; }
+.panel { padding: 14px; }
+.panel-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+.panel-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+.panel-title svg { color: var(--faint); }
+.panel-count {
+	font-size: 10px;
+	color: var(--faint);
+	font-variant-numeric: tabular-nums;
+}
+.log {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	max-height: 430px;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+	font-family: var(--mono);
+}
+.log-row {
+	display: grid;
+	grid-template-columns: 38px 6px minmax(0, 1fr);
+	gap: 7px;
+	padding: 7px 6px;
+	border-radius: 8px;
+	animation: log-in 0.3s ease both;
+}
+.log-row:hover { background: rgba(255, 255, 255, 0.035); }
+@keyframes log-in {
+	from { opacity: 0; transform: translateX(4px); }
+	to { opacity: 1; transform: translateX(0); }
+}
+.log-time { color: var(--faint); font-size: 9.5px; line-height: 1.5; }
+.log-dot {
+	width: 5px;
+	height: 5px;
+	margin-top: 4px;
+	border-radius: 50%;
+	background: var(--c, var(--accent));
+	box-shadow: 0 0 7px var(--c, var(--accent));
+}
+.log-event {
+	min-width: 0;
+	color: var(--ink);
+	font-size: 10.5px;
+	font-weight: 650;
+	line-height: 1.4;
+}
+.log-detail {
+	grid-column: 3;
+	margin-top: 2px;
+	color: var(--muted);
+	font-size: 9.5px;
+	line-height: 1.45;
+	overflow-wrap: anywhere;
+}
+.log-empty { padding: 18px 8px; color: var(--faint); font-size: 10.5px; line-height: 1.5; }
+.safe-panel { padding: 14px; }
+.safe-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 9px;
+	font-size: 11px;
+	font-weight: 650;
+}
+.safe-head .shield {
+	display: grid;
+	place-items: center;
+	width: 26px;
+	height: 26px;
+	border-radius: 9px;
+	background: rgba(126, 240, 180, 0.1);
+	color: var(--accent-2);
+}
+.safe-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.safe-list li {
+	display: flex;
+	align-items: flex-start;
+	gap: 7px;
+	color: var(--muted);
+	font-size: 10px;
+	line-height: 1.45;
+}
+.safe-list li::before {
+	content: "";
+	flex: none;
+	width: 4px;
+	height: 4px;
+	margin-top: 4px;
+	border-radius: 50%;
+	background: var(--accent-2);
+	opacity: 0.7;
+}
+.shortcut-list {
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: 1px solid var(--line);
+}
+.shortcut-list div {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	color: var(--faint);
+	font-size: 9.5px;
+}
+.kbd {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	padding: 2px 5px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-bottom-color: rgba(255, 255, 255, 0.18);
+	border-radius: 5px;
+	background: rgba(255, 255, 255, 0.045);
+	color: var(--muted);
+	font-family: var(--mono);
+	font-size: 8.5px;
+	line-height: 1.3;
+	white-space: nowrap;
+}
+
+.controls {
+	margin-top: 16px;
+	padding: 20px;
+}
+.control-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 20px;
+	margin-bottom: 15px;
+}
+.control-head h2 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 650;
+	letter-spacing: -0.01em;
+}
+.control-head p { margin: 5px 0 0; color: var(--faint); font-size: 11px; line-height: 1.45; }
+.auto-controls { display: flex; align-items: center; gap: 8px; flex: none; }
+.btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	height: 32px;
+	padding: 0 12px;
+	border: 1px solid var(--line);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.045);
+	color: var(--muted);
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+	white-space: nowrap;
+}
+.btn:hover { color: var(--ink); background: rgba(255, 255, 255, 0.075); border-color: var(--line-strong); }
+.btn:active { transform: translateY(1px); }
+.btn.primary {
+	border-color: rgba(154, 150, 255, 0.35);
+	background: rgba(154, 150, 255, 0.16);
+	color: #d8d6ff;
+}
+.btn.primary:hover { background: rgba(154, 150, 255, 0.24); }
+.btn.is-running {
+	border-color: rgba(255, 107, 154, 0.35);
+	background: rgba(255, 107, 154, 0.13);
+	color: #ffc3d5;
+}
+.scenario-grid {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 8px;
+}
+.scenario {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	min-width: 0;
+	padding: 10px;
+	border: 1px solid var(--line);
+	border-radius: 13px;
+	background: rgba(255, 255, 255, 0.032);
+	text-align: left;
+	cursor: pointer;
+	transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.scenario:hover {
+	background: rgba(255, 255, 255, 0.06);
+	border-color: rgba(255, 255, 255, 0.16);
+	transform: translateY(-1px);
+}
+.scenario:active { transform: translateY(0); }
+.scenario.is-active {
+	border-color: rgba(154, 150, 255, 0.45);
+	background: rgba(154, 150, 255, 0.11);
+}
+.scenario-icon {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 28px;
+	height: 28px;
+	border-radius: 9px;
+	background: rgba(255, 255, 255, 0.06);
+	color: var(--sc, var(--accent));
+}
+.scenario-icon svg { width: 15px; height: 15px; }
+.scenario-copy { min-width: 0; }
+.scenario-title {
+	display: block;
+	color: var(--ink);
+	font-size: 11px;
+	font-weight: 650;
+	line-height: 1.25;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.scenario-desc {
+	display: block;
+	margin-top: 2px;
+	color: var(--faint);
+	font-size: 9.5px;
+	line-height: 1.35;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.control-row {
+	display: grid;
+	grid-template-columns: 1.25fr 1fr 1fr 1fr;
+	gap: 12px;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--line);
+}
+.field { min-width: 0; }
+.field label {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 7px;
+	color: var(--faint);
+	font-size: 9.5px;
+	font-weight: 650;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+}
+.field label b { color: var(--ink); font-weight: 650; letter-spacing: 0; text-transform: none; font-variant-numeric: tabular-nums; }
+.field .seg { width: 100%; }
+.field .seg button { flex: 1; }
+.field select {
+	width: 100%;
+	height: 32px;
+	padding: 0 9px;
+	border: 1px solid var(--line);
+	border-radius: 9px;
+	background: rgba(255, 255, 255, 0.045);
+	color: var(--ink);
+	font-size: 11px;
+	outline: none;
+}
+.field select option { background: #12131a; color: var(--ink); }
+.range-wrap { display: flex; align-items: center; gap: 9px; height: 32px; }
+.range-wrap input[type="range"] {
+	flex: 1;
+	width: 100%;
+	height: 4px;
+	margin: 0;
+	appearance: none;
+	border-radius: 99px;
+	background: linear-gradient(90deg, var(--accent) 0 var(--pct, 62%), rgba(255, 255, 255, 0.13) var(--pct, 62%) 100%);
+	outline: none;
+}
+.range-wrap input[type="range"]::-webkit-slider-thumb {
+	appearance: none;
+	width: 13px;
+	height: 13px;
+	border: 2px solid #0b0c12;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18), 0 0 12px rgba(154, 150, 255, 0.45);
+	cursor: pointer;
+}
+.range-wrap input[type="range"]::-moz-range-thumb {
+	width: 13px;
+	height: 13px;
+	border: 2px solid #0b0c12;
+	border-radius: 50%;
+	background: #fff;
+	cursor: pointer;
+}
+.shortcuts {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	margin-top: 14px;
+	color: var(--faint);
+	font-size: 9.5px;
+}
+.shortcuts .kbd { margin-right: 2px; }
+.foot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	margin-top: 20px;
+	color: var(--faint);
+	font-size: 9.5px;
+	line-height: 1.5;
+}
+.foot b { color: var(--muted); font-weight: 600; }
+.toast {
+	position: fixed;
+	z-index: 50;
+	left: 50%;
+	bottom: 22px;
+	translate: -50% 12px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	max-width: min(520px, calc(100vw - 32px));
+	padding: 9px 13px;
+	border: 1px solid rgba(255, 255, 255, 0.12);
+	border-radius: 11px;
+	background: rgba(14, 15, 22, 0.94);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+	color: var(--muted);
+	font-size: 11px;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.25s ease, translate 0.25s var(--ease-out);
+}
+.toast.is-on { opacity: 1; translate: -50% 0; }
+.toast i {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--c, var(--accent));
+	box-shadow: 0 0 9px var(--c, var(--accent));
+	flex: none;
+}
+
+@media (max-width: 1120px) {
+	.sim-grid { grid-template-columns: minmax(0, 1fr); }
+	.side-panel { flex-direction: row; }
+	.side-panel > * { flex: 1; }
+	.scenario-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+	.control-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+	.page { width: calc(100% - 24px); padding-top: 16px; }
+	.site-head { margin-bottom: 22px; }
+	.hero { grid-template-columns: 1fr; gap: 18px; }
+	.hero-notes { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+	.hero-note { white-space: normal; }
+	.side-panel { flex-direction: column; }
+	.scenario-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.stage-footer { align-items: flex-start; flex-direction: column; }
+	.readout { justify-content: flex-start; }
+	.island-assembly { zoom: 0.78; }
+	.is-compare .island-assembly { transform: none; zoom: 0.58; }
+	.is-compare .island-wrap { min-height: 120px; }
+	.lanes { gap: 6px; }
+	.control-head { flex-direction: column; }
+	.auto-controls { width: 100%; }
+	.auto-controls .btn { flex: 1; }
+	.control-row { grid-template-columns: 1fr; }
+	.foot { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: 0.001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.001ms !important;
+	}
+}
+
+/* ========================================================================== */
+/* Companion eyes — copied from src/companion/companion.css                    */
+/* ========================================================================== */
+
+/* The companion at rest: two eyes in the island, no face or mouth. */
+.companion-idle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	height: 100%;
+	padding: 0 12px;
+}
+
+.companion-idle.has-clock {
+	justify-content: space-between;
+	padding-left: 18px;
+	padding-right: 14px;
+}
+
+.companion-idle .idle-clock {
+	flex: none;
+	font-size: 13px;
+	opacity: 0.9;
+}
+
+/* ------------------------------------------------------------------ */
+/* Eyes                                                               */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+	--eye-w: 17px;
+	--eye-h: 24px;
+	--eye-radius: 50%;
+	--gaze-x: 0px;
+	--gaze-y: 0px;
+	--action-look-x: 0px;
+	--action-look-y: 0px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+	filter: drop-shadow(0 0 9px var(--eye-glow));
+	translate: calc(var(--gaze-x) + var(--action-look-x)) calc(var(--gaze-y) + var(--action-look-y));
+	scale: var(--pet-scale, 1);
+	animation: pet-breathe 4.8s ease-in-out infinite;
+	transition:
+		translate 0.22s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, translate, scale;
+}
+
+/* A faint aura keeps the eyes from looking like two stickers. */
+.companion-eyes::before {
+	content: "";
+	position: absolute;
+	width: 78px;
+	height: 26px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, var(--eye-glow), transparent 70%);
+	opacity: 0.22;
+	filter: blur(5px);
+	pointer-events: none;
+	animation: pet-aura 4.8s ease-in-out infinite;
+}
+
+.companion-eye {
+	position: relative;
+	display: block;
+	width: var(--eye-w);
+	height: var(--eye-h);
+	transform-origin: center;
+	scale: var(--eye-scale-x, 1) var(--eye-scale-y, 1);
+	translate: var(--eye-x, 0px) var(--eye-y, 0px);
+	rotate: var(--eye-rotate, 0deg);
+	transition:
+		width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		rotate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, scale, translate, width, height;
+}
+
+.companion-eye.left {
+	--eye-rotate: -1deg;
+}
+.companion-eye.right {
+	--eye-rotate: 1deg;
+}
+
+.companion-blinker {
+	position: absolute;
+	inset: 0;
+	display: block;
+	transform-origin: center;
+	scale: var(--action-scale-x, 1) var(--action-scale-y, 1);
+	translate: var(--action-x, 0px) var(--action-y, 0px);
+	animation: pet-blink 7.2s ease-in-out infinite;
+	transition:
+		scale 0.16s ease-out,
+		translate 0.16s ease-out;
+	will-change: transform, scale, translate;
+}
+
+.companion-eye.right .companion-blinker {
+	animation-delay: 0.16s;
+}
+
+.companion-eye-shape {
+	position: absolute;
+	inset: 0;
+	display: block;
+	border-radius: var(--eye-radius);
+	background:
+		radial-gradient(circle at 50% 38%, #fff 0 18%, transparent 60%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 58%, color-mix(in srgb, var(--eye-color) 60%, transparent) 100%);
+	box-shadow:
+		0 0 12px var(--eye-glow),
+		inset 0 0 4px rgba(255, 255, 255, 0.55);
+	transition:
+		background 0.35s ease,
+		box-shadow 0.35s ease,
+		border-radius 0.35s ease;
+}
+
+/* ------------------------------------------------------------------ */
+/* Autonomous pet behaviours                                          */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes[data-action="look-left"] {
+	--action-look-x: -2.4px;
+}
+.companion-eyes[data-action="look-right"] {
+	--action-look-x: 2.4px;
+}
+.companion-eyes[data-action="peek"] {
+	--action-look-x: 1.4px;
+}
+.companion-eyes[data-action="peek"] .companion-eye.right .companion-blinker {
+	--action-scale-y: 0.1;
+}
+.companion-eyes[data-action="squint"] .companion-blinker {
+	--action-scale-y: 0.56;
+}
+.companion-eyes[data-action="perk"] {
+	--pet-scale: 1.07;
+	--action-look-y: -1px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Moods                                                              */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes[data-mood="calm"] {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+}
+
+.companion-eyes[data-mood="curious"] {
+	--eye-w: 19px;
+	--eye-h: 25px;
+	--eye-color: #bdefff;
+	--eye-glow: rgba(100, 210, 255, 0.62);
+	animation: pet-curious 5.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="curious"] .companion-eye.right {
+	--eye-rotate: 6deg;
+	--eye-x: 1px;
+	--eye-scale-x: 1.05;
+	--eye-scale-y: 1.08;
+}
+
+.companion-eyes[data-mood="happy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-happy 2.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.left {
+	--eye-rotate: -4deg;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.right {
+	--eye-rotate: 4deg;
+}
+
+.companion-eyes[data-mood="excited"] {
+	--eye-w: 22px;
+	--eye-h: 24px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+	animation: pet-excited 0.9s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye {
+	animation: companion-hop 0.72s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye.right {
+	animation-delay: 0.12s;
+}
+.companion-eye.is-chevron svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+}
+.companion-eye.is-arc {
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-arc svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.4;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+
+.companion-eyes[data-mood="alert"] {
+	--eye-w: 15px;
+	--eye-h: 25px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+}
+.companion-eyes[data-mood="alert"] .companion-eye {
+	animation: companion-alert 1.5s ease-in-out infinite;
+}
+/* The little emphasis lines on either side of an alert eye. */
+.companion-eyes[data-mood="alert"] .companion-eye::before,
+.companion-eyes[data-mood="alert"] .companion-eye::after {
+	content: "";
+	position: absolute;
+	width: 6px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--eye-color);
+	box-shadow:
+		0 6px 0 -0.2px var(--eye-color),
+		0 0 7px var(--eye-glow);
+	pointer-events: none;
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::before {
+	left: -10px;
+	top: 5px;
+	transform: rotate(-20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::after {
+	left: -11px;
+	top: 14px;
+	transform: rotate(20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.right::before {
+	right: -10px;
+	top: 5px;
+	transform: rotate(20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.right::after {
+	right: -11px;
+	top: 14px;
+	transform: rotate(-20deg);
+}
+
+.companion-eyes[data-mood="dizzy"] {
+	--eye-color: #b6ffb0;
+	--eye-glow: rgba(140, 255, 140, 0.6);
+}
+.companion-eye.is-spiral {
+	width: 23px;
+	height: 23px;
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-spiral .companion-blinker {
+	position: absolute;
+	inset: 0;
+	animation: none;
+}
+.companion-eye.is-spiral svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+	animation: companion-spin 1.4s linear infinite;
+	transform-origin: center;
+}
+.companion-eyes[data-mood="dizzy"] .companion-eye.left svg {
+	animation-direction: reverse;
+}
+
+.companion-eyes[data-mood="sleepy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #eaffdf;
+	--eye-glow: rgba(210, 255, 200, 0.48);
+	animation: pet-sleep 4.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"] .companion-blinker {
+	animation: none;
+}
+.companion-eyes[data-mood="sleepy"] .companion-eye {
+	animation: companion-sleep 4.2s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"]::after {
+	content: "z";
+	position: absolute;
+	top: -10px;
+	right: -8px;
+	color: var(--eye-color);
+	font-size: 10px;
+	font-weight: 650;
+	line-height: 1;
+	text-shadow: 0 0 7px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-zzz 3.2s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="charging"] {
+	--eye-w: 18px;
+	--eye-h: 25px;
+	--eye-color: #30d158;
+	--eye-glow: rgba(48, 209, 88, 0.65);
+	animation: pet-charge 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="charging"] .companion-eye-shape {
+	animation: companion-charge 1.5s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="low"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #ff7a8a;
+	--eye-glow: rgba(255, 110, 125, 0.62);
+	animation: pet-low 3.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="low"] .companion-eye {
+	--eye-rotate: 7deg;
+	--eye-y: 1px;
+}
+
+.companion-eyes[data-mood="music"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-music 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="music"]::after {
+	content: "♪";
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	color: var(--eye-color);
+	font-size: 13px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-note 2.4s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="love"] {
+	--eye-w: 22px;
+	--eye-h: 22px;
+	--eye-color: #ff5c8a;
+	--eye-glow: rgba(255, 92, 138, 0.65);
+	animation: pet-love 1.8s ease-in-out infinite;
+}
+.companion-eye.is-heart {
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-heart svg {
+	width: 100%;
+	height: 100%;
+	fill: var(--eye-color);
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+.companion-eyes[data-mood="love"]::after {
+	content: "✦";
+	position: absolute;
+	top: -8px;
+	right: -9px;
+	color: var(--eye-color);
+	font-size: 10px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-sparkle 1.8s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="surprised"] {
+	--eye-w: 22px;
+	--eye-h: 28px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.7);
+	animation:
+		pet-surprised 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both,
+		pet-breathe 4.8s 0.5s ease-in-out infinite;
+}
+.companion-eyes[data-mood="surprised"] .companion-eye {
+	animation: companion-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+/* ------------------------------------------------------------------ */
+/* Keyframes                                                          */
+/* ------------------------------------------------------------------ */
+
+@keyframes pet-breathe {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	50% {
+		transform: translateY(-0.7px) scale(1.018, 1.032);
+	}
+}
+
+@keyframes pet-aura {
+	0%,
+	100% {
+		opacity: 0.16;
+		transform: scale(0.94);
+	}
+	50% {
+		opacity: 0.28;
+		transform: scale(1.04);
+	}
+}
+
+@keyframes pet-blink {
+	0%,
+	39%,
+	43%,
+	90%,
+	94%,
+	100% {
+		transform: scaleY(1);
+	}
+	41%,
+	92% {
+		transform: scaleY(0.08);
+	}
+}
+
+@keyframes pet-curious {
+	0%,
+	100% {
+		transform: translateY(0) rotate(-1deg);
+	}
+	50% {
+		transform: translateY(-1px) rotate(1.5deg);
+	}
+}
+
+@keyframes pet-happy {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	40% {
+		transform: translateY(-1.5px) scale(1.02);
+	}
+	60% {
+		transform: translateY(-0.5px) scale(1.01);
+	}
+}
+
+@keyframes pet-excited {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	50% {
+		transform: translateY(-1.5px) scale(1.03);
+	}
+}
+
+@keyframes pet-sleep {
+	0%,
+	100% {
+		transform: translateY(0) scaleX(0.96);
+		opacity: 0.72;
+	}
+	50% {
+		transform: translateY(0.5px) scaleX(1.02);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-charge {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 7px var(--eye-glow));
+	}
+	50% {
+		filter: drop-shadow(0 0 14px var(--eye-glow));
+	}
+}
+
+@keyframes pet-low {
+	0%,
+	100% {
+		transform: translateY(0);
+		opacity: 0.82;
+	}
+	50% {
+		transform: translateY(0.6px);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-music {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-1.2px) rotate(0.6deg);
+	}
+}
+
+@keyframes pet-love {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+}
+
+@keyframes pet-surprised {
+	0% {
+		transform: scale(0.72);
+		opacity: 0.4;
+	}
+	70% {
+		transform: scale(1.06);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-note {
+	0%,
+	100% {
+		opacity: 0.55;
+		transform: translateY(0) rotate(-6deg);
+	}
+	50% {
+		opacity: 1;
+		transform: translateY(-3px) rotate(6deg);
+	}
+}
+
+@keyframes pet-sparkle {
+	0%,
+	100% {
+		opacity: 0.45;
+		transform: scale(0.8) rotate(0deg);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.15) rotate(18deg);
+	}
+}
+
+@keyframes pet-zzz {
+	0%,
+	100% {
+		opacity: 0.35;
+		transform: translateY(1px) scale(0.9);
+	}
+	50% {
+		opacity: 0.9;
+		transform: translateY(-2px) scale(1.08);
+	}
+}
+
+@keyframes companion-hop {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	45% {
+		transform: translateY(-2px) scale(1.06);
+	}
+}
+
+@keyframes companion-alert {
+	0%,
+	100% {
+		transform: translateX(0) scaleY(1);
+	}
+	25% {
+		transform: translateX(-0.8px) scaleY(0.94);
+	}
+	60% {
+		transform: translateX(0.8px) scaleY(1.02);
+	}
+}
+
+@keyframes companion-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes companion-sleep {
+	0%,
+	100% {
+		transform: scaleX(0.9);
+	}
+	50% {
+		transform: scaleX(1.05);
+	}
+}
+
+@keyframes companion-charge {
+	0%,
+	100% {
+		transform: scale(1);
+		box-shadow:
+			0 0 9px var(--eye-glow),
+			inset 0 0 4px rgba(255, 255, 255, 0.55);
+	}
+	50% {
+		transform: scale(1.06);
+		box-shadow:
+			0 0 16px var(--eye-glow),
+			inset 0 0 4px rgba(255, 255, 255, 0.7);
+	}
+}
+
+@keyframes companion-pop {
+	0% {
+		transform: scale(0.55);
+		opacity: 0.4;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.companion-eyes,
+	.companion-eyes::before,
+	.companion-eyes::after,
+	.companion-eye,
+	.companion-blinker,
+	.companion-eye-shape,
+	.companion-eye.is-spiral svg {
+		animation: none !important;
+	}
+}
+/* ========================================================================== */
+/* Island, compact modules, and the proposed pet slot                          */
+/* ========================================================================== */
+
+.island-glow {
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 50%;
+	width: min(420px, 82%);
+	height: 82%;
+	translate: -50% 0;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, color-mix(in srgb, var(--glow, #b6ffa8) 30%, transparent), transparent 70%);
+	filter: blur(24px);
+	opacity: 0.5;
+	pointer-events: none;
+	transition: background 0.7s ease, opacity 0.5s ease;
+}
+.island-shell {
+	position: relative;
+	z-index: 2;
+	pointer-events: auto;
+	transition:
+		width 0.62s cubic-bezier(0.22, 1, 0.36, 1),
+		height 0.62s cubic-bezier(0.22, 1, 0.36, 1);
+	will-change: width, height;
+}
+.island-shell.is-hidden {
+	opacity: 0;
+	transform: translateY(-18px) scale(0.96);
+	pointer-events: none;
+}
+.ear {
+	position: absolute;
+	top: 0;
+	width: var(--ear, 10px);
+	height: var(--ear, 10px);
+	pointer-events: none;
+}
+.ear.left {
+	right: 100%;
+	background: radial-gradient(circle at 0 100%, transparent 70%, #000 71%);
+}
+.ear.right {
+	left: 100%;
+	background: radial-gradient(circle at 100% 100%, transparent 70%, #000 71%);
+}
+.island-surface {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	background: #000;
+	box-shadow:
+		0 18px 46px -18px rgba(0, 0, 0, 0.92),
+		0 2px 0 rgba(255, 255, 255, 0.035) inset;
+	transition: border-radius 0.5s var(--ease-out);
+}
+.island-content {
+	position: absolute;
+	inset: 0;
+}
+.island-content.is-swapping {
+	animation: island-content-in 0.42s var(--ease-out) both;
+}
+@keyframes island-content-in {
+	from {
+		opacity: 0;
+		transform: translateY(3px) scale(0.986);
+		filter: blur(3px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		filter: blur(0);
+	}
+}
+
+.idle-content {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+}
+.idle-content .companion-eyes {
+	height: 100%;
+}
+.idle-clock {
+	flex: none;
+	margin-left: 14px;
+	color: rgba(245, 245, 247, 0.72);
+	font-size: 12px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compact layout                                                     */
+/* ------------------------------------------------------------------ */
+
+.compact {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	height: 100%;
+	padding: 0 12px 0 8px;
+}
+.compact-left {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex: 1;
+	min-width: 0;
+}
+.compact-right {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 8px;
+	flex: none;
+}
+.music-compact {
+	justify-content: space-between;
+}
+
+/* The reserved pet slot: a 44px home for the eyes inside the island. */
+.pet-slot {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 44px;
+	height: 100%;
+	margin-right: 2px;
+	border-right: 1px solid rgba(255, 255, 255, 0.075);
+	background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--pet-color, #b6ffa8) 12%, transparent), transparent 70%);
+}
+.pet-eyes {
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+	transform: scale(0.95);
+}
+.pet-slot .companion-eyes::before {
+	width: 50px;
+	height: 20px;
+	opacity: 0.15;
+}
+.pet-slot .companion-eyes {
+	height: 100%;
+}
+
+.artwork {
+	position: relative;
+	flex: none;
+	width: 24px;
+	height: 24px;
+	border-radius: 7px;
+	overflow: hidden;
+	background: linear-gradient(135deg, var(--c1, #5b6cff), var(--c2, #b46bff));
+	box-shadow:
+		0 0 0 1px rgba(255, 255, 255, 0.08),
+		0 4px 12px rgba(0, 0, 0, 0.35);
+	animation: artwork-in 0.48s var(--ease-out) both;
+}
+.artwork::before {
+	content: "";
+	position: absolute;
+	inset: -35%;
+	background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.46), transparent 55%);
+}
+.artwork span {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	color: rgba(255, 255, 255, 0.86);
+	font-size: 10px;
+	font-weight: 800;
+	letter-spacing: -0.04em;
+	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+@keyframes artwork-in {
+	from { opacity: 0; transform: scale(0.72) rotate(-6deg); filter: blur(4px); }
+	to { opacity: 1; transform: scale(1) rotate(0); filter: blur(0); }
+}
+.music-titles {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	max-width: 190px;
+}
+.music-title {
+	color: var(--ink);
+	font-size: 12.5px;
+	font-weight: 600;
+	line-height: 1.25;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.music-artist {
+	color: var(--muted);
+	font-size: 10.5px;
+	font-weight: 500;
+	line-height: 1.25;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.music-time {
+	color: var(--muted);
+	font-size: 12px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	line-height: 1;
+	white-space: nowrap;
+}
+.music-time.is-paused {
+	color: var(--faint);
+}
+.visualizer {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	height: 16px;
+}
+.visualizer i {
+	width: 2px;
+	height: 8px;
+	border-radius: 2px;
+	background: var(--accent, #b6ffa8);
+	transform-origin: center;
+	animation: viz 0.8s ease-in-out infinite alternate;
+}
+.visualizer i:nth-child(1) { height: 6px; animation-delay: -0.1s; }
+.visualizer i:nth-child(2) { height: 12px; animation-delay: -0.34s; }
+.visualizer i:nth-child(3) { height: 8px; animation-delay: -0.52s; }
+.visualizer i:nth-child(4) { height: 14px; animation-delay: -0.22s; }
+.visualizer i:nth-child(5) { height: 7px; animation-delay: -0.66s; }
+.visualizer.is-paused i {
+	animation-play-state: paused;
+	opacity: 0.45;
+}
+@keyframes viz {
+	from { transform: scaleY(0.4); opacity: 0.5; }
+	to { transform: scaleY(1); opacity: 1; }
+}
+
+/* Live lyric line, between the artwork and the time. */
+.lyric-line {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	color: var(--ink);
+	font-size: 12.5px;
+	font-weight: 600;
+	line-height: 1.28;
+	letter-spacing: 0.002em;
+}
+.lyric-line.is-swapping {
+	animation: lyric-in 0.3s var(--ease-out) both;
+}
+@keyframes lyric-in {
+	from { opacity: 0; transform: translateY(5px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+.lyric-word {
+	color: rgba(245, 245, 247, 0.38);
+	transition: color 0.16s linear, text-shadow 0.3s var(--ease-out);
+}
+.lyric-word.is-sung { color: #fff; }
+.lyric-word.is-active {
+	color: #fff;
+	text-shadow: 0 0 9px rgba(255, 255, 255, 0.35);
+}
+
+/* ------------------------------------------------------------------ */
+/* Notification compact                                               */
+/* ------------------------------------------------------------------ */
+
+.notif-compact .compact-left { gap: 8px; }
+.app-badge {
+	display: grid;
+	place-items: center;
+	flex: none;
+	width: 24px;
+	height: 24px;
+	border-radius: 7px;
+	background: color-mix(in srgb, var(--c, #0a84ff) 22%, #0b0c12);
+	color: var(--c, #0a84ff);
+	box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c, #0a84ff) 38%, transparent);
+}
+.app-badge svg { width: 13px; height: 13px; }
+.notif-title {
+	max-width: 220px;
+	color: var(--ink);
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.25;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.notif-more {
+	color: #0a84ff;
+	font-size: 12px;
+	font-weight: 650;
+	line-height: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Reaction bubble: the eyes peek out beside the module               */
+/* ------------------------------------------------------------------ */
+
+.reaction-bubble {
+	position: absolute;
+	z-index: 4;
+	right: calc(100% + 12px);
+	top: 50%;
+	width: 44px;
+	height: 44px;
+	display: grid;
+	place-items: center;
+	border-radius: 50%;
+	background: #000;
+	box-shadow:
+		0 12px 30px -10px rgba(0, 0, 0, 0.9),
+		0 0 0 1px rgba(255, 255, 255, 0.065);
+	translate: 0 -50%;
+	opacity: 0;
+	transform: scale(0.7) translateX(6px);
+	pointer-events: none;
+	transition: opacity 0.24s ease, transform 0.36s var(--ease-out);
+}
+.reaction-bubble.is-on {
+	opacity: 1;
+	transform: scale(1) translateX(0);
+}
+.reaction-bubble::after {
+	content: "";
+	position: absolute;
+	left: 100%;
+	top: 50%;
+	width: 7px;
+	height: 7px;
+	border-radius: 2px;
+	background: #000;
+	transform: translate(-4px, -50%) rotate(45deg);
+	box-shadow: 1px -1px 0 rgba(255, 255, 255, 0.05);
+}
+.bubble-eyes {
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+	transform: scale(0.9);
+}
+.reaction-bubble .companion-eyes {
+	height: 100%;
+}
+.reaction-bubble .companion-eyes::before {
+	width: 44px;
+	height: 18px;
+	opacity: 0.16;
+}
+
+/* ========================================================================== */
+/* Premium signal card — adapted from src/modules/activities/activities.css   */
+/* ========================================================================== */
+
+.signal-root {
+	--accent: #8e8eff;
+	position: relative;
+	width: 100%;
+	height: 100%;
+	isolation: isolate;
+	overflow: hidden;
+}
+.signal-aura {
+	position: absolute;
+	z-index: 0;
+	left: 5%;
+	right: 5%;
+	top: 18%;
+	bottom: -22%;
+	border-radius: 50%;
+	pointer-events: none;
+	opacity: 0.55;
+	background:
+		radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--accent) 50%, transparent), transparent 70%),
+		radial-gradient(60% 60% at 70% 50%, color-mix(in srgb, var(--accent) 35%, transparent), transparent 72%);
+	filter: blur(32px);
+	transition: opacity 0.35s var(--ease-out);
+}
+.signal-card {
+	--pad: 22px;
+	--icon: 54px;
+	--gap: 18px;
+	--title: 20px;
+	--sub: 12.5px;
+	--value: 38px;
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	padding: 0 var(--pad);
+	overflow: hidden;
+	isolation: isolate;
+	background:
+		radial-gradient(120% 160% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 42%),
+		linear-gradient(180deg, #0a0b0f 0%, #000 58%, #000 100%);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.09),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.055);
+}
+.signal-card.is-entering {
+	animation: signal-enter 0.82s var(--ease-out) both;
+}
+@keyframes signal-enter {
+	from {
+		opacity: 0;
+		transform: translateY(-20px) scale(0.95);
+		filter: blur(11px) brightness(1.12);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		filter: blur(0) brightness(1);
+	}
+}
+.signal-sensor {
+	position: absolute;
+	z-index: 6;
+	top: 9px;
+	left: 50%;
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--accent) 65%, #fff);
+	box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+	opacity: 0.8;
+	transform: translateX(-50%);
+}
+.signal-inner {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	gap: var(--gap);
+	width: 100%;
+}
+.signal-icon {
+	position: relative;
+	z-index: 1;
+	flex: none;
+	width: var(--icon);
+	height: var(--icon);
+	display: grid;
+	place-items: center;
+	isolation: isolate;
+}
+.signal-ring {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	transform: rotate(195deg);
+}
+.signal-ring-track {
+	fill: none;
+	stroke: color-mix(in srgb, var(--accent) 26%, #000);
+	stroke-width: 7;
+}
+.signal-ring-fill {
+	fill: none;
+	stroke: var(--accent);
+	stroke-width: 7;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+	transition: stroke-dashoffset 0.6s var(--ease-out);
+}
+.signal-ring-glyph {
+	position: absolute;
+	z-index: 2;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	color: #fff;
+	opacity: 0.94;
+	pointer-events: none;
+}
+.signal-ring-glyph svg { width: 23px; height: 23px; }
+.signal-eyes {
+	position: absolute;
+	z-index: 3;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	transform: scale(1.2);
+}
+.signal-eyes .companion-eyes {
+	height: 100%;
+}
+.signal-eyes .companion-eyes::before {
+	width: 58px;
+	height: 22px;
+	opacity: 0.18;
+}
+.signal-copy {
+	display: flex;
+	flex: 1;
+	min-width: 0;
+	flex-direction: column;
+	gap: 3px;
+}
+.signal-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: var(--title);
+	font-weight: 650;
+	line-height: 1.14;
+	letter-spacing: -0.018em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.signal-sub {
+	overflow: hidden;
+	color: var(--muted);
+	font-size: var(--sub);
+	font-weight: 450;
+	line-height: 1.3;
+	letter-spacing: -0.005em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.signal-right {
+	position: relative;
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: flex-end;
+	min-width: calc(var(--value) * 2.35);
+	margin-left: auto;
+}
+.signal-value {
+	display: flex;
+	align-items: baseline;
+	color: #fff;
+	font-size: var(--value);
+	font-weight: 640;
+	line-height: 0.9;
+	letter-spacing: -0.05em;
+	font-variant-numeric: tabular-nums;
+	text-shadow: 0 2px 22px rgba(0, 0, 0, 0.8);
+}
+.signal-value .num { display: inline-block; min-width: 0.6em; text-align: right; }
+.signal-value .pct {
+	margin-left: 0.1em;
+	color: var(--muted);
+	font-size: 0.5em;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+}
+.signal-value--text {
+	font-size: calc(var(--value) * 0.56);
+	font-weight: 620;
+	letter-spacing: -0.035em;
+	white-space: nowrap;
+}
+.signal-shine {
+	position: absolute;
+	z-index: 5;
+	inset: -60% -30%;
+	pointer-events: none;
+	opacity: 0;
+	background: linear-gradient(105deg,
+		transparent 38%,
+		rgba(255, 255, 255, 0.07) 46%,
+		rgba(255, 255, 255, 0.16) 50%,
+		rgba(255, 255, 255, 0.05) 54%,
+		transparent 62%);
+	mix-blend-mode: screen;
+	transform: translateX(-120%);
+	animation: signal-shine 1.2s var(--ease-out) 0.42s both;
+}
+.signal-shockwave {
+	position: absolute;
+	z-index: 0;
+	top: 50%;
+	left: calc(var(--pad) + var(--icon) * 0.5);
+	width: var(--icon);
+	height: var(--icon);
+	border: 1.5px solid color-mix(in srgb, var(--accent) 75%, transparent);
+	border-radius: 50%;
+	opacity: 0;
+	pointer-events: none;
+	translate: -50% -50%;
+}
+.signal-card.fx .signal-shockwave {
+	animation: signal-shockwave 1.05s var(--ease-out) 0.12s both;
+}
+.signal-sparks {
+	position: absolute;
+	z-index: 4;
+	top: 50%;
+	left: calc(var(--pad) + var(--icon) * 0.5);
+	pointer-events: none;
+}
+.signal-sparks i {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--s, 3px);
+	height: var(--s, 3px);
+	border-radius: 50%;
+	background: var(--accent);
+	box-shadow: 0 0 8px var(--accent);
+	opacity: 0;
+}
+.signal-card.fx[data-spark="true"] .signal-sparks i {
+	animation: signal-spark 0.95s var(--ease-out) both;
+	animation-delay: calc(0.18s + var(--d, 0ms));
+}
+.signal-flash {
+	position: absolute;
+	z-index: 3;
+	inset: 0;
+	opacity: 0;
+	pointer-events: none;
+	mix-blend-mode: screen;
+	background: radial-gradient(circle at calc(var(--pad) + var(--icon) * 0.5) 50%,
+		color-mix(in srgb, var(--accent) 60%, transparent), transparent 58%);
+}
+.signal-card.fx[data-tone="zap"] .signal-flash,
+.signal-card.fx[data-tone="burst"] .signal-flash,
+.signal-card.fx[data-tone="wave"] .signal-flash {
+	animation: signal-flash 0.7s var(--ease-out) 0.08s both;
+}
+.signal-glitch {
+	position: absolute;
+	z-index: 4;
+	inset: 0;
+	opacity: 0;
+	pointer-events: none;
+	mix-blend-mode: screen;
+	background: repeating-linear-gradient(0deg, transparent 0 3px, rgba(255, 80, 100, 0.18) 3px 4px);
+}
+.signal-card.fx[data-tone="glitch"] .signal-glitch {
+	animation: signal-glitch 0.55s steps(2, end) 0.1s both;
+}
+.signal-root.is-live .signal-aura { animation: signal-aura 5s ease-in-out infinite; }
+.signal-root.is-live .signal-inner { animation: signal-float 5.4s ease-in-out infinite; }
+.signal-root.is-live .signal-ring-fill { animation: signal-ring-glow 3.4s ease-in-out infinite; }
+.signal-root.is-live .signal-sensor { animation: signal-sensor 3.8s ease-in-out infinite; }
+@keyframes signal-shockwave {
+	0% { opacity: 0.55; transform: scale(0.72); }
+	72%, 100% { opacity: 0; transform: scale(1.9); }
+}
+@keyframes signal-spark {
+	0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+	15% { opacity: 1; }
+	100% { opacity: 0; transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(0.25); }
+}
+@keyframes signal-flash {
+	0% { opacity: 0; }
+	16% { opacity: 0.95; }
+	100% { opacity: 0; }
+}
+@keyframes signal-glitch {
+	0%, 100% { opacity: 0; transform: translateX(0); }
+	12% { opacity: 0.85; transform: translateX(-3px); }
+	26% { opacity: 0; }
+	42% { opacity: 0.65; transform: translateX(3px); }
+	58% { opacity: 0; }
+	74% { opacity: 0.4; transform: translateX(-2px); }
+}
+@keyframes signal-shine {
+	0% { opacity: 0; transform: translateX(-120%); }
+	8% { opacity: 1; }
+	90% { opacity: 1; transform: translateX(120%); }
+	100% { opacity: 0; transform: translateX(120%); }
+}
+@keyframes signal-aura {
+	0%, 100% { opacity: 0.55; transform: scale(1); }
+	50% { opacity: 0.72; transform: scale(1.04); }
+}
+@keyframes signal-float {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-2px); }
+}
+@keyframes signal-ring-glow {
+	0%, 100% { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 45%, transparent)); }
+	50% { filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 78%, transparent)); }
+}
+@keyframes signal-sensor {
+	0%, 100% { opacity: 0.55; transform: translateX(-50%) scale(0.9); }
+	50% { opacity: 0.95; transform: translateX(-50%) scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.signal-card.is-entering,
+	.signal-card.fx .signal-shockwave,
+	.signal-card.fx[data-spark="true"] .signal-sparks i,
+	.signal-card.fx[data-tone="zap"] .signal-flash,
+	.signal-card.fx[data-tone="burst"] .signal-flash,
+	.signal-card.fx[data-tone="wave"] .signal-flash,
+	.signal-card.fx[data-tone="glitch"] .signal-glitch,
+	.signal-shine,
+	.signal-root.is-live .signal-aura,
+	.signal-root.is-live .signal-inner,
+	.signal-root.is-live .signal-ring-fill,
+	.signal-root.is-live .signal-sensor {
+		animation: none;
+	}
+}
+/* Expanded view is intentionally not part of this first simulator pass. */
+</style>
+</head>
+<body>
+<svg class="sprite" aria-hidden="true">
+	<symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5l11 7-11 7V5z"/></symbol>
+	<symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+	<symbol id="i-lyrics" viewBox="0 0 24 24"><path d="M4 6h16M4 10h10M4 14h16M4 18h8"/></symbol>
+	<symbol id="i-skip" viewBox="0 0 24 24"><path d="M5 5l9 7-9 7V5zM19 5v14"/></symbol>
+	<symbol id="i-vol-up" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8a6 6 0 0 1 0 8"/><path d="M19 5a10 10 0 0 1 0 14"/></symbol>
+	<symbol id="i-vol-down" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8a6 6 0 0 1 0 8"/></symbol>
+	<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z"/></symbol>
+	<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></symbol>
+	<symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 21s-8-4.8-8-11a4.6 4.6 0 0 1 8-3.1A4.6 4.6 0 0 1 20 10c0 6.2-8 11-8 11z"/></symbol>
+	<symbol id="i-fullscreen" viewBox="0 0 24 24"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></symbol>
+	<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+	<symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></symbol>
+	<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z"/></symbol>
+	<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+	<symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-8 8H7l-4 3v-6.5A8 8 0 0 1 11 4h2a8 8 0 0 1 8 8z"/></symbol>
+	<symbol id="i-git" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><circle cx="18" cy="12" r="2"/><path d="M6 8v8M8 6h4a4 4 0 0 1 4 4"/></symbol>
+	<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+	<symbol id="i-chevron" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+</svg>
+
+<div class="page">
+	<header class="site-head">
+		<div class="brand">
+			<span class="brand-mark" aria-hidden="true"><i></i><i></i></span>
+			Notchly <span>Companion Lab</span>
+		</div>
+		<div class="head-meta"><span class="live-dot"></span> Live simulation · local only</div>
+	</header>
+
+	<section class="hero">
+		<div>
+			<p class="eyebrow">Interactive design prototype</p>
+			<h1>The pet lives <em>in the notch.</em></h1>
+			<p class="lede">Trigger music, lyrics, track skips, volume, charging and notifications. Watch exactly when the eyes appear, when a module takes the island, and what a reserved pet slot would change.</p>
+		</div>
+		<div class="hero-notes">
+			<span class="hero-note"><b>10 events</b> · real island timings</span>
+			<span class="hero-note"><b>3 layouts</b> · compare side by side</span>
+			<span class="hero-note"><b>No production changes</b> · safe sandbox</span>
+		</div>
+	</section>
+
+	<section class="sim-grid">
+		<div class="card stage-card">
+			<div class="desktop">
+				<div class="desktop-top">
+					<span class="fake-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+					<span>desktop · companion preview</span>
+					<span class="fake-clock" id="fake-clock">9:41</span>
+				</div>
+				<span class="screen-edge" aria-hidden="true"></span>
+				<div class="island-stage" id="island-stage">
+					<div class="lanes" id="lanes"></div>
+				</div>
+				<div class="desktop-hint">Hanging from the top edge · the same eyes, three homes</div>
+				<div class="fullscreen-cover" id="fullscreen-cover">
+					<div class="fullscreen-card">
+						<span class="lock"><svg class="icon"><use href="#i-lock"/></svg></span>
+						<strong>Fullscreen app detected</strong>
+						<span>The island hides while a fullscreen app is in front.</span>
+					</div>
+				</div>
+			</div>
+			<div class="stage-footer">
+				<div class="seg" id="view-switch" role="group" aria-label="Island layout">
+					<button type="button" data-view="today">Today</button>
+					<button type="button" data-view="slot" class="is-active">Pet slot</button>
+					<button type="button" data-view="reaction">Reaction bubble</button>
+					<button type="button" data-view="compare">Compare</button>
+				</div>
+				<div class="readout" id="readout"></div>
+			</div>
+		</div>
+
+		<aside class="side-panel">
+			<div class="card panel">
+				<div class="panel-head">
+					<span class="panel-title"><svg class="icon" style="width:12px;height:12px"><use href="#i-spark"/></svg> Event log</span>
+					<span class="panel-count" id="log-count">0 events</span>
+				</div>
+				<div class="log" id="log" aria-live="polite">
+					<div class="log-empty">Trigger an event to see what each layout does with the island and the eyes.</div>
+				</div>
+			</div>
+			<div class="card safe-panel">
+				<div class="safe-head">
+					<span class="shield"><svg class="icon" style="width:14px;height:14px"><use href="#i-lock"/></svg></span>
+					Safe by design
+				</div>
+				<ul class="safe-list">
+					<li>Only local signals: playback, volume, battery, notifications, drag and summon.</li>
+					<li>No screen reading, keystrokes, clipboard or Claude integration.</li>
+					<li>Fullscreen hides the island. Off still allows the summon shortcut.</li>
+				</ul>
+				<div class="shortcut-list">
+					<div><span>Summon the pet</span><span class="kbd">Ctrl</span><span class="kbd">Alt</span><span class="kbd">R</span></div>
+					<div><span>Cycle Auto / Always / Off</span><span class="kbd">Ctrl</span><span class="kbd">Alt</span><span class="kbd">Shift</span><span class="kbd">R</span></div>
+					<div><span>Play / pause music</span><span class="kbd">Space</span></div>
+					<div><span>Skip track</span><span class="kbd">S</span></div>
+					<div><span>Toggle lyrics</span><span class="kbd">L</span></div>
+				</div>
+			</div>
+		</aside>
+	</section>
+
+	<section class="card controls">
+		<div class="control-head">
+			<div>
+				<h2>Trigger an event</h2>
+				<p>Every action updates the island and the eyes at the same time. Use Compare to see Today and Pet slot respond to the same signal.</p>
+			</div>
+			<div class="auto-controls">
+				<button type="button" class="btn primary" id="auto-demo"><svg class="icon"><use href="#i-play"/></svg><span>Run auto demo</span></button>
+				<button type="button" class="btn" id="reset"><svg class="icon"><use href="#i-reset"/></svg>Reset</button>
+			</div>
+		</div>
+
+		<div class="scenario-grid" id="scenario-grid">
+			<button type="button" class="scenario" data-event="idle">
+				<span class="scenario-icon"><svg class="icon"><use href="#i-eye"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Idle</span><span class="scenario-desc">Clear modules, calm eyes</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="music">
+				<span class="scenario-icon" style="--sc:#b6ffa8"><svg class="icon"><use href="#i-play"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Play music</span><span class="scenario-desc">Start or pause a track</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="lyrics">
+				<span class="scenario-icon" style="--sc:#9a96ff"><svg class="icon"><use href="#i-lyrics"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Lyrics</span><span class="scenario-desc">Karaoke line in the pill</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="skip">
+				<span class="scenario-icon" style="--sc:#ff8e72"><svg class="icon"><use href="#i-skip"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Skip track</span><span class="scenario-desc">New song, fast reaction</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="volume-up">
+				<span class="scenario-icon" style="--sc:#74b9ff"><svg class="icon"><use href="#i-vol-up"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Volume up</span><span class="scenario-desc">Premium volume card</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="volume-down">
+				<span class="scenario-icon" style="--sc:#74b9ff"><svg class="icon"><use href="#i-vol-down"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Volume down</span><span class="scenario-desc">Same card, lower level</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="charging">
+				<span class="scenario-icon" style="--sc:#30d158"><svg class="icon"><use href="#i-bolt"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Charging</span><span class="scenario-desc">Battery popup, green eyes</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="notification">
+				<span class="scenario-icon" style="--sc:#ffb45c"><svg class="icon"><use href="#i-bell"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Notification</span><span class="scenario-desc">Alert takes the compact pill</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="summon">
+				<span class="scenario-icon" style="--sc:#ff6b9a"><svg class="icon"><use href="#i-heart"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Summon</span><span class="scenario-desc">Love eyes for six seconds</span></span>
+			</button>
+			<button type="button" class="scenario" data-event="fullscreen">
+				<span class="scenario-icon" style="--sc:#c8c9d4"><svg class="icon"><use href="#i-fullscreen"/></svg></span>
+				<span class="scenario-copy"><span class="scenario-title">Fullscreen</span><span class="scenario-desc">Hide the island safely</span></span>
+			</button>
+		</div>
+
+		<div class="control-row">
+			<div class="field">
+				<label>Companion mode</label>
+				<div class="seg" id="mode-switch" role="group" aria-label="Companion mode">
+					<button type="button" data-mode="auto">Auto</button>
+					<button type="button" data-mode="always" class="is-active">Always</button>
+					<button type="button" data-mode="off">Off</button>
+				</div>
+			</div>
+			<div class="field">
+				<label>Volume <b id="volume-value">62%</b></label>
+				<div class="range-wrap">
+					<input id="volume" type="range" min="0" max="100" step="1" value="62" aria-label="Volume">
+				</div>
+			</div>
+			<div class="field">
+				<label>Track</label>
+				<select id="track-select" aria-label="Track"></select>
+			</div>
+			<div class="field">
+				<label>Mood test</label>
+				<select id="mood-select" aria-label="Mood test"></select>
+			</div>
+		</div>
+
+		<div class="shortcuts">
+			<span><span class="kbd">Space</span> play / pause</span>
+			<span><span class="kbd">S</span> skip</span>
+			<span><span class="kbd">L</span> lyrics</span>
+			<span><span class="kbd">Ctrl</span> + <span class="kbd">Alt</span> + <span class="kbd">R</span> summon</span>
+			<span><span class="kbd">Ctrl</span> + <span class="kbd">Alt</span> + <span class="kbd">Shift</span> + <span class="kbd">R</span> mode</span>
+		</div>
+	</section>
+
+	<footer class="foot">
+		<span><b>Prototype only.</b> No production island layout has been changed. The eyes and timings are adapted from the real companion code.</span>
+		<span>Built for review · open in Chrome or Edge</span>
+	</footer>
+</div>
+
+<div class="toast" id="toast"><i></i><span id="toast-text"></span></div>
+<script>
+(() => {
+	"use strict";
+
+	const $ = (sel, root = document) => root.querySelector(sel);
+	const $$ = (sel, root = document) => [...root.querySelectorAll(sel)];
+	const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+	const now = () => Date.now();
+	const pad2 = (n) => String(n).padStart(2, "0");
+	const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+	const fmtTime = (seconds) => {
+		const s = Math.max(0, Math.floor(seconds));
+		return `${Math.floor(s / 60)}:${pad2(s % 60)}`;
+	};
+	const fmtClock = () => {
+		const d = new Date();
+		return `${d.getHours() % 12 || 12}:${pad2(d.getMinutes())}`;
+	};
+
+	const MOODS = ["calm", "curious", "happy", "excited", "alert", "dizzy", "sleepy", "charging", "low", "music", "love", "surprised"];
+	const MOOD_LABELS = {
+		calm: "Calm",
+		curious: "Curious",
+		happy: "Happy",
+		excited: "Excited",
+		alert: "Alert",
+		dizzy: "Dizzy",
+		sleepy: "Sleepy",
+		charging: "Charging",
+		low: "Low battery",
+		music: "Music",
+		love: "Love",
+		surprised: "Surprised",
+	};
+	const MOOD_COLORS = {
+		calm: "#b6ffa8",
+		curious: "#74d8ff",
+		happy: "#b6ffa8",
+		excited: "#ff6b7e",
+		alert: "#ff5a6e",
+		dizzy: "#b6ffb0",
+		sleepy: "#eaffdf",
+		charging: "#30d158",
+		low: "#ff7a8a",
+		music: "#b6ffa8",
+		love: "#ff5c8a",
+		surprised: "#ff5a6e",
+	};
+
+	const TRACKS = [
+		{
+			title: "Puddle",
+			artist: "Aditya",
+			album: "Monsoon",
+			duration: 198,
+			colors: ["#5b6cff", "#b46bff"],
+			accent: "#b6ffa8",
+			lyrics: [
+				"Streetlights running through the glass",
+				"Every echo pulls me back",
+				"I can hear the city breathe",
+				"Slow down, let it come to me",
+				"Neon rivers in the rain",
+				"We were never quite the same",
+				"Hold the moment, let it glow",
+				"Somewhere only we could go",
+				"Turn the static into gold",
+				"One more night before the cold",
+			],
+		},
+		{
+			title: "Neon Rivers",
+			artist: "Night Drive",
+			album: "After Hours",
+			duration: 242,
+			colors: ["#1f8a70", "#74b9ff"],
+			accent: "#74b9ff",
+			lyrics: [
+				"Midnight on the overpass",
+				"Headlights painting green and blue",
+				"Every signal pulls me through",
+				"Keep the radio awake",
+				"We are moving like a wave",
+				"Let the skyline fall behind",
+				"Nothing waiting at the end",
+				"Just the rhythm in my head",
+			],
+		},
+		{
+			title: "Static Gold",
+			artist: "Lumen",
+			album: "Soft Focus",
+			duration: 216,
+			colors: ["#ff9f43", "#ff6b9a"],
+			accent: "#ffb45c",
+			lyrics: [
+				"Wake up in a borrowed room",
+				"Static turning into gold",
+				"Every shadow learns to move",
+				"Tell me something I can hold",
+				"Running circles in the light",
+				"Keep the moment out of sight",
+				"All the noise begins to fade",
+				"Into something we have made",
+			],
+		},
+		{
+			title: "Slow Motion",
+			artist: "Kite",
+			album: "Blue Hour",
+			duration: 192,
+			colors: ["#7ef0b4", "#5b6cff"],
+			accent: "#7ef0b4",
+			lyrics: [
+				"Take it slow, the night is young",
+				"Let the quiet come undone",
+				"Every breath a little longer",
+				"Every beat a little stronger",
+				"Hold the frame and let it stay",
+				"Watch the colors drift away",
+				"Nothing here needs to be fast",
+				"We can make the moment last",
+			],
+		},
+	];
+
+	const NOTIFICATIONS = [
+		{ app: "Messages", title: "Maya · Are you free tonight?", body: "Are you free tonight?", color: "#30d158", glyph: "i-msg" },
+		{ app: "GitHub", title: "PR #42 merged", body: "companion: robo eyes", color: "#a371f7", glyph: "i-git" },
+		{ app: "Calendar", title: "Standup in 10 min", body: "Design review · 9:30", color: "#ff9f0a", glyph: "i-cal" },
+		{ app: "Teams", title: "Sara Chen · Can you review?", body: "Can you review the motion pass?", color: "#8f8cff", glyph: "i-msg" },
+	];
+
+	const REACTIONS = {
+		music: { mood: "happy", hold: 2600, weight: 3 },
+		pause: { mood: "curious", hold: 2200, weight: 2.4 },
+		lyrics: { mood: "curious", hold: 1600, weight: 2.2 },
+		skip: { mood: "excited", hold: 1800, weight: 4.2 },
+		volume: { mood: "curious", hold: 2200, weight: 1.6 },
+		charging: { mood: "charging", hold: 5000, weight: 3.2 },
+		notification: { mood: "surprised", hold: 1800, weight: 4.4 },
+		summon: { mood: "love", hold: 6000, weight: 20, force: true },
+		mood: { mood: "love", hold: 5000, weight: 10, force: true },
+	};
+
+	const LINE_MS = 5000;
+	const MAX_LOG = 40;
+
+	const state = {
+		view: "slot",
+		mode: "always",
+		scene: "idle",
+		playing: false,
+		lyrics: false,
+		track: 0,
+		position: 0,
+		volume: 62,
+		battery: 64,
+		charging: false,
+		unread: 0,
+		notificationIndex: -1,
+		reaction: null,
+		summonUntil: 0,
+		moodOverride: null,
+		fullscreen: false,
+		lyricLine: 0,
+		wordIndex: 0,
+		pin: false,
+		lanesKey: "",
+		logCount: 0,
+		autoRunning: false,
+		lastVolumeReaction: 0,
+	};
+
+	const el = {
+		lanes: $("#lanes"),
+		stage: $("#island-stage"),
+		viewSwitch: $("#view-switch"),
+		modeSwitch: $("#mode-switch"),
+		readout: $("#readout"),
+		log: $("#log"),
+		logCount: $("#log-count"),
+		cover: $("#fullscreen-cover"),
+		toast: $("#toast"),
+		toastText: $("#toast-text"),
+		autoBtn: $("#auto-demo"),
+		resetBtn: $("#reset"),
+		volume: $("#volume"),
+		volumeValue: $("#volume-value"),
+		trackSelect: $("#track-select"),
+		moodSelect: $("#mood-select"),
+		fakeClock: $("#fake-clock"),
+	};
+
+	const timers = { scene: 0, reaction: 0, summon: 0, signalLive: 0, toast: 0, volumeLog: 0 };
+	const autoTimers = [];
+	let sceneSeq = 0;
+	let lastTick = now();
+	let gazeFrame = 0;
+
+	/* ---------------------------------------------------------------- */
+	/* Eye markup                                                        */
+	/* ---------------------------------------------------------------- */
+
+	function eyeMarkup(side, mood) {
+		const cls = `companion-eye ${side}`;
+		if (mood === "dizzy") {
+			return `<span class="${cls} is-spiral"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 12c0-1.7 2.5-1.7 2.5 0s-3.2 2.4-4.2 0 1.7-4.2 4.2-2.5 2.6 5.8-1.7 6.7-7.5-3.2-5.8-7.5 7.4-3.2 8.3 1.8"/></svg></span></span>`;
+		}
+		if (mood === "love") {
+			return `<span class="${cls} is-heart"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 21s-8-4.8-8-11a4.6 4.6 0 0 1 8-3.1A4.6 4.6 0 0 1 20 10c0 6.2-8 11-8 11z"/></svg></span></span>`;
+		}
+		if (mood === "excited") {
+			const d = side === "left" ? "M8 4 L17 12 L8 20" : "M16 4 L7 12 L16 20";
+			return `<span class="${cls} is-chevron"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="${d}"/></svg></span></span>`;
+		}
+		if (mood === "happy" || mood === "music" || mood === "sleepy" || mood === "low") {
+			const down = mood === "sleepy" || mood === "low";
+			const d = down ? "M3 3 Q12 10 21 3" : "M3 9 Q12 2 21 9";
+			return `<span class="${cls} is-arc"><span class="companion-blinker"><svg viewBox="0 0 24 12"><path d="${d}"/></svg></span></span>`;
+		}
+		return `<span class="${cls}"><span class="companion-blinker"><span class="companion-eye-shape"></span></span></span>`;
+	}
+
+	function eyesMarkup(mood) {
+		return `<div class="companion-eyes" data-mood="${mood}" data-action="rest" aria-hidden="true">${eyeMarkup("left", mood)}${eyeMarkup("right", mood)}</div>`;
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* State helpers                                                     */
+	/* ---------------------------------------------------------------- */
+
+	function activeReaction() {
+		return state.reaction && now() < state.reaction.until ? state.reaction : null;
+	}
+	function summonActive() {
+		return state.summonUntil > now();
+	}
+	function moodOverrideActive() {
+		return state.moodOverride && now() < state.moodOverride.until ? state.moodOverride : null;
+	}
+	function baseScene() {
+		return state.playing ? (state.lyrics ? "lyrics" : "music") : "idle";
+	}
+	function currentTrack() {
+		return TRACKS[state.track % TRACKS.length];
+	}
+	function currentLine() {
+		const t = currentTrack();
+		return t.lyrics[state.lyricLine % t.lyrics.length] || "";
+	}
+	function lyricWidth() {
+		return clamp(Math.ceil(currentLine().length * 7.2 + 118), 340, 560);
+	}
+	function baseEyesVisible() {
+		if (state.mode === "always") return true;
+		if (state.mode === "auto") return !!activeReaction() || summonActive();
+		return summonActive();
+	}
+	function petVisible(lane) {
+		if (lane !== "slot") return false;
+		if (!["music", "lyrics", "notification"].includes(state.scene)) return false;
+		return baseEyesVisible();
+	}
+	function eyesVisible(lane) {
+		const base = baseEyesVisible();
+		if (lane === "today") return base && state.scene === "idle";
+		if (lane === "slot") return base;
+		if (lane === "reaction") return base && state.scene === "idle";
+		return false;
+	}
+	function displayMood(lane) {
+		const override = moodOverrideActive();
+		if (override) return override.mood;
+		if (summonActive()) return "love";
+		// Signal cards own the eyes while they are on screen. This keeps a
+		// lingering charging reaction from tinting a newer volume card.
+		if (state.scene === "charging") return "charging";
+		if (state.scene === "volume") return "curious";
+		const r = activeReaction();
+		if (r) return r.mood;
+		if (state.scene === "notification") return "curious";
+		if (state.scene === "music" || state.scene === "lyrics") return state.playing ? "music" : "calm";
+		return "calm";
+	}
+	function bubbleMood() {
+		const override = moodOverrideActive();
+		if (override) return override.mood;
+		// At idle the island itself is free, so the eyes live there. The
+		// bubble only exists to rescue reactions when a module owns the pill.
+		if (state.scene === "idle") return null;
+		if (state.mode === "off" && !summonActive()) return null;
+		if (summonActive()) return "love";
+		if (state.scene === "charging") return "charging";
+		if (state.scene === "volume") return "curious";
+		const r = activeReaction();
+		if (r) return r.mood;
+		if (state.scene === "notification") return "curious";
+		return null;
+	}
+	function moduleLabel() {
+		return state.scene === "idle" ? "idle" : state.scene;
+	}
+	function metrics(lane) {
+		const pet = petVisible(lane);
+		const petW = pet ? 44 : 0;
+		if (state.scene === "volume" || state.scene === "charging") {
+			return { width: 520, height: 108, radius: 30, ear: 14, pet: false };
+		}
+		if (state.scene === "notification") {
+			return { width: 340 + petW, height: 38, radius: 19, ear: 10, pet };
+		}
+		if (state.scene === "music" || state.scene === "lyrics") {
+			const base = state.scene === "lyrics" ? lyricWidth() : 340;
+			return { width: base + petW, height: 38, radius: 19, ear: 10, pet };
+		}
+		return { width: 150, height: 34, radius: 17, ear: 6, pet: false };
+	}
+	function activeLanes() {
+		return state.view === "compare" ? ["today", "slot"] : [state.view];
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* Content markup                                                    */
+	/* ---------------------------------------------------------------- */
+
+	function lyricWordsHTML(line, activeIndex) {
+		const words = String(line).split(" ");
+		return words.map((word, i) => {
+			const sung = i < activeIndex ? " is-sung" : "";
+			const active = i === activeIndex ? " is-active" : "";
+			const space = i < words.length - 1 ? " " : "";
+			return `<span class="lyric-word${sung}${active}">${esc(word)}${space}</span>`;
+		}).join("");
+	}
+
+	function artworkHTML(track) {
+		return `<div class="artwork" style="--c1:${track.colors[0]};--c2:${track.colors[1]}" aria-hidden="true"><span>${esc(track.title.charAt(0))}</span></div>`;
+	}
+
+	function petSlotHTML(lane) {
+		const mood = displayMood(lane);
+		return `<div class="pet-slot" style="--pet-color:${MOOD_COLORS[mood] || "#b6ffa8"}"><div class="pet-eyes">${eyesMarkup(mood)}</div></div>`;
+	}
+
+	function idleHTML(lane) {
+		const clock = fmtClock();
+		if (!eyesVisible(lane)) {
+			return `<div class="idle-content"><span class="idle-clock">${clock}</span></div>`;
+		}
+		return `<div class="idle-content">${eyesMarkup(displayMood(lane))}<span class="idle-clock">${clock}</span></div>`;
+	}
+
+	function musicHTML(lane) {
+		const track = currentTrack();
+		const pet = petVisible(lane);
+		const paused = !state.playing;
+		const petHTML = pet ? petSlotHTML(lane) : "";
+		const left = state.lyrics
+			? `${artworkHTML(track)}<div class="lyric-line" data-line="${state.lyricLine}">${lyricWordsHTML(currentLine(), state.wordIndex)}</div>`
+			: `${artworkHTML(track)}<div class="music-titles"><span class="music-title">${esc(track.title)}</span><span class="music-artist">${esc(track.artist)}</span></div>`;
+		const bars = "<i></i>".repeat(5);
+		return `<div class="compact music-compact">
+			${petHTML}
+			<div class="compact-left">${left}</div>
+			<div class="compact-right">
+				<span class="music-time${paused ? " is-paused" : ""}">${fmtTime(state.position)}</span>
+				<div class="visualizer${paused ? " is-paused" : ""}" style="--accent:${track.accent}">${bars}</div>
+			</div>
+		</div>`;
+	}
+
+	function notificationHTML(lane) {
+		const index = state.notificationIndex >= 0 ? state.notificationIndex % NOTIFICATIONS.length : 0;
+		const notification = NOTIFICATIONS[index];
+		const pet = petVisible(lane);
+		const petHTML = pet ? petSlotHTML(lane) : "";
+		const more = state.unread > 1 ? `<span class="notif-more">+${state.unread - 1}</span>` : "";
+		return `<div class="compact notif-compact">
+			${petHTML}
+			<div class="compact-left">
+				<div class="app-badge" style="--c:${notification.color}" aria-hidden="true"><svg class="icon" style="width:13px;height:13px"><use href="#${notification.glyph}"/></svg></div>
+				<span class="notif-title">${esc(notification.title)}</span>
+			</div>
+			<div class="compact-right">${more}</div>
+		</div>`;
+	}
+
+	function signalHTML(lane) {
+		const charging = state.scene === "charging";
+		const value = clamp(charging ? state.battery : state.volume, 0, 100);
+		const label = charging ? "Charging" : "Volume";
+		const sub = charging ? `Battery at ${Math.round(state.battery)}%` : "Speakers · Realtek";
+		const accent = charging ? "#30d158" : "#74b9ff";
+		const glyph = charging ? "i-bolt" : "i-vol-up";
+		const tone = charging ? "zap" : "wave";
+		const mood = eyesVisible(lane) ? displayMood(lane) : null;
+		const eyeBlock = mood
+			? `<div class="signal-eyes">${eyesMarkup(mood)}</div>`
+			: `<span class="signal-ring-glyph"><svg class="icon" style="width:23px;height:23px"><use href="#${glyph}"/></svg></span>`;
+		const sparks = Array.from({ length: 14 }, (_, i) => {
+			const angle = (i / 14) * Math.PI * 2;
+			const distance = 24 + (i % 5) * 7;
+			const x = Math.cos(angle) * distance;
+			const y = Math.sin(angle) * distance;
+			return `<i style="--tx:${x.toFixed(1)}px;--ty:${y.toFixed(1)}px;--d:${i * 18}ms;--s:${2 + (i % 3)}px"></i>`;
+		}).join("");
+		return `<div class="signal-root" style="--accent:${accent}">
+			<div class="signal-aura"></div>
+			<div class="signal-card is-entering fx" data-tone="${tone}" data-spark="true">
+				<span class="signal-sensor" aria-hidden="true"></span>
+				<div class="signal-shockwave" aria-hidden="true"></div>
+				<div class="signal-sparks" aria-hidden="true">${sparks}</div>
+				<div class="signal-flash" aria-hidden="true"></div>
+				<div class="signal-glitch" aria-hidden="true"></div>
+				<div class="signal-inner">
+					<div class="signal-icon">
+						<svg class="signal-ring" viewBox="0 0 64 64" aria-hidden="true">
+							<circle class="signal-ring-track" cx="32" cy="32" r="26"/>
+							<circle class="signal-ring-fill" cx="32" cy="32" r="26" pathLength="100" stroke-dasharray="100" stroke-dashoffset="${100 - value}"/>
+						</svg>
+						${eyeBlock}
+					</div>
+					<div class="signal-copy">
+						<div class="signal-title">${label}</div>
+						<div class="signal-sub">${esc(sub)}</div>
+					</div>
+					<div class="signal-right">
+						<div class="signal-value"><span class="num">${Math.round(value)}</span><span class="pct">%</span></div>
+					</div>
+				</div>
+				<span class="signal-shine" aria-hidden="true"></span>
+			</div>
+		</div>`;
+	}
+
+	function contentHTML(lane) {
+		if (state.scene === "idle") return idleHTML(lane);
+		if (state.scene === "music" || state.scene === "lyrics") return musicHTML(lane);
+		if (state.scene === "volume" || state.scene === "charging") return signalHTML(lane);
+		if (state.scene === "notification") return notificationHTML(lane);
+		return idleHTML(lane);
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* Rendering                                                         */
+	/* ---------------------------------------------------------------- */
+
+	function ensureLanes(lanes) {
+		const key = lanes.join(",");
+		if (state.lanesKey === key) return;
+		state.lanesKey = key;
+		el.lanes.innerHTML = lanes.map((lane) => `
+			<div class="island-lane" data-lane="${lane}">
+				<div class="island-wrap">
+					<div class="island-assembly">
+						<div class="island-glow"></div>
+						<div class="island-shell">
+							<span class="ear left"></span>
+							<span class="ear right"></span>
+							<div class="island-surface"><div class="island-content"></div></div>
+						</div>
+						<div class="reaction-bubble"></div>
+					</div>
+				</div>
+				<div class="lane-caption">
+					<span class="lane-name"></span>
+					<span class="lane-sub"></span>
+				</div>
+				<div class="lane-status"></div>
+			</div>`).join("");
+	}
+
+	function updateLaneCaption(lane) {
+		const laneEl = $(`.island-lane[data-lane="${lane}"]`);
+		if (!laneEl) return;
+		const meta = {
+			today: { name: "Today", sub: "One content slot · modules replace the eyes" },
+			slot: { name: "Pet slot", sub: "44px reserved home · island grows in compact states" },
+			reaction: { name: "Reaction bubble", sub: "Modules keep the island · eyes pop out beside it" },
+		}[lane];
+		if (!meta) return;
+		$(".lane-name", laneEl).textContent = meta.name;
+		$(".lane-sub", laneEl).textContent = meta.sub;
+	}
+
+	function render() {
+		const lanes = activeLanes();
+		ensureLanes(lanes);
+		el.stage.classList.toggle("is-compare", state.view === "compare");
+		$$("#view-switch button").forEach((button) => button.classList.toggle("is-active", button.dataset.view === state.view));
+		$$("#mode-switch button").forEach((button) => button.classList.toggle("is-active", button.dataset.mode === state.mode));
+		el.cover.classList.toggle("is-on", state.fullscreen);
+
+		for (const lane of lanes) {
+			const laneEl = $(`.island-lane[data-lane="${lane}"]`);
+			if (!laneEl) continue;
+			const m = metrics(lane);
+			const shell = $(".island-shell", laneEl);
+			const surface = $(".island-surface", laneEl);
+			const content = $(".island-content", laneEl);
+			const wrap = $(".island-wrap", laneEl);
+			const zoom = state.view === "compare" ? (window.innerWidth <= 760 ? 0.58 : 0.82) : (window.innerWidth <= 760 ? 0.78 : 1);
+			if (wrap) wrap.style.minHeight = `${Math.round(m.height * zoom + 24)}px`;
+			shell.classList.toggle("is-hidden", state.fullscreen);
+			shell.style.width = `${m.width}px`;
+			shell.style.height = `${m.height}px`;
+			shell.style.setProperty("--radius", `${m.radius}px`);
+			shell.style.setProperty("--ear", `${m.ear}px`);
+			surface.style.borderRadius = `0 0 ${m.radius}px ${m.radius}px`;
+			content.innerHTML = contentHTML(lane);
+			content.classList.remove("is-swapping");
+			void content.offsetWidth;
+			content.classList.add("is-swapping");
+			const glowMood = eyesVisible(lane) ? displayMood(lane) : (lane === "reaction" ? bubbleMood() : null);
+			$(".island-glow", laneEl).style.setProperty("--glow", MOOD_COLORS[glowMood || "calm"] || "#b6ffa8");
+			updateLaneCaption(lane);
+			updateLaneStatus(lane);
+			updateBubble(lane);
+		}
+
+		updateReadout();
+		activateSignalCard();
+	}
+
+	function updateBubble(lane) {
+		if (lane !== "reaction") return;
+		const laneEl = $(`.island-lane[data-lane="${lane}"]`);
+		if (!laneEl) return;
+		const bubble = $(".reaction-bubble", laneEl);
+		if (!bubble) return;
+		const mood = bubbleMood();
+		if (!mood) {
+			bubble.classList.remove("is-on");
+			bubble.dataset.mood = "";
+			return;
+		}
+		if (bubble.dataset.mood !== mood) {
+			bubble.dataset.mood = mood;
+			bubble.innerHTML = `<div class="bubble-eyes">${eyesMarkup(mood)}</div>`;
+		}
+		bubble.classList.add("is-on");
+		const glow = $(".island-glow", laneEl);
+		if (glow) glow.style.setProperty("--glow", MOOD_COLORS[mood] || "#b6ffa8");
+	}
+
+	function updateBubbleAll() {
+		for (const lane of activeLanes()) updateBubble(lane);
+	}
+
+	function syncEyes() {
+		let needRender = false;
+		for (const lane of activeLanes()) {
+			const laneEl = $(`.island-lane[data-lane="${lane}"]`);
+			if (!laneEl) continue;
+			const visible = eyesVisible(lane);
+			const islandEyes = $$(".island-content .companion-eyes", laneEl);
+			if (visible !== (islandEyes.length > 0)) {
+				needRender = true;
+				break;
+			}
+			if (visible) {
+				const mood = displayMood(lane);
+				for (const eyes of islandEyes) {
+					if (eyes.dataset.mood !== mood) {
+						eyes.dataset.mood = mood;
+						eyes.innerHTML = eyeMarkup("left", mood) + eyeMarkup("right", mood);
+					}
+				}
+				const pet = $(".pet-slot", laneEl);
+				if (pet) pet.style.setProperty("--pet-color", MOOD_COLORS[mood] || "#b6ffa8");
+			}
+			const glowMood = visible ? displayMood(lane) : (lane === "reaction" ? bubbleMood() : null);
+			const glow = $(".island-glow", laneEl);
+			if (glow) glow.style.setProperty("--glow", MOOD_COLORS[glowMood || "calm"] || "#b6ffa8");
+			updateLaneStatus(lane);
+		}
+		if (needRender) {
+			render();
+			return;
+		}
+		updateBubbleAll();
+		updateReadout();
+	}
+
+	function updateLaneStatus(lane) {
+		const laneEl = $(`.island-lane[data-lane="${lane}"]`);
+		if (!laneEl) return;
+		const statusEl = $(".lane-status", laneEl);
+		if (!statusEl) return;
+		const m = metrics(lane);
+		const chips = [];
+		chips.push({ label: `module ${moduleLabel()}`, color: state.scene === "idle" ? "#6f7280" : "#9a96ff" });
+		if (lane === "reaction") {
+			const bubble = bubbleMood();
+			const islandMood = eyesVisible(lane) ? displayMood(lane) : null;
+			if (bubble) chips.push({ label: `bubble ${bubble}`, color: MOOD_COLORS[bubble] || "#b6ffa8" });
+			else if (islandMood) chips.push({ label: `eyes ${islandMood}`, color: MOOD_COLORS[islandMood] || "#b6ffa8" });
+			else chips.push({ label: "no bubble", color: "#ff6b9a" });
+		} else {
+			const mood = eyesVisible(lane) ? displayMood(lane) : null;
+			chips.push({ label: mood ? `eyes ${mood}` : "eyes hidden", color: mood ? (MOOD_COLORS[mood] || "#b6ffa8") : "#ff6b9a" });
+		}
+		chips.push({ label: `${m.width}px`, color: "#74b9ff" });
+		statusEl.innerHTML = chips.map((chip) => `<span class="mini-chip"><i style="--c:${chip.color}"></i>${esc(chip.label)}</span>`).join("");
+	}
+
+	function updateReadout() {
+		const lane = state.view === "compare" ? "slot" : state.view;
+		const m = metrics(lane);
+		const mood = eyesVisible(lane) ? displayMood(lane) : (lane === "reaction" ? bubbleMood() : null);
+		const chips = [];
+		const viewLabel = { today: "Today", slot: "Pet slot", reaction: "Reaction bubble", compare: "Compare" }[state.view] || state.view;
+		chips.push({ label: viewLabel, color: "#9a96ff" });
+		if (state.view === "compare") {
+			chips.push({ label: `today ${metrics("today").width} · slot ${metrics("slot").width}`, color: "#74b9ff" });
+		} else {
+			chips.push({ label: `${m.width}×${m.height}`, color: "#74b9ff" });
+		}
+		chips.push({ label: moduleLabel(), color: "#7ef0b4" });
+		if (lane === "reaction" && state.scene !== "idle") {
+			chips.push({ label: mood ? `bubble ${mood}` : "bubble waiting", color: mood ? (MOOD_COLORS[mood] || "#b6ffa8") : "#ff6b9a" });
+		} else {
+			chips.push({ label: mood ? `eyes ${mood}` : "eyes hidden", color: mood ? (MOOD_COLORS[mood] || "#b6ffa8") : "#ff6b9a" });
+		}
+		chips.push({ label: `mode ${state.mode}`, color: "#c8c9d4" });
+		if (state.charging) chips.push({ label: `battery ${Math.round(state.battery)}%`, color: "#30d158" });
+		if (state.fullscreen) chips.push({ label: "hidden", color: "#ffb45c" });
+		el.readout.innerHTML = chips.map((chip) => `<span class="mini-chip"><i style="--c:${chip.color}"></i>${esc(chip.label)}</span>`).join("");
+	}
+
+	function activateSignalCard() {
+		clearTimeout(timers.signalLive);
+		if (state.scene !== "volume" && state.scene !== "charging") return;
+		timers.signalLive = setTimeout(() => {
+			const root = $(".island-content .signal-root");
+			if (root && root.isConnected) root.classList.add("is-live");
+		}, 900);
+	}
+
+	function layoutSignature() {
+		return [
+			state.view,
+			state.mode,
+			state.scene,
+			state.playing,
+			state.lyrics,
+			state.track,
+			state.fullscreen,
+			...["today", "slot", "reaction"].map((lane) => `${lane}:${eyesVisible(lane)}:${petVisible(lane)}`),
+		].join("|");
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* Log, toast, and small UI updates                                  */
+	/* ---------------------------------------------------------------- */
+
+	function log(event, detail, color = "#9a96ff") {
+		const row = document.createElement("div");
+		row.className = "log-row";
+		const time = document.createElement("span");
+		time.className = "log-time";
+		time.textContent = new Date().toLocaleTimeString([], { hour12: false });
+		const dot = document.createElement("span");
+		dot.className = "log-dot";
+		dot.style.setProperty("--c", color);
+		const eventEl = document.createElement("span");
+		eventEl.className = "log-event";
+		eventEl.textContent = event;
+		const detailEl = document.createElement("span");
+		detailEl.className = "log-detail";
+		detailEl.textContent = detail;
+		row.append(time, dot, eventEl, detailEl);
+		const empty = $(".log-empty", el.log);
+		if (empty) empty.remove();
+		el.log.appendChild(row);
+		state.logCount += 1;
+		while (el.log.children.length > MAX_LOG) el.log.removeChild(el.log.firstElementChild);
+		el.log.scrollTop = el.log.scrollHeight;
+		el.logCount.textContent = `${state.logCount} event${state.logCount === 1 ? "" : "s"}`;
+	}
+
+	function clearLog() {
+		state.logCount = 0;
+		el.logCount.textContent = "0 events";
+		el.log.innerHTML = `<div class="log-empty">Trigger an event to see what each layout does with the island and the eyes.</div>`;
+	}
+
+	let toastTimer = 0;
+	function toast(text, color = "#9a96ff") {
+		el.toast.style.setProperty("--c", color);
+		el.toastText.textContent = text;
+		el.toast.classList.add("is-on");
+		clearTimeout(toastTimer);
+		toastTimer = setTimeout(() => el.toast.classList.remove("is-on"), 2400);
+	}
+
+	function outcomeText() {
+		const todayMood = eyesVisible("today") ? displayMood("today") : null;
+		const slotMood = eyesVisible("slot") ? displayMood("slot") : null;
+		const bubble = bubbleMood();
+		if (state.view === "compare") {
+			return `Today: ${todayMood ? `${todayMood} eyes` : "no eyes"} · Pet slot: ${slotMood ? `${slotMood} eyes` : "no eyes"}`;
+		}
+		if (state.view === "today") return todayMood ? `eyes ${todayMood}` : "eyes hidden by the module";
+		if (state.view === "slot") {
+			if (!slotMood) return "eyes hidden";
+			const where = state.scene === "volume" || state.scene === "charging" ? "in the ring" : "in the slot";
+			return `eyes ${slotMood} ${where}`;
+		}
+		if (state.view === "reaction") return bubble ? `bubble ${bubble}` : (todayMood ? `eyes ${todayMood}` : "bubble waiting");
+		return "";
+	}
+
+	function updateVolumeUI() {
+		el.volume.value = String(state.volume);
+		el.volume.style.setProperty("--pct", `${state.volume}%`);
+		el.volumeValue.textContent = `${state.volume}%`;
+	}
+
+	function updateSignalValues() {
+		const charging = state.scene === "charging";
+		const value = clamp(charging ? state.battery : state.volume, 0, 100);
+		for (const root of $$(".island-content .signal-root")) {
+			const fill = $(".signal-ring-fill", root);
+			if (fill) fill.setAttribute("stroke-dashoffset", String(100 - value));
+			const num = $(".signal-value .num", root);
+			if (num) num.textContent = String(Math.round(value));
+			const sub = $(".signal-sub", root);
+			if (sub && charging) sub.textContent = `Battery at ${Math.round(state.battery)}%`;
+		}
+	}
+
+	function updateLyricWords() {
+		for (const lineEl of $$(".island-content .lyric-line")) {
+			const words = $$(".lyric-word", lineEl);
+			words.forEach((word, i) => {
+				word.classList.toggle("is-sung", i < state.wordIndex);
+				word.classList.toggle("is-active", i === state.wordIndex);
+			});
+		}
+	}
+
+	function updateMusicUI() {
+		const paused = !state.playing;
+		for (const timeEl of $$(".island-content .music-time")) {
+			timeEl.textContent = fmtTime(state.position);
+			timeEl.classList.toggle("is-paused", paused);
+		}
+		for (const viz of $$(".island-content .visualizer")) viz.classList.toggle("is-paused", paused);
+		updateLyricWords();
+	}
+
+	function updateLyricsDOM() {
+		for (const lane of activeLanes()) {
+			if (state.scene !== "lyrics") continue;
+			const laneEl = $(`.island-lane[data-lane="${lane}"]`);
+			if (!laneEl) continue;
+			const lineEl = $(".lyric-line", laneEl);
+			if (!lineEl) continue;
+			lineEl.innerHTML = lyricWordsHTML(currentLine(), state.wordIndex);
+			lineEl.classList.remove("is-swapping");
+			void lineEl.offsetWidth;
+			lineEl.classList.add("is-swapping");
+			const shell = $(".island-shell", laneEl);
+			if (shell) shell.style.width = `${metrics(lane).width}px`;
+			updateLaneStatus(lane);
+		}
+		updateReadout();
+	}
+
+	function syncLyricIndex() {
+		const track = currentTrack();
+		state.lyricLine = Math.floor(state.position / LINE_MS) % track.lyrics.length;
+		const words = currentLine().split(" ");
+		const progress = (state.position % LINE_MS) / LINE_MS;
+		state.wordIndex = clamp(Math.floor(progress * words.length), 0, Math.max(0, words.length - 1));
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* State transitions                                                 */
+	/* ---------------------------------------------------------------- */
+
+	function scheduleSceneReturn(ms) {
+		const token = ++sceneSeq;
+		clearTimeout(timers.scene);
+		if (state.pin) return;
+		timers.scene = setTimeout(() => {
+			if (token !== sceneSeq) return;
+			state.scene = baseScene();
+			render();
+		}, ms);
+	}
+
+	function setScene(scene, duration = 0, options = {}) {
+		const token = ++sceneSeq;
+		clearTimeout(timers.scene);
+		state.scene = scene;
+		render();
+		if (duration && !state.pin) {
+			timers.scene = setTimeout(() => {
+				if (token !== sceneSeq) return;
+				if (state.scene !== scene) return;
+				state.scene = options.returnTo ?? baseScene();
+				render();
+			}, duration);
+		}
+	}
+
+	function triggerReaction(kind, options = {}) {
+		const base = REACTIONS[kind] || REACTIONS.music;
+		const mood = options.mood ?? base.mood;
+		const hold = options.hold ?? base.hold;
+		const weight = options.weight ?? base.weight;
+		const force = options.force ?? base.force ?? false;
+		const current = activeReaction();
+		if (current && !force && weight < current.weight) return false;
+		if (current && !force && weight === current.weight && current.kind === kind) return false;
+		const before = layoutSignature();
+		state.reaction = { kind, mood, until: now() + hold, weight };
+		clearTimeout(timers.reaction);
+		timers.reaction = setTimeout(() => {
+			if (!state.reaction || state.reaction.kind !== kind) return;
+			if (now() < state.reaction.until) return;
+			const b = layoutSignature();
+			state.reaction = null;
+			const a = layoutSignature();
+			if (b !== a) render();
+			else {
+				syncEyes();
+				updateBubbleAll();
+				updateReadout();
+			}
+		}, hold + 30);
+		const after = layoutSignature();
+		if (before !== after) render();
+		else {
+			syncEyes();
+			updateBubbleAll();
+			updateReadout();
+		}
+		return true;
+	}
+
+	function startMusic() {
+		clearTimeout(timers.scene);
+		if (state.playing) {
+			state.playing = false;
+			state.scene = state.lyrics ? "lyrics" : "music";
+			render();
+			triggerReaction("pause");
+			log("Music paused", `${currentTrack().title} · ${outcomeText()}`, "#74d8ff");
+			return;
+		}
+		state.playing = true;
+		if (state.position >= currentTrack().duration) state.position = 0;
+		state.scene = state.lyrics ? "lyrics" : "music";
+		syncLyricIndex();
+		render();
+		triggerReaction("music");
+		log("Music playing", `${currentTrack().title} · ${currentTrack().artist} · ${outcomeText()}`, "#b6ffa8");
+	}
+
+	function toggleLyrics() {
+		state.lyrics = !state.lyrics;
+		if (!state.playing) state.playing = true;
+		state.scene = state.lyrics ? "lyrics" : "music";
+		clearTimeout(timers.scene);
+		syncLyricIndex();
+		render();
+		triggerReaction("lyrics", { mood: "curious", hold: 1600, weight: 2.2 });
+		log(state.lyrics ? "Lyrics on" : "Lyrics off", `${currentLine()} · ${outcomeText()}`, "#9a96ff");
+	}
+
+	function skipTrack() {
+		state.track = (state.track + 1) % TRACKS.length;
+		state.position = 0;
+		state.lyricLine = 0;
+		state.wordIndex = 0;
+		state.playing = true;
+		state.scene = state.lyrics ? "lyrics" : "music";
+		clearTimeout(timers.scene);
+		render();
+		triggerReaction("skip", { mood: "excited", hold: 1800, weight: 4.2 });
+		log("Skip track", `${currentTrack().title} · ${outcomeText()}`, "#ff8e72");
+	}
+
+	function showVolume(delta = 0, fromSlider = false) {
+		if (delta) {
+			state.volume = clamp(state.volume + delta, 0, 100);
+			updateVolumeUI();
+		}
+		const wasVolume = state.scene === "volume";
+		if (!wasVolume) {
+			state.scene = "volume";
+			render();
+		} else {
+			updateSignalValues();
+		}
+		scheduleSceneReturn(2600);
+		if (now() - state.lastVolumeReaction > 700) {
+			state.lastVolumeReaction = now();
+			triggerReaction("volume", { mood: "curious", hold: 2200, weight: 1.6 });
+		}
+		if (!fromSlider) {
+			log("Volume", `${state.volume}% · ${outcomeText()}`, "#74b9ff");
+		} else {
+			clearTimeout(timers.volumeLog);
+			timers.volumeLog = setTimeout(() => log("Volume", `${state.volume}% · ${outcomeText()}`, "#74b9ff"), 360);
+		}
+	}
+
+	function startCharging() {
+		state.charging = true;
+		state.battery = Math.max(state.battery, 64);
+		setScene("charging", 5000);
+		triggerReaction("charging", { mood: "charging", hold: 5000, weight: 3.2 });
+		log("Charging", `${Math.round(state.battery)}% · ${outcomeText()}`, "#30d158");
+	}
+
+	function pushNotification() {
+		state.notificationIndex = (state.notificationIndex + 1) % NOTIFICATIONS.length;
+		state.unread += 1;
+		const notification = NOTIFICATIONS[state.notificationIndex];
+		setScene("notification", 4200);
+		triggerReaction("notification", { mood: "surprised", hold: 1800, weight: 4.4 });
+		log("Notification", `${notification.title} · ${outcomeText()}`, notification.color);
+	}
+
+	function summonPet() {
+		state.summonUntil = now() + 6000;
+		clearTimeout(timers.summon);
+		timers.summon = setTimeout(() => {
+			if (!state.summonUntil) return;
+			const b = layoutSignature();
+			state.summonUntil = 0;
+			const a = layoutSignature();
+			if (b !== a) render();
+			else {
+				syncEyes();
+				updateBubbleAll();
+				updateReadout();
+			}
+		}, 6000);
+		triggerReaction("summon", { mood: "love", hold: 6000, weight: 20, force: true });
+		const blocked = state.view === "today" && state.scene !== "idle";
+		if (blocked) {
+			log("Summon", "Today: suppressed — the module owns the island", "#ff6b9a");
+			toast("Today blocks the summon while a module is active.", "#ff6b9a");
+		} else {
+			log("Summon", `Love eyes · ${outcomeText()}`, "#ff6b9a");
+		}
+	}
+
+	function toggleFullscreen() {
+		state.fullscreen = !state.fullscreen;
+		render();
+		log(state.fullscreen ? "Fullscreen" : "Fullscreen ended", state.fullscreen ? "Island hidden — safe signal" : "Island visible again", "#ffb45c");
+		toast(state.fullscreen ? "Fullscreen app detected — island hidden" : "Back from fullscreen", "#ffb45c");
+	}
+
+	function setView(view) {
+		state.view = view;
+		state.lanesKey = "";
+		render();
+		const label = { today: "Today", slot: "Pet slot", reaction: "Reaction bubble", compare: "Compare" }[view] || view;
+		log("Layout", `${label} · ${outcomeText()}`, "#9a96ff");
+	}
+
+	function setMode(mode) {
+		state.mode = mode;
+		render();
+		log("Companion mode", `${mode} · ${outcomeText()}`, "#c8c9d4");
+	}
+
+	function cycleMode() {
+		const order = ["auto", "always", "off"];
+		setMode(order[(order.indexOf(state.mode) + 1) % order.length]);
+	}
+
+	function applyMoodTest(mood) {
+		state.moodOverride = { mood, until: now() + 5000 };
+		syncEyes();
+		updateBubbleAll();
+		log("Mood test", `${MOOD_LABELS[mood]} · ${outcomeText()}`, MOOD_COLORS[mood] || "#9a96ff");
+		toast(`Mood preview: ${MOOD_LABELS[mood]}`, MOOD_COLORS[mood] || "#9a96ff");
+	}
+
+	function resetToIdle(options = {}) {
+		clearTimeout(timers.scene);
+		clearTimeout(timers.reaction);
+		clearTimeout(timers.summon);
+		clearTimeout(timers.signalLive);
+		clearTimeout(timers.volumeLog);
+		sceneSeq += 1;
+		state.scene = "idle";
+		state.playing = false;
+		state.lyrics = false;
+		state.track = 0;
+		state.position = 0;
+		state.charging = false;
+		state.unread = 0;
+		state.notificationIndex = -1;
+		state.reaction = null;
+		state.summonUntil = 0;
+		state.moodOverride = null;
+		state.fullscreen = false;
+		state.lyricLine = 0;
+		state.wordIndex = 0;
+		state.pin = false;
+		updateVolumeUI();
+		if (el.moodSelect) el.moodSelect.value = "";
+		render();
+		if (!options.silent) log("Idle", `Calm eyes · ${outcomeText()}`, "#b6ffa8");
+	}
+
+	function handleEvent(name) {
+		if (name === "idle") return resetToIdle();
+		if (name === "music") return startMusic();
+		if (name === "lyrics") return toggleLyrics();
+		if (name === "skip") return skipTrack();
+		if (name === "volume-up") return showVolume(8);
+		if (name === "volume-down") return showVolume(-8);
+		if (name === "charging") return startCharging();
+		if (name === "notification") return pushNotification();
+		if (name === "summon") return summonPet();
+		if (name === "fullscreen") return toggleFullscreen();
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* Clock, tick, and expiry                                           */
+	/* ---------------------------------------------------------------- */
+
+	function updateClock() {
+		const clock = fmtClock();
+		if (el.fakeClock) el.fakeClock.textContent = clock;
+		for (const clockEl of $$(".idle-clock")) clockEl.textContent = clock;
+	}
+
+	function expireReaction() {
+		if (!state.reaction || now() < state.reaction.until) return;
+		const before = layoutSignature();
+		state.reaction = null;
+		const after = layoutSignature();
+		if (before !== after) render();
+		else {
+			syncEyes();
+			updateBubbleAll();
+			updateReadout();
+		}
+	}
+
+	function expireSummon() {
+		if (!state.summonUntil || now() < state.summonUntil) return;
+		const before = layoutSignature();
+		state.summonUntil = 0;
+		const after = layoutSignature();
+		if (before !== after) render();
+		else {
+			syncEyes();
+			updateBubbleAll();
+			updateReadout();
+		}
+	}
+
+	function tick() {
+		const t = now();
+		const dt = Math.min(1, (t - lastTick) / 1000);
+		lastTick = t;
+
+		if (state.playing) {
+			state.position += dt;
+			const track = currentTrack();
+			if (state.position >= track.duration) {
+				state.position = 0;
+				state.track = (state.track + 1) % TRACKS.length;
+				state.lyricLine = 0;
+				state.wordIndex = 0;
+				if (state.scene === "music" || state.scene === "lyrics") {
+					render();
+					log("Track ended", `${currentTrack().title} · ${outcomeText()}`, "#b6ffa8");
+				}
+			}
+		}
+
+		if (state.charging) {
+			const before = Math.floor(state.battery);
+			state.battery = Math.min(100, state.battery + dt / 5);
+			if (Math.floor(state.battery) !== before) {
+				updateSignalValues();
+				updateReadout();
+			}
+		}
+
+		const track = currentTrack();
+		const nextLine = Math.floor(state.position / LINE_MS) % track.lyrics.length;
+		if (nextLine !== state.lyricLine) {
+			state.lyricLine = nextLine;
+			syncLyricIndex();
+			if (state.scene === "lyrics") updateLyricsDOM();
+		} else if (state.playing) {
+			const words = currentLine().split(" ");
+			const progress = (state.position % LINE_MS) / LINE_MS;
+			state.wordIndex = clamp(Math.floor(progress * words.length), 0, Math.max(0, words.length - 1));
+		}
+
+		updateMusicUI();
+		expireReaction();
+		expireSummon();
+
+		if (state.moodOverride && now() >= state.moodOverride.until) {
+			state.moodOverride = null;
+			if (el.moodSelect) el.moodSelect.value = "";
+			syncEyes();
+			updateBubbleAll();
+			updateReadout();
+		}
+
+		updateClock();
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* Auto demo                                                         */
+	/* ---------------------------------------------------------------- */
+
+	function setAutoButton(running) {
+		el.autoBtn.classList.toggle("is-running", running);
+		const label = $("span", el.autoBtn);
+		if (label) label.textContent = running ? "Stop demo" : "Run auto demo";
+		const use = $("use", el.autoBtn);
+		if (use) use.setAttribute("href", running ? "#i-pause" : "#i-play");
+	}
+
+	function stopAuto(silent = false) {
+		state.autoRunning = false;
+		while (autoTimers.length) clearTimeout(autoTimers.pop());
+		setAutoButton(false);
+		if (!silent) log("Auto demo stopped", "Manual control returned", "#ffb45c");
+	}
+
+	function scheduleAuto(fn, ms) {
+		const id = setTimeout(() => {
+			if (!state.autoRunning) return;
+			fn();
+		}, ms);
+		autoTimers.push(id);
+	}
+
+	function startAuto() {
+		if (state.autoRunning) {
+			stopAuto();
+			return;
+		}
+		stopAuto(true);
+		resetToIdle({ silent: true });
+		state.autoRunning = true;
+		setAutoButton(true);
+		log("Auto demo started", "Idle → music → lyrics → skip → volume → charging → notification → summon → fullscreen → idle", "#9a96ff");
+		const sequence = [
+			[700, () => handleEvent("music")],
+			[2700, () => handleEvent("lyrics")],
+			[6500, () => handleEvent("skip")],
+			[9000, () => handleEvent("volume-up")],
+			[11500, () => handleEvent("charging")],
+			[17000, () => handleEvent("notification")],
+			[22000, () => handleEvent("summon")],
+			[28500, () => handleEvent("fullscreen")],
+			[31500, () => handleEvent("fullscreen")],
+			[33500, () => handleEvent("idle")],
+			[35000, () => {
+				stopAuto(true);
+				log("Auto demo complete", "Review the log to compare the three layouts.", "#7ef0b4");
+				toast("Auto demo complete", "#7ef0b4");
+			}],
+		];
+		for (const [ms, fn] of sequence) scheduleAuto(fn, ms);
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* Keyboard and pointer                                               */
+	/* ---------------------------------------------------------------- */
+
+	function isTypingTarget(target) {
+		return target && (target.tagName === "INPUT" || target.tagName === "SELECT" || target.tagName === "TEXTAREA" || target.isContentEditable);
+	}
+
+	function onKeydown(event) {
+		const key = event.key.toLowerCase();
+		if (event.ctrlKey && event.altKey && event.shiftKey && key === "r") {
+			event.preventDefault();
+			cycleMode();
+			return;
+		}
+		if (event.ctrlKey && event.altKey && key === "r") {
+			event.preventDefault();
+			summonPet();
+			return;
+		}
+		if (isTypingTarget(event.target)) return;
+		if (event.code === "Space") {
+			const active = document.activeElement;
+			if (active && (active.tagName === "BUTTON" || active.tagName === "A")) return;
+			event.preventDefault();
+			startMusic();
+			return;
+		}
+		if (key === "s") {
+			event.preventDefault();
+			skipTrack();
+			return;
+		}
+		if (key === "l") {
+			event.preventDefault();
+			toggleLyrics();
+			return;
+		}
+		if (key === "f") {
+			event.preventDefault();
+			toggleFullscreen();
+			return;
+		}
+		if (event.key === "Escape" && state.fullscreen) {
+			event.preventDefault();
+			toggleFullscreen();
+		}
+	}
+
+	function onPointerMove(event) {
+		if (gazeFrame) return;
+		gazeFrame = requestAnimationFrame(() => {
+			gazeFrame = 0;
+			for (const eyes of $$(".companion-eyes")) {
+				const rect = eyes.getBoundingClientRect();
+				if (!rect.width) continue;
+				const dx = (event.clientX - (rect.left + rect.width / 2)) / Math.max(220, window.innerWidth / 2);
+				const dy = (event.clientY - (rect.top + rect.height / 2)) / Math.max(220, window.innerHeight / 2);
+				eyes.style.setProperty("--gaze-x", `${clamp(dx, -2.2, 2.2).toFixed(2)}px`);
+				eyes.style.setProperty("--gaze-y", `${clamp(dy, -1.6, 1.6).toFixed(2)}px`);
+			}
+		});
+	}
+
+	function resetGaze() {
+		for (const eyes of $$(".companion-eyes")) {
+			eyes.style.setProperty("--gaze-x", "0px");
+			eyes.style.setProperty("--gaze-y", "0px");
+		}
+	}
+
+	function startPetActions() {
+		setInterval(() => {
+			for (const eyes of $$(".companion-eyes")) {
+				if (Math.random() > 0.55) continue;
+				if (eyes.dataset.mood === "dizzy" || eyes.dataset.mood === "sleepy") continue;
+				const actions = ["look-left", "look-right", "peek", "squint", "perk"];
+				eyes.dataset.action = actions[Math.floor(Math.random() * actions.length)];
+				setTimeout(() => {
+					if (eyes.isConnected) eyes.dataset.action = "rest";
+				}, 700 + Math.random() * 700);
+			}
+		}, 4200);
+	}
+
+	/* ---------------------------------------------------------------- */
+	/* Setup                                                             */
+	/* ---------------------------------------------------------------- */
+
+	function populateSelects() {
+		for (let i = 0; i < TRACKS.length; i += 1) {
+			const option = document.createElement("option");
+			option.value = String(i);
+			option.textContent = `${TRACKS[i].title} · ${TRACKS[i].artist}`;
+			el.trackSelect.appendChild(option);
+		}
+		const placeholder = document.createElement("option");
+		placeholder.value = "";
+		placeholder.textContent = "Choose a mood…";
+		el.moodSelect.appendChild(placeholder);
+		for (const mood of MOODS) {
+			const option = document.createElement("option");
+			option.value = mood;
+			option.textContent = MOOD_LABELS[mood];
+			el.moodSelect.appendChild(option);
+		}
+		el.moodSelect.value = "";
+	}
+
+	function bindEvents() {
+		el.viewSwitch.addEventListener("click", (event) => {
+			const button = event.target.closest("[data-view]");
+			if (button) setView(button.dataset.view);
+		});
+		el.modeSwitch.addEventListener("click", (event) => {
+			const button = event.target.closest("[data-mode]");
+			if (button) setMode(button.dataset.mode);
+		});
+		$("#scenario-grid").addEventListener("click", (event) => {
+			const button = event.target.closest("[data-event]");
+			if (!button) return;
+			button.classList.add("is-active");
+			setTimeout(() => button.classList.remove("is-active"), 620);
+			handleEvent(button.dataset.event);
+		});
+		el.autoBtn.addEventListener("click", startAuto);
+		el.resetBtn.addEventListener("click", () => {
+			stopAuto(true);
+			resetToIdle({ silent: true });
+			clearLog();
+			log("Reset", "Fresh idle state. Pick an event or run the auto demo.", "#9a96ff");
+			toast("Simulator reset", "#9a96ff");
+		});
+		el.volume.addEventListener("input", (event) => {
+			state.volume = Number(event.target.value);
+			updateVolumeUI();
+			showVolume(0, true);
+		});
+		el.trackSelect.addEventListener("change", (event) => {
+			state.track = Number(event.target.value) % TRACKS.length;
+			state.position = 0;
+			state.lyricLine = 0;
+			state.wordIndex = 0;
+			state.playing = true;
+			state.scene = state.lyrics ? "lyrics" : "music";
+			clearTimeout(timers.scene);
+			render();
+			triggerReaction("skip", { mood: "excited", hold: 1800, weight: 4.2 });
+			log("Track selected", `${currentTrack().title} · ${outcomeText()}`, "#ff8e72");
+		});
+		el.moodSelect.addEventListener("change", (event) => {
+			if (event.target.value) applyMoodTest(event.target.value);
+		});
+		document.addEventListener("keydown", onKeydown);
+		document.addEventListener("pointermove", onPointerMove, { passive: true });
+		window.addEventListener("blur", resetGaze);
+		let resizeTimer = 0;
+		window.addEventListener("resize", () => {
+			clearTimeout(resizeTimer);
+			resizeTimer = setTimeout(render, 120);
+		});
+	}
+
+	function applyUrlState() {
+		const params = new URLSearchParams(location.search);
+		state.pin = params.get("pin") === "1";
+		const view = params.get("view");
+		if (["today", "slot", "reaction", "compare"].includes(view)) state.view = view;
+		const mode = params.get("mode");
+		if (["auto", "always", "off"].includes(mode)) state.mode = mode;
+		const track = Number(params.get("track"));
+		if (Number.isFinite(track) && track >= 0) state.track = track % TRACKS.length;
+		const volume = Number(params.get("volume"));
+		if (params.has("volume") && Number.isFinite(volume)) state.volume = clamp(volume, 0, 100);
+		const position = Number(params.get("position"));
+		if (params.has("position") && Number.isFinite(position)) state.position = Math.max(0, position);
+		const scene = params.get("scene");
+		if (scene === "music" || scene === "lyrics") {
+			state.playing = true;
+			state.lyrics = scene === "lyrics" || params.get("lyrics") === "1";
+			state.scene = state.lyrics ? "lyrics" : "music";
+		} else if (scene === "volume") {
+			state.playing = params.get("music") === "1";
+			state.scene = "volume";
+		} else if (scene === "charging") {
+			state.charging = true;
+			state.battery = Number(params.get("battery")) || 64;
+			state.scene = "charging";
+		} else if (scene === "notification") {
+			state.notificationIndex = 0;
+			state.unread = 1;
+			state.scene = "notification";
+		}
+		if (params.get("fullscreen") === "1") state.fullscreen = true;
+		const mood = params.get("mood");
+		if (mood && MOODS.includes(mood)) state.moodOverride = { mood, until: now() + (state.pin ? 3_600_000 : 5000) };
+		if (state.scene === "lyrics") syncLyricIndex();
+		if (state.scene === "music") syncLyricIndex();
+	}
+
+	function init() {
+		populateSelects();
+		applyUrlState();
+		el.trackSelect.value = String(state.track);
+		updateVolumeUI();
+		bindEvents();
+		render();
+		updateClock();
+		startPetActions();
+		setInterval(tick, 200);
+		const params = new URLSearchParams(location.search);
+		log("Simulator ready", `${outcomeText()} · pick an event or run the auto demo.`, "#9a96ff");
+		if (params.get("demo") === "1") setTimeout(startAuto, 650);
+	}
+
+	init();
+})();
+</script>
+</body>
+</html>

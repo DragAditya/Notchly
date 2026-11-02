@@ -228,7 +228,7 @@ fn show_connected(
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some("orbit".into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }
 
@@ -246,7 +246,7 @@ fn on_disconnected(activities: &Activities, id: &str, device: &Headset) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some("glitch".into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }
 
@@ -270,7 +270,7 @@ fn poll_battery(activities: &Activities, id: &str, device: &mut Headset) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some("shake".into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }
 

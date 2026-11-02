@@ -73,7 +73,7 @@ Returns the current non-private activities and the current media session.
 ```json
 {
   "name": "Notchly",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "activities": [
     {
       "id": "build-42",

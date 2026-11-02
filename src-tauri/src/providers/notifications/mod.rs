@@ -340,7 +340,7 @@ fn show(ctx: &Ctx, item: Item) {
     alert.icon = Some("bell".into());
     alert.color = Some(BLUE.into());
     alert.priority = 60;
-    alert.expand = true;
+    alert.expand = false;
     // Clicking the alert opens the app that sent it.
     alert.action = (!item.aumid.is_empty()).then(|| format!("shell:AppsFolder\\{}", item.aumid));
     activities.upsert(alert);

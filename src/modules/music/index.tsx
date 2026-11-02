@@ -14,7 +14,7 @@ import { useAccentColor } from "./hooks/useAccentColor";
 import { useMusic } from "./hooks/useMusic";
 import { compactWidth, useLyricLine, useLyrics } from "./lyrics";
 import { lyricsSettings, musicSettings } from "./settings";
-import { useSetting } from "../../core/settings";
+import { companionSettings, useCompanionMode, useSetting } from "../../core/settings";
 import "./music.css";
 
 export const musicModule: IslandModule = {
@@ -24,20 +24,25 @@ export const musicModule: IslandModule = {
   settings: Object.values(musicSettings),
   SettingsSection: MusicSettings,
   useView(): ModuleView {
-    const { music, active } = useMusic();
+    const { music, active: musicActive } = useMusic();
     const accent = useAccentColor(music?.thumbnail);
     const autoExpand = useSetting(musicSettings.autoExpand);
     const showVisualizer = useSetting(musicSettings.visualizer);
+    const hideWhenPaused = useSetting(musicSettings.hideWhenPaused);
+    const active = musicActive && (!hideWhenPaused || !!music?.playing);
     const lyricsEnabled = useSetting(lyricsSettings.enabled);
     const lyricsMode = useSetting(lyricsSettings.mode);
     const lyricsOffset = useSetting(lyricsSettings.offset);
+    const companionMode = useCompanionMode();
+    const musicEyes = useSetting(companionSettings.musicEyes);
 
     const lyrics = useLyrics(music, lyricsEnabled);
     const offsetMs = Math.round(lyricsOffset * 1000);
     const lineIndex = useLyricLine(music, lyrics, offsetMs);
     const showLyrics = lyricsEnabled && lyrics.synced && lyrics.lines.length > 0;
     const lineText = showLyrics ? (lyrics.lines[Math.max(0, lineIndex)]?.text ?? "") : "";
-    const width = showLyrics ? compactWidth(lineText, lyricsMode) : 340;
+    const eyesOnly = companionMode === "eyes" && musicEyes;
+    const width = eyesOnly ? 250 : showLyrics ? compactWidth(lineText, lyricsMode) : 340;
     // Stable per track: pause/resume must not look like a new track and peek.
     // Browser YouTube videos never auto-expand (they are not music).
     const trackKey = music ? `${music.title}|${music.artist}|${music.album}` : undefined;

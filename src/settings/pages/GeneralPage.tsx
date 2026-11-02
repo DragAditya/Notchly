@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { command, isTauri } from "../../core/bridge";
 import { languageSetting, locales, systemLocale, useT, type LanguagePref } from "../../core/i18n";
-import { generalSettings, monitorSettings, positionSettings, readSetting, setSetting } from "../../core/settings";
+import {
+  generalSettings,
+  monitorSettings,
+  positionSettings,
+  readSetting,
+  setSetting,
+  type HoverAction,
+} from "../../core/settings";
 import { Toggle, ToggleRow } from "../components/Toggle";
 
 export function GeneralPage({ values }: { values: Record<string, unknown> }) {
@@ -12,9 +19,12 @@ export function GeneralPage({ values }: { values: Record<string, unknown> }) {
       <section className="settings-card">
         <LanguageRow value={readSetting(values, languageSetting)} />
         <AutostartRow />
-        {Object.values(generalSettings).map((def) => (
-          <ToggleRow key={def.key} def={def} value={readSetting(values, def)} />
-        ))}
+        <ToggleRow def={generalSettings.hideInFullscreen} value={readSetting(values, generalSettings.hideInFullscreen)} />
+        <ToggleRow def={generalSettings.expandOnHover} value={readSetting(values, generalSettings.expandOnHover)} />
+      </section>
+      <section className="settings-card">
+        <HoverDelayRow value={readSetting(values, generalSettings.hoverDelay)} />
+        <HoverActionRow value={readSetting(values, generalSettings.hoverAction)} />
       </section>
       <section className="settings-card">
         <MonitorRow value={readSetting(values, monitorSettings.monitor)} />
@@ -127,6 +137,62 @@ function AutostartRow() {
           if (typeof result === "boolean") setOn(result);
         }}
       />
+    </label>
+  );
+}
+
+function HoverDelayRow({ value }: { value: number }) {
+  const t = useT();
+  const def = generalSettings.hoverDelay;
+  const [draft, setDraft] = useState(String(value));
+  useEffect(() => setDraft(String(value)), [value]);
+  const commit = () => {
+    const n = Math.round(Number(draft));
+    if (Number.isFinite(n) && n >= 0 && n <= 2000) setSetting(def, n);
+    else setDraft(String(value));
+  };
+
+  return (
+    <label className="settings-row">
+      <div className="settings-text">
+        <span className="settings-label">{t(def.label)}</span>
+        {def.description && <span className="settings-desc">{t(def.description)}</span>}
+      </div>
+      <span className="settings-number">
+        <input
+          type="number"
+          min={0}
+          max={2000}
+          step={10}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+        />
+        <span className="settings-unit">ms</span>
+      </span>
+    </label>
+  );
+}
+
+function HoverActionRow({ value }: { value: HoverAction }) {
+  const t = useT();
+  const def = generalSettings.hoverAction;
+  return (
+    <label className="settings-row">
+      <div className="settings-text">
+        <span className="settings-label">{t(def.label)}</span>
+        {def.description && <span className="settings-desc">{t(def.description)}</span>}
+      </div>
+      <select
+        className="settings-select"
+        value={value}
+        onChange={(e) => setSetting(def, e.target.value as HoverAction)}
+      >
+        <option value="expand">{t("settings.hoverAction.expand")}</option>
+        <option value="companion">{t("settings.hoverAction.companion")}</option>
+        <option value="none">{t("settings.hoverAction.none")}</option>
+      </select>
     </label>
   );
 }

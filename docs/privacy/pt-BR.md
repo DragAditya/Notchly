@@ -1,10 +1,10 @@
 # Política de Privacidade — Notchly
 
-*Última atualização: 28 de outubro de 2026*
+*Última atualização: 2 de novembro de 2026*
 
-Notchly ("o app") é um app de desktop gratuito e de código aberto, publicado em [github.com/DragAditya/Notchly](https://github.com/DragAditya/Notchly). Esta política explica quais dados o app acessa, para onde eles vão e como removê-los. Notchly é um projeto GPL-3.0 derivado do [Dynamic Island for Windows](https://github.com/HeyyCzer/windows-dynamic-island), de HeyyCzer; esta política cobre a versão Notchly.
+Notchly ("o app") é um app de desktop gratuito e de código aberto. Esta política explica quais dados o app acessa, para onde eles vão e como removê-los. Notchly é licenciado sob GPL-3.0-or-later; consulte `LICENSE` e `NOTICE.md` para os avisos aplicáveis.
 
-Esta é uma tradução da [versão em inglês](https://github.com/DragAditya/Notchly/blob/main/docs/privacy/index.md). Se houver qualquer diferença entre as duas, vale a versão em inglês.
+Esta é uma tradução da [versão em inglês](index.md). Se houver qualquer diferença entre as duas, vale a versão em inglês.
 
 ## Resumo
 
@@ -17,10 +17,10 @@ Esta é uma tradução da [versão em inglês](https://github.com/DragAditya/Not
 
 | Dado | Onde | Por quê |
 | --- | --- | --- |
-| Configurações | `%APPDATA%\com.dragaditya.notchly\settings.json` | Lembrar suas preferências |
+| Configurações | `%APPDATA%\com.notchly.desktop\settings.json` | Lembrar suas preferências |
 | Tokens e links privados (refresh tokens do Google Agenda e do Spotify, token do GitHub, URLs de feeds de agenda privados) | Gerenciador de Credenciais do Windows | Manter segredos fora de arquivos de texto |
-| Itens da prateleira (caminhos dos arquivos que você soltou, não os arquivos) | `%APPDATA%\com.dragaditya.notchly\shelf.json` | Manter a prateleira entre reinícios |
-| Prints e anexos do Pergunte ao Gemini, imagens da área de transferência | `%APPDATA%\com.dragaditya.notchly\` e, quando você escolhe guardar uma imagem, *Imagens\Capturas de Tela* | Anexar a uma pergunta ou deixar você arrastar para fora |
+| Itens da prateleira (caminhos dos arquivos que você soltou, não os arquivos) | `%APPDATA%\com.notchly.desktop\shelf.json` | Manter a prateleira entre reinícios |
+| Prints e anexos do Pergunte ao Gemini, imagens da área de transferência | `%APPDATA%\com.notchly.desktop\` e, quando você escolhe guardar uma imagem, *Imagens\Capturas de Tela* | Anexar a uma pergunta ou deixar você arrastar para fora |
 | Eventos da agenda, texto da área de transferência, notificações espelhadas, o que está tocando, estatísticas do sistema, o texto lido da tela pelo Procurar na tela | Só na memória | Mostrar na ilha; somem quando o app fecha |
 
 O app lê, sem enviar para lugar nenhum, informações que o Windows e outros apps já guardam no seu computador: dados de reprodução de mídia, notificações do Windows (só depois que você ativa o módulo Notificações), a área de transferência (o que é copiado por gerenciadores de senha é ignorado), bateria, volume, dispositivos Bluetooth, contadores de desempenho e as transcrições e configurações locais do Claude Code em `~/.claude`.
@@ -37,7 +37,7 @@ Como o app não tem servidor, nenhum dado seu chega até nós, então não exist
 - **Só local.** Os servidores internos do app (a API local, a ponte do Claude Code e o retorno do login) escutam só em `127.0.0.1` e não podem ser acessados pela sua rede nem pela internet.
 - **Área de transferência sensível ignorada.** O que gerenciadores de senha marcam como privado nunca é lido, e as imagens da área de transferência salvas para arrastar são apagadas toda vez que o app inicia.
 - **Revogação.** **Desconectar** revoga o token junto ao Google e o apaga do seu computador.
-- **Código aberto.** Todo o código do app é público em [github.com/DragAditya/Notchly](https://github.com/DragAditya/Notchly), então qualquer pessoa pode conferir como os dados são tratados. Problemas de segurança podem ser relatados pelas issues do repositório.
+- **Código aberto.** Todo o código do app é público neste repositório, então qualquer pessoa pode conferir como os dados são tratados. Problemas de segurança podem ser relatados pelas issues do repositório.
 
 ## Serviços online
 
@@ -102,7 +102,7 @@ Quando o app fala com Google, Google Gemini, Spotify, GitHub, Anthropic ou YouTu
 ## Apagando seus dados
 
 - Desconecte o Google Agenda ou o Spotify, ou remova tokens do GitHub e feeds, em **Configurações**.
-- Desinstale o app e apague `%APPDATA%\com.dragaditya.notchly`.
+- Desinstale o app e apague `%APPDATA%\com.notchly.desktop`.
 - Desativar a integração com o Claude Code em **Configurações** restaura o seu `~/.claude/settings.json` anterior.
 
 ## Crianças
@@ -115,4 +115,4 @@ Alterações nesta política são publicadas neste arquivo, com a data no topo a
 
 ## Contato
 
-Dúvidas ou pedidos: abra uma issue em [github.com/DragAditya/Notchly/issues](https://github.com/DragAditya/Notchly/issues).
+Dúvidas ou pedidos: abra uma issue neste repositório.

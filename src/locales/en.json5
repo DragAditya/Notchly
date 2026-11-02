@@ -19,6 +19,7 @@
       island: "Island",
     },
     general: "General",
+    advanced: "Advanced",
     minimize: "Minimize",
     close: "Close",
     module: {
@@ -42,6 +43,17 @@
     expandOnHover: {
       label: "Expand on hover",
       desc: "When off, the island only expands on click.",
+    },
+    hoverDelay: {
+      label: "Hover delay",
+      desc: "How long the pointer rests on the island before the hover action happens.",
+    },
+    hoverAction: {
+      label: "On hover",
+      desc: "What happens when the pointer rests on the resting island. Expand on hover must be on for expansion.",
+      expand: "Expand the island",
+      companion: "Pop the companion",
+      none: "Do nothing",
     },
     monitor: {
       label: "Monitor",
@@ -87,6 +99,194 @@
         install: "Restart and update",
       },
     },
+  },
+
+  // Advanced page: search, import/export, resets and global shortcuts
+  advanced: {
+    search: {
+      label: "Find a setting",
+      desc: "Search every core and module setting by name, key or value.",
+      placeholder: "Search settings…",
+      empty: "No setting matches that search.",
+    },
+    export: {
+      label: "Export settings",
+      desc: "Download every setting as a JSON file.",
+      button: "Export",
+      done: "Settings exported.",
+    },
+    import: {
+      label: "Import settings",
+      desc: "Replace every setting from a JSON export.",
+      button: "Import",
+      done: "Settings imported.",
+      invalid: "That file isn't a valid settings export.",
+    },
+    reset: {
+      sectionLabel: "Reset a section",
+      sectionDesc: "Restore one page or module to its defaults.",
+      sectionButton: "Reset section",
+      allLabel: "Reset everything",
+      allDesc: "Restore every setting to its default, including settings from older versions.",
+      allButton: "Reset all",
+      confirm: "Reset these settings to their defaults?",
+      done: "Settings reset.",
+    },
+    shortcuts: {
+      label: "Global shortcuts",
+      desc: "Press Set, then the combination. Escape cancels. Empty means off.",
+      set: "Set",
+      recording: "Press a combination…",
+      clear: "Clear",
+      off: "Off",
+      invalid: "Add Ctrl, Alt or Shift to a letter, number or F-key.",
+      taken: "Another app already uses that combination.",
+    },
+    value: {
+      on: "On",
+      off: "Off",
+    },
+  },
+
+  // Global shortcut labels
+  shortcuts: {
+    ask: {
+      label: "Open Ask Gemini",
+      desc: "Brings up the Ask page from anywhere.",
+    },
+    find: {
+      label: "Find on screen",
+      desc: "Reads the screen and searches for text.",
+    },
+    companionSummon: {
+      label: "Call the companion",
+      desc: "Calls the companion, or dismisses it when it is already out.",
+    },
+    companionToggle: {
+      label: "Toggle the companion",
+      desc: "Flips the companion between its active mode and Off.",
+    },
+  },
+
+  // Companion eyes (safe, local activity signals only)
+  companion: {
+    title: "Companion",
+    mode: {
+      label: "Presentation",
+      desc: "Choose how the eyes and live activities share the compact island. Eyes keeps the text minimal; Live activities uses the normal cards; Mixed keeps both.",
+      off: "Off",
+      offDesc: "No eyes or companion reactions. Live activities keep their normal cards.",
+      eyes: "Eyes",
+      eyesDesc: "The eyes lead every compact surface, with text and extra detail kept minimal.",
+      activities: "Live activities",
+      activitiesDesc: "Normal activity cards with artwork, badges and text. No eyes.",
+      mixed: "Mixed",
+      mixedDesc: "Eyes plus the full activity detail. The expressive default.",
+    },
+    resting: {
+      label: "Show eyes at rest",
+      desc: "Keep the companion visible in the idle island. Turn off to show it only after a signal.",
+    },
+    eyeColor: {
+      label: "Eye color",
+      desc: "Auto follows the mood. Pick a color to keep the eyes consistent.",
+      auto: "Auto",
+    },
+    blinkRate: {
+      label: "Blink rate",
+      desc: "How often the eyes blink while resting.",
+      slow: "Slow",
+      normal: "Normal",
+      fast: "Fast",
+    },
+    gaze: {
+      label: "Follow the pointer",
+      desc: "The eyes lean toward the pointer while it is near the island.",
+    },
+    intensity: {
+      label: "Animation intensity",
+      desc: "How much movement and extra effect layers each performance uses.",
+      calm: "Calm",
+      balanced: "Balanced",
+      energetic: "Energetic",
+    },
+    speed: {
+      label: "Animation speed",
+      desc: "Scales the companion dances and signal performances.",
+      "075": "0.75×",
+      "1": "1×",
+      "125": "1.25×",
+      "15": "1.5×",
+    },
+    glow: {
+      label: "Signal glow",
+      desc: "The colored aura around signal cards and the eyes.",
+    },
+    reduceMotion: {
+      label: "Reduce motion",
+      desc: "Stops the loops and keeps only the short entrances.",
+    },
+    effect: {
+      label: "Signal effects",
+      desc: "Choose which signals get their full performance. The eyes still react when an effect is off.",
+      volume: "Volume: speaker rings + equalizer",
+      brightness: "Brightness: sun + lens flare",
+      charging: "Charging: aura + lightning + particles",
+      battery: "Battery: level and low-battery body",
+      bluetooth: "Bluetooth: link, sonar and broken link",
+      wifi: "Wi-Fi: arcs, radar and disconnect",
+      notifications: "Notifications: startle rings",
+    },
+    test: {
+      label: "Test animations",
+      desc: "Play a signal on the island right now. Check every performance without changing your real volume, battery or connection.",
+      all: "Play all",
+      stop: "Stop",
+      browser: "Run the desktop app to play these on the island.",
+      volume: "Volume",
+      brightness: "Brightness",
+      charging: "Charging",
+      full: "Fully charged",
+      low: "Low battery",
+      battery: "On battery",
+      bluetooth: "Bluetooth",
+      bluetoothSearch: "BT searching",
+      bluetoothLost: "BT lost",
+      wifi: "Wi-Fi",
+      wifiSearch: "Wi-Fi searching",
+      wifiLost: "Wi-Fi lost",
+      notification: "Notification",
+    },
+    music: {
+      label: "Compact music",
+      desc: "The eyes can dance with the track instead of showing a plain artwork chip.",
+      eyes: {
+        label: "Dancing eyes",
+        desc: "Replace the compact artwork with a pair of eyes that moves with playback.",
+      },
+      dance: {
+        label: "Dance style",
+        desc: "Pick one choreography, or let the companion rotate through them.",
+        auto: "Auto rotate",
+        groove: "Groove",
+        bounce: "Bounce",
+        shimmy: "Shimmy",
+        wave: "Wave",
+        spin: "Spin",
+        hop: "Hop",
+      },
+    },
+    reset: {
+      label: "Reset companion",
+      desc: "Restore the presentation, motion and effect settings to their defaults.",
+      button: "Reset to defaults",
+    },
+    shortcuts: {
+      label: "Shortcuts",
+      desc: "Ctrl+Alt+R calls or dismisses · Ctrl+Alt+Shift+R toggles Mixed on or off.",
+    },
+    privacy:
+      "Only reacts to music, volume, brightness, battery, Bluetooth, Wi-Fi, notifications and idle time. It never reads what you type or what is on screen.",
   },
 
   // Rendered by the backend (src-tauri/src/i18n.rs)
@@ -144,6 +344,25 @@
     video: {
       label: "YouTube video in the island",
       desc: "Plays the browser's YouTube video muted in place of the artwork. Searches youtube.com for each track.",
+    },
+    showArtwork: {
+      label: "Show artwork",
+      desc: "Album art in the compact pill and the expanded panel. Off uses the module icon.",
+    },
+    showProgress: {
+      label: "Show progress",
+      desc: "The seek bar and elapsed/remaining time in the expanded panel.",
+    },
+    hideWhenPaused: {
+      label: "Hide when paused",
+      desc: "Keep the island for the music player only while something is playing.",
+    },
+    source: {
+      label: "Player priority",
+      desc: "Which app wins when more than one exposes a media session.",
+      system: "System default",
+      spotify: "Spotify first",
+      browser: "Browser first",
     },
     lyrics: {
       label: "Synced lyrics",
@@ -445,6 +664,54 @@
       windowsDesc: "A floating pill with a clock at rest, a colored rim and tabs at the bottom.",
     },
     windowsOnly: "Available in the Windows Island style.",
+    blur: {
+      label: "Background blur",
+      desc: "Lets the desktop show through the island. Off keeps it fully opaque.",
+      off: "Off",
+    },
+    radius: {
+      label: "Corner radius",
+      desc: "Overrides the corner roundness of the selected style.",
+      auto: "Style default",
+    },
+    scale: {
+      label: "Island scale",
+      desc: "Scales the whole island around its top center.",
+    },
+    density: {
+      label: "Density",
+      desc: "Spacing inside compact and expanded surfaces.",
+      compact: "Compact",
+      cozy: "Cozy",
+      roomy: "Roomy",
+    },
+    animationSpeed: {
+      label: "Animation speed",
+      desc: "Scales the island's open and close springs and content transitions.",
+      slow: "0.75×",
+      normal: "1×",
+      fast: "1.25×",
+      faster: "1.5×",
+    },
+    borderSpeed: {
+      label: "Gradient speed",
+      desc: "How long one lap of the animated rim takes.",
+      slow: "Slow",
+      normal: "Normal",
+      fast: "Fast",
+    },
+    clockFormat: {
+      label: "Clock at rest",
+      desc: "What the resting Windows Island clock shows.",
+      time: "Time",
+      date: "Date",
+      both: "Date + time",
+    },
+    reset: {
+      label: "Reset appearance",
+      desc: "Restore the style, rim, spacing and motion settings to their defaults.",
+      button: "Reset to defaults",
+    },
     border: {
       label: "Border",
       desc: "The island stays black; only its rim changes color.",
@@ -508,6 +775,10 @@
     bluetooth: {
       label: "Bluetooth headphones",
       desc: "Name and battery when they connect, and a warning when their battery runs low.",
+    },
+    wifi: {
+      label: "Wi-Fi",
+      desc: "A signal card when Wi-Fi connects, searches or drops.",
     },
     power: {
       label: "Power mode",
@@ -635,6 +906,37 @@
     clear: "Clear",
     ask: "Ask Gemini about this",
     remove: "Remove from the shelf",
+    pending: {
+      title: "Pending deletion",
+      hint: "Keep before the timer ends",
+      // {time}: countdown, e.g. 4:59
+      deletesIn: "Deletes in {time}",
+      deleting: "Deleting…",
+    },
+    settings: {
+      maxItems: {
+        label: "Maximum items",
+        desc: "Older files leave the shelf when this many are kept.",
+      },
+      autoClear: {
+        label: "Clear automatically",
+        desc: "Empties the shelf after this long without new files.",
+        never: "Never",
+        minutes: "{n} min",
+      },
+      drop: {
+        label: "Dropping a file",
+        desc: "Link keeps the original path. Copy and move put a copy in Notchly's app data.",
+        link: "Keep a link",
+        copy: "Copy into Notchly",
+        move: "Move into Notchly",
+      },
+      reset: {
+        label: "Reset shelf",
+        desc: "Restore the shelf limits and drop behavior.",
+        button: "Reset to defaults",
+      },
+    },
   },
 
   // Clipboard module
@@ -661,6 +963,19 @@
       copy: "Copy",
       ask: "Ask Gemini",
       keep: "Keep",
+      shelf: "Shelf",
+    },
+    cleanup: {
+      // {time}: countdown, e.g. 4:59
+      deletesIn: "Keep it? Deletes in {time}",
+      keepTitle: "Keep screenshot?",
+      autoDeletesIn: "Auto-deletes in {time}",
+      captured: "Screenshot captured",
+      keep: "Keep",
+      delete: "Delete",
+      deleteHint: "Delete when the timer ends",
+      deleteNow: "Delete now",
+      kept: "Kept",
     },
     open: "Open",
     remove: "Remove",
@@ -673,7 +988,52 @@
     },
     peekOnScreenshot: {
       label: "Open on screenshots",
-      desc: "Opens the island with the picture when you take a screenshot (Win+Shift+S, Print Screen…).",
+      desc: "Opens the island with the picture when you take a screenshot (Win+Shift+S, Print Screen…), so you can keep it or let it auto-delete.",
+    },
+    screenshotCleanup: {
+      label: "Auto-delete screenshots",
+      desc: "Delete the original screenshot after a set time unless you press Keep.",
+    },
+    screenshotTtl: {
+      label: "Delete screenshots after",
+      desc: "The PNG saved by your screenshot tool is removed automatically. Keep cancels this.",
+      custom: "Custom…",
+      min: "min",
+    },
+    screenshotPrompt: {
+      label: "Fold screenshot card after",
+      desc: "The card folds back into the notch after this many seconds. The file then waits in the Shelf until you keep it or its delete timer ends.",
+      seconds: "sec",
+    },
+    screenshotCardSize: {
+      label: "Screenshot card size",
+      desc: "How large the card opens from the notch.",
+      compact: "Compact (480 × 150)",
+      balanced: "Balanced (540 × 165)",
+      large: "Large (600 × 185)",
+    },
+    imagePreview: {
+      label: "Picture previews",
+      desc: "Show thumbnails and the big preview for images. Off uses a generic icon.",
+    },
+    retention: {
+      label: "Keep history for",
+      desc: "Older clipboard items are removed automatically.",
+      never: "Keep until cleared",
+      minutes: "{n} min",
+      hours: "{n} h",
+    },
+    paste: {
+      label: "Clicking an item",
+      desc: "Copy puts it back on the clipboard. Paste also sends Ctrl+V to the app you were using.",
+      copy: "Copy again",
+      paste: "Copy and paste",
+    },
+    pasted: "Pasted!",
+    reset: {
+      label: "Reset clipboard",
+      desc: "Restore the preview, history and click behavior.",
+      button: "Reset to defaults",
     },
   },
 
@@ -828,6 +1188,14 @@
       disconnected: "Disconnected",
       // {name}: device name
       low: "{name}: low battery",
+    },
+    wifi: {
+      title: "Wi-Fi",
+      connected: "Connected",
+      // {n}: percent
+      connectedSignal: "Connected · signal {n}%",
+      disconnected: "Disconnected",
+      searching: "Searching for networks",
     },
     power: {
       title: "Power mode",

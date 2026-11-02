@@ -13,6 +13,7 @@ mod bluetooth;
 mod brightness;
 mod power;
 mod volume;
+mod wifi;
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, OnceLock};
@@ -73,7 +74,7 @@ pub struct Activity {
     pub tone: Option<String>,
     /// Briefly expands the island when it first arrives.
     pub expand: bool,
-    /// "api", "volume", "battery", "bluetooth", "notification", "ask"…
+    /// "api", "volume", "battery", "bluetooth", "wifi", "notification", "ask"…
     pub source: String,
     pub updated_at: u64,
 }
@@ -88,6 +89,146 @@ impl Activity {
             ..Default::default()
         }
     }
+}
+
+/// Play a one-off signal from the Companion settings test lab. These use a
+/// `test.` id so the activities view can show them even when the matching
+/// signal is switched off.
+#[tauri::command]
+pub fn test_activity(kind: String) -> bool {
+    let Some(activities) = handle() else {
+        return false;
+    };
+    let Some(activity) = test_signal(&kind) else {
+        return false;
+    };
+    activities.upsert(activity);
+    true
+}
+
+fn test_signal(kind: &str) -> Option<Activity> {
+    let mut activity = Activity::alert(format!("test.{kind}"), "volume", Duration::from_secs(6));
+    activity.priority = 200;
+    activity.expand = false;
+    activity.style = Style::Signal;
+
+    match kind {
+        "volume" => {
+            activity.source = "volume".into();
+            activity.title = "Volume".into();
+            activity.subtitle = Some("System output".into());
+            activity.icon = Some("volume".into());
+            activity.color = Some(BLUE.into());
+            activity.progress = Some(0.68);
+            activity.tone = Some("wave".into());
+        }
+        "brightness" => {
+            activity.source = "brightness".into();
+            activity.title = "Brightness".into();
+            activity.subtitle = Some("Display brightness".into());
+            activity.icon = Some("brightness".into());
+            activity.color = Some(YELLOW.into());
+            activity.progress = Some(0.42);
+            activity.tone = Some("slide".into());
+        }
+        "charging" => {
+            activity.source = "battery".into();
+            activity.title = "Charging".into();
+            activity.subtitle = Some("Plugged in".into());
+            activity.icon = Some("charging".into());
+            activity.color = Some(GREEN.into());
+            activity.progress = Some(0.64);
+            activity.tone = Some("zap".into());
+        }
+        "full" => {
+            activity.source = "battery".into();
+            activity.title = "Fully charged".into();
+            activity.subtitle = Some("Ready to unplug".into());
+            activity.icon = Some("charging".into());
+            activity.color = Some(GREEN.into());
+            activity.progress = Some(1.0);
+            activity.tone = Some("burst".into());
+        }
+        "low" => {
+            activity.source = "battery".into();
+            activity.title = "Low battery".into();
+            activity.subtitle = Some("12% left. Plug in the charger.".into());
+            activity.icon = Some("battery".into());
+            activity.color = Some(ORANGE.into());
+            activity.progress = Some(0.12);
+            activity.tone = Some("shake".into());
+        }
+        "battery" => {
+            activity.source = "battery".into();
+            activity.title = "On battery".into();
+            activity.subtitle = Some("Unplugged".into());
+            activity.icon = Some("battery".into());
+            activity.color = Some(GREEN.into());
+            activity.progress = Some(0.8);
+            activity.tone = Some("drop".into());
+        }
+        "bluetooth" => {
+            activity.source = "bluetooth".into();
+            activity.title = "AirBuds Pro".into();
+            activity.subtitle = Some("Connected".into());
+            activity.icon = Some("headphones".into());
+            activity.color = Some(BLUE.into());
+            activity.tone = Some("orbit".into());
+        }
+        "bluetooth-search" => {
+            activity.source = "bluetooth".into();
+            activity.title = "AirBuds Pro".into();
+            activity.subtitle = Some("Searching nearby".into());
+            activity.icon = Some("headphones".into());
+            activity.color = Some(BLUE.into());
+            activity.tone = Some("scan".into());
+        }
+        "bluetooth-off" => {
+            activity.source = "bluetooth".into();
+            activity.title = "AirBuds Pro".into();
+            activity.subtitle = Some("Disconnected".into());
+            activity.icon = Some("headphones".into());
+            activity.color = Some(RED.into());
+            activity.tone = Some("glitch".into());
+        }
+        "wifi" => {
+            activity.source = "wifi".into();
+            activity.title = "Home Wi-Fi".into();
+            activity.subtitle = Some("Connected · signal 86%".into());
+            activity.icon = Some("wifi".into());
+            activity.color = Some(BLUE.into());
+            activity.progress = Some(0.86);
+            activity.tone = Some("wifi".into());
+        }
+        "wifi-search" => {
+            activity.source = "wifi".into();
+            activity.title = "Wi-Fi".into();
+            activity.subtitle = Some("Searching for networks".into());
+            activity.icon = Some("wifi".into());
+            activity.color = Some(BLUE.into());
+            activity.tone = Some("scan".into());
+        }
+        "wifi-off" => {
+            activity.source = "wifi".into();
+            activity.title = "Wi-Fi".into();
+            activity.subtitle = Some("Disconnected".into());
+            activity.icon = Some("wifi".into());
+            activity.color = Some(RED.into());
+            activity.tone = Some("wifi-off".into());
+        }
+        "notification" => {
+            activity.source = "notification".into();
+            activity.title = "Test notification".into();
+            activity.subtitle = Some("From Notchly".into());
+            activity.caption = Some("Notchly".into());
+            activity.icon = Some("bell".into());
+            activity.color = Some(BLUE.into());
+            activity.style = Style::Standard;
+        }
+        _ => return None,
+    }
+
+    Some(activity)
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Default)]
@@ -235,6 +376,8 @@ impl Provider for ActivitiesProvider {
         std::thread::spawn(move || battery::watch(watcher));
         let watcher = activities.clone();
         std::thread::spawn(move || bluetooth::watch(watcher));
+        let watcher = activities.clone();
+        std::thread::spawn(move || wifi::watch(watcher));
         let watcher = activities.clone();
         std::thread::spawn(move || power::watch(watcher));
         std::thread::spawn(move || brightness::watch(activities));

@@ -16,11 +16,7 @@ use sha2::{Digest, Sha256};
 use tauri::{AppHandle, Manager};
 
 const API: &str = "https://lrclib.net/api";
-const USER_AGENT: &str = concat!(
-    "notchly/",
-    env!("CARGO_PKG_VERSION"),
-    " (https://github.com/DragAditya/Notchly)"
-);
+const USER_AGENT: &str = concat!("notchly/", env!("CARGO_PKG_VERSION"), " (Windows)");
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

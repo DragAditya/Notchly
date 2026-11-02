@@ -89,7 +89,7 @@ fn show_power(activities: &Activities, on_ac: bool, percent: u8) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some(if on_ac { "zap" } else { "drop" }.into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }
 
@@ -104,7 +104,7 @@ fn show_full(activities: &Activities, percent: u8) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some("burst".into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }
 
@@ -120,7 +120,7 @@ fn show_low(activities: &Activities, percent: u8, threshold: u8) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some("shake".into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }
 

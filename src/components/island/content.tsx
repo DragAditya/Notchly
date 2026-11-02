@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import type { Appearance } from "../../core/appearance";
 import { LAUNCHER, type IslandController } from "../../core/useIslandController";
+import { CompanionEyes } from "../../companion/CompanionEyes";
+import type { CompanionView } from "../../companion/types";
 import { IdleClock } from "../IdleClock";
 import type { Variant } from "./geometry";
 import { Launcher } from "./Launcher";
@@ -10,7 +12,12 @@ import { Tabs } from "./Tabs";
  * What fills the island in its current mode. `key` changes whenever the
  * content does, so the swap animates.
  */
-export function islandContent(ctl: IslandController, look: Appearance, v: Variant): { key: string; node: ReactNode } {
+export function islandContent(
+	ctl: IslandController,
+	look: Appearance,
+	v: Variant,
+	companion?: CompanionView,
+): { key: string; node: ReactNode } {
 	const { mode, primary, focused } = ctl;
 	const windows = look.style === "windows";
 
@@ -47,6 +54,19 @@ export function islandContent(ctl: IslandController, look: Appearance, v: Varian
 						{ctl.launcher ? <Launcher entries={ctl.entries} onSelect={ctl.setTab} /> : focused?.view.expanded}
 					</div>
 					{v.tabsAtBottom && tabs}
+				</div>
+			),
+		};
+	}
+
+	if (mode === "idle" && companion?.visible) {
+		const hasClock = windows && look.idleClock;
+		return {
+			key: "companion",
+			node: (
+				<div className={`companion-idle ${hasClock ? "has-clock" : ""}`}>
+					<CompanionEyes mood={companion.mood} />
+					{hasClock && <IdleClock />}
 				</div>
 			),
 		};

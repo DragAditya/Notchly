@@ -1,8 +1,8 @@
 # Privacy Policy — Notchly
 
-*Last updated: October 28, 2026*
+*Last updated: November 2, 2026*
 
-Notchly ("the app") is a free, open-source desktop app published at [github.com/DragAditya/Notchly](https://github.com/DragAditya/Notchly). This policy explains what data the app touches, where it goes and how to remove it. Notchly is a GPL-3.0 project derived from [Dynamic Island for Windows](https://github.com/HeyyCzer/windows-dynamic-island) by HeyyCzer; this policy covers the Notchly build.
+Notchly ("the app") is a free, open-source desktop app. This policy explains what data the app touches, where it goes and how to remove it. Notchly is licensed under GPL-3.0-or-later; see `LICENSE` and `NOTICE.md` for the applicable notices.
 
 ## The short version
 
@@ -15,10 +15,10 @@ Notchly ("the app") is a free, open-source desktop app published at [github.com/
 
 | Data | Where | Why |
 | --- | --- | --- |
-| Settings | `%APPDATA%\com.dragaditya.notchly\settings.json` | Remember your preferences |
+| Settings | `%APPDATA%\com.notchly.desktop\settings.json` | Remember your preferences |
 | Tokens and private links (Google Calendar and Spotify refresh tokens, GitHub token, private calendar feed URLs) | Windows Credential Manager | Keep secrets out of plain-text files |
-| Shelf items (paths to files you dropped, not the files) | `%APPDATA%\com.dragaditya.notchly\shelf.json` | Keep the shelf between restarts |
-| Screenshots and attachments for Ask Gemini, clipboard pictures | `%APPDATA%\com.dragaditya.notchly\` and, when you choose to keep a picture, *Pictures\Screenshots* | Attach them to a question or let you drag them out |
+| Shelf items (paths to files you dropped, not the files) | `%APPDATA%\com.notchly.desktop\shelf.json` | Keep the shelf between restarts |
+| Screenshots and attachments for Ask Gemini, clipboard pictures | `%APPDATA%\com.notchly.desktop\` and, when you choose to keep a picture, *Pictures\Screenshots* | Attach them to a question or let you drag them out |
 | Calendar events, clipboard text, mirrored notifications, now-playing info, system stats, the text read off the screen by Find on screen | Memory only | Show them in the island; gone when the app closes |
 
 The app reads, without uploading anywhere, information Windows and other apps already keep on your computer: media playback info, Windows notifications (only after you enable the Notifications module), the clipboard (anything copied by password managers is ignored), battery, volume, Bluetooth devices, performance counters, and Claude Code's local transcripts and settings in `~/.claude`.
@@ -35,7 +35,7 @@ Because the app has no server, none of your data ever reaches us, so there is no
 - **Local only.** The app's built-in servers (the local API, the Claude Code bridge and the sign-in redirect) listen on `127.0.0.1` only and cannot be reached from your network or the internet.
 - **Sensitive clipboard content skipped.** Anything password managers mark as private is never read, and clipboard pictures saved for dragging are deleted every time the app starts.
 - **Revocation.** **Disconnect** revokes the Google token with Google and deletes it from your computer.
-- **Open source.** All of the app's code is public at [github.com/DragAditya/Notchly](https://github.com/DragAditya/Notchly), so anyone can check how data is handled. Security problems should be reported privately through the process in SECURITY.md.
+- **Open source.** All of the app's code is public in this repository, so anyone can check how data is handled. Security problems should be reported privately through the process in SECURITY.md.
 
 ## Online services
 
@@ -100,7 +100,7 @@ When the app talks to Google, Google Gemini, Spotify, GitHub, Anthropic or YouTu
 ## Deleting your data
 
 - Disconnect Google Calendar or Spotify, or remove GitHub tokens and feeds, in **Settings**.
-- Uninstall the app and delete `%APPDATA%\com.dragaditya.notchly`.
+- Uninstall the app and delete `%APPDATA%\com.notchly.desktop`.
 - Disabling the Claude Code integration in **Settings** restores your previous `~/.claude/settings.json`.
 
 ## Children
@@ -113,4 +113,4 @@ Changes to this policy are published in this file, with the date at the top upda
 
 ## Contact
 
-Questions or requests: open an issue at [github.com/DragAditya/Notchly/issues](https://github.com/DragAditya/Notchly/issues).
+Questions or requests: open an issue in this repository.

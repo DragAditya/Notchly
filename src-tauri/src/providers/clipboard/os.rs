@@ -15,6 +15,9 @@ use windows::Win32::System::Memory::{
     GMEM_MOVEABLE, GlobalAlloc, GlobalLock, GlobalSize, GlobalUnlock,
 };
 use windows::Win32::System::Ole::{CF_DIB, CF_HDROP, CF_UNICODETEXT};
+use windows::Win32::UI::Input::KeyboardAndMouse::{
+    KEYBD_EVENT_FLAGS, KEYEVENTF_KEYUP, VK_CONTROL, VK_V, keybd_event,
+};
 use windows::Win32::UI::Shell::{DROPFILES, DragQueryFileW, HDROP};
 use windows::core::{BOOL, HSTRING};
 
@@ -275,9 +278,10 @@ pub fn saved_screenshot(
     folder: &Path,
     at: std::time::SystemTime,
     size: (u32, u32),
+    only_named: bool,
 ) -> Option<PathBuf> {
     let window = Duration::from_secs(20);
-    std::fs::read_dir(folder)
+    let mut candidates: Vec<(PathBuf, Duration)> = std::fs::read_dir(folder)
         .ok()?
         .flatten()
         .filter(|e| {
@@ -286,19 +290,41 @@ pub fn saved_screenshot(
                 .is_some_and(|x| x.eq_ignore_ascii_case("png"))
         })
         .filter(|e| {
-            e.metadata().and_then(|m| m.modified()).is_ok_and(|t| {
-                t.duration_since(at)
-                    .or_else(|_| at.duration_since(t))
-                    .is_ok_and(|d| d <= window)
-            })
+            if !only_named {
+                return true;
+            }
+            let name = e.file_name().to_string_lossy().to_ascii_lowercase();
+            name.contains("screenshot") || name.contains("snip")
         })
-        .map(|e| e.path())
-        .find(|p| {
-            std::fs::File::open(p).ok().and_then(|mut f| {
-                use std::io::Read;
-                let mut head = [0u8; 24];
-                f.read_exact(&mut head).ok()?;
-                image::png_size(&head)
-            }) == Some(size)
+        .filter_map(|e| {
+            let modified = e.metadata().and_then(|m| m.modified()).ok()?;
+            let diff = modified
+                .duration_since(at)
+                .or_else(|_| at.duration_since(modified))
+                .ok()?;
+            (diff <= window).then_some((e.path(), diff))
         })
+        .collect();
+    // Two screenshots can land in the same folder within the window; the
+    // closest modified time is the one that belongs to this copy.
+    candidates.sort_by_key(|(_, diff)| *diff);
+    candidates.into_iter().map(|(path, _)| path).find(|p| {
+        std::fs::File::open(p).ok().and_then(|mut f| {
+            use std::io::Read;
+            let mut head = [0u8; 24];
+            f.read_exact(&mut head).ok()?;
+            image::png_size(&head)
+        }) == Some(size)
+    })
+}
+
+/// Sends Ctrl+V to the focused app. The island never takes activation, so the
+/// app that was in front is still the target.
+pub fn paste() {
+    unsafe {
+        keybd_event(VK_CONTROL.0 as u8, 0, KEYBD_EVENT_FLAGS(0), 0);
+        keybd_event(VK_V.0 as u8, 0, KEYBD_EVENT_FLAGS(0), 0);
+        keybd_event(VK_V.0 as u8, 0, KEYEVENTF_KEYUP, 0);
+        keybd_event(VK_CONTROL.0 as u8, 0, KEYEVENTF_KEYUP, 0);
+    }
 }

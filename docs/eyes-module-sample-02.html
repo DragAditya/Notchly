@@ -1,0 +1,2521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notchly — Eyes that perform (sample 02)</title>
+<style>
+/* ========================================================================== */
+/* Review board                                                                */
+/* ========================================================================== */
+
+:root {
+	color-scheme: dark;
+	--bg: #06070a;
+	--ink: #f5f6f9;
+	--muted: #a4a8b8;
+	--faint: #6d7182;
+	--line: rgba(255, 255, 255, 0.09);
+	--line-strong: rgba(255, 255, 255, 0.16);
+	--panel: rgba(255, 255, 255, 0.045);
+	--panel-2: rgba(255, 255, 255, 0.026);
+	--accent: #9a96ff;
+	--green: #7ef0b4;
+	--blue: #74b9ff;
+	--pink: #ff6b9a;
+	--orange: #ffb45c;
+	--font: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+	--mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+	--ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
+body {
+	margin: 0;
+	min-height: 100vh;
+	color: var(--ink);
+	font-family: var(--font);
+	font-feature-settings: "tnum" 1, "cv11" 1;
+	-webkit-font-smoothing: antialiased;
+	background:
+		radial-gradient(1000px 620px at 12% -8%, rgba(80, 108, 255, 0.20), transparent 62%),
+		radial-gradient(900px 520px at 92% 2%, rgba(255, 92, 138, 0.10), transparent 58%),
+		radial-gradient(760px 500px at 50% 108%, rgba(48, 209, 88, 0.06), transparent 62%),
+		var(--bg);
+}
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0.28;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+	background-size: 54px 54px;
+	mask-image: linear-gradient(to bottom, #000, transparent 78%);
+}
+button, input { font: inherit; }
+button { color: inherit; }
+::selection { background: rgba(154, 150, 255, 0.35); }
+
+.page {
+	position: relative;
+	width: min(1180px, calc(100% - 48px));
+	margin: 0 auto;
+	padding: 28px 0 64px;
+}
+
+.site-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	margin-bottom: 42px;
+}
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 11px;
+	font-size: 12px;
+	font-weight: 650;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+.brand-mark {
+	position: relative;
+	width: 36px;
+	height: 23px;
+	border-radius: 999px;
+	background: #000;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 8px 24px rgba(0, 0, 0, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+}
+.brand-mark i {
+	display: block;
+	width: 4px;
+	height: 8px;
+	border-radius: 999px;
+	background: #e9ffe4;
+	box-shadow: 0 0 7px rgba(160, 255, 160, 0.8);
+}
+.brand-mark i:last-child { height: 6px; opacity: 0.8; }
+.sample-tag {
+	padding: 7px 11px;
+	border: 1px solid var(--line-strong);
+	border-radius: 999px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 10px;
+	letter-spacing: 0.13em;
+	text-transform: uppercase;
+}
+
+.hero {
+	display: grid;
+	grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+	gap: 48px;
+	align-items: end;
+	margin-bottom: 46px;
+}
+.kicker {
+	margin: 0 0 13px;
+	color: #a8a4ff;
+	font-family: var(--mono);
+	font-size: 10.5px;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+h1 {
+	margin: 0;
+	font-size: clamp(38px, 5vw, 64px);
+	font-weight: 620;
+	line-height: 0.98;
+	letter-spacing: -0.055em;
+}
+h1 em {
+	font-style: normal;
+	color: #b6ffa8;
+	text-shadow: 0 0 28px rgba(150, 255, 135, 0.28);
+}
+.lede {
+	max-width: 560px;
+	margin: 20px 0 0;
+	color: var(--muted);
+	font-size: 15px;
+	line-height: 1.6;
+	letter-spacing: -0.005em;
+}
+.hero-note {
+	position: relative;
+	padding: 18px 18px 18px 42px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018));
+	color: var(--muted);
+	font-size: 12.5px;
+	line-height: 1.55;
+}
+.hero-note .dot {
+	position: absolute;
+	left: 18px;
+	top: 21px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #b6ffa8;
+	box-shadow: 0 0 12px rgba(150, 255, 135, 0.8);
+}
+.hero-note p { margin: 0; }
+
+.board {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 22px;
+	align-items: start;
+}
+.column {
+	padding: 20px;
+	border: 1px solid var(--line);
+	border-radius: 24px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+}
+.column h2,
+.section-head h2 {
+	margin: 0;
+	font-size: 11px;
+	font-weight: 650;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--faint);
+}
+.surface-label {
+	margin: 20px 2px 8px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 10px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+.surface-label:first-of-type { margin-top: 16px; }
+
+/* ========================================================================== */
+/* The island surfaces                                                        */
+/* ========================================================================== */
+
+.pill {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	max-width: 360px;
+	height: 38px;
+	padding: 0 12px;
+	overflow: hidden;
+	border-radius: 19px;
+	background: #000;
+	box-shadow:
+		0 0 0 1px rgba(255, 255, 255, 0.07),
+		0 16px 36px -16px rgba(0, 0, 0, 0.9),
+		inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.pill::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	border-radius: inherit;
+	background: radial-gradient(70% 120% at 12% 0%, rgba(255, 255, 255, 0.07), transparent 55%);
+}
+.pill > * { position: relative; z-index: 1; }
+
+.eyes-slot {
+	position: relative;
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 46px;
+	height: 30px;
+}
+.music-dance-slot {
+	width: 52px;
+	height: 34px;
+	overflow: visible;
+}
+.dance-stage {
+	position: relative;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+}
+.dance-stage[data-dance="groove"] { animation: dance-groove 1.7s ease-in-out infinite; }
+.dance-stage[data-dance="bounce"] { animation: dance-bounce 1.15s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+.dance-stage[data-dance="shimmy"] { animation: dance-shimmy 0.72s steps(2, end) infinite; }
+.dance-stage[data-dance="wave"] { animation: dance-wave 2.1s ease-in-out infinite; }
+.dance-stage[data-dance="spin"] { animation: dance-spin 2.6s ease-in-out infinite; }
+.dance-stage[data-dance="hop"] { animation: dance-hop 1.45s cubic-bezier(0.3, 1.4, 0.5, 1) infinite; }
+.dance-stage[data-dance="wave"] .companion-eye.left { animation: eye-wave-left 2.1s ease-in-out infinite; }
+.dance-stage[data-dance="wave"] .companion-eye.right { animation: eye-wave-right 2.1s ease-in-out infinite; }
+.dance-stage[data-dance="shimmy"] .companion-eye.left { animation: eye-shimmy-left 0.72s steps(2, end) infinite; }
+.dance-stage[data-dance="shimmy"] .companion-eye.right { animation: eye-shimmy-right 0.72s steps(2, end) infinite; }
+.dance-spark {
+	position: absolute;
+	z-index: 1;
+	width: 3px;
+	height: 3px;
+	border-radius: 50%;
+	background: #b6ffa8;
+	box-shadow: 0 0 7px rgba(150, 255, 135, 0.8);
+	opacity: 0;
+	pointer-events: none;
+}
+.dance-spark.left { left: -2px; top: 6px; animation: dance-spark 2.4s ease-in-out infinite; }
+.dance-spark.right { right: -2px; bottom: 4px; animation: dance-spark 2.4s ease-in-out infinite 0.8s; }
+.notif-ripple {
+	position: absolute;
+	z-index: 1;
+	left: 50%;
+	top: 50%;
+	width: 34px;
+	height: 34px;
+	margin: -17px 0 0 -17px;
+	border-radius: 50%;
+	border: 1px solid rgba(255, 90, 110, 0.65);
+	opacity: 0;
+	pointer-events: none;
+}
+.notif-pill.is-ping .notif-ripple { animation: notif-ripple 0.62s ease-out; }
+.bt-scan {
+	position: absolute;
+	z-index: 3;
+	left: 6px;
+	right: 6px;
+	top: 50%;
+	height: 2px;
+	background: linear-gradient(90deg, transparent, rgba(143, 211, 255, 0.85), transparent);
+	box-shadow: 0 0 10px rgba(100, 190, 255, 0.45);
+	mix-blend-mode: screen;
+	opacity: 0.24;
+	pointer-events: none;
+}
+.bt-pill.is-searching .bt-scan { animation: bt-scan 2.4s ease-in-out infinite; }
+.bt-link {
+	position: absolute;
+	z-index: 1;
+	left: 50%;
+	top: 50%;
+	width: 5px;
+	height: 5px;
+	margin: -2.5px 0 0 -2.5px;
+	border-radius: 50%;
+	background: #8fd3ff;
+	box-shadow: 0 0 10px #8fd3ff;
+	opacity: 0;
+	pointer-events: none;
+}
+.bt-pill.is-connected .bt-link { animation: bt-link 3.2s ease-in-out infinite; }
+.bt-sonar i {
+	position: absolute;
+	top: 50%;
+	width: 20px;
+	height: 38px;
+	margin-top: -19px;
+	border: 1px solid color-mix(in srgb, var(--accent, #8fd3ff) 74%, transparent);
+	border-radius: 50%;
+	opacity: 0.32;
+}
+.bt-sonar i:first-child { left: -7px; border-right-color: transparent; }
+.bt-sonar i:last-child { right: -7px; border-left-color: transparent; }
+.bt-pill.is-searching .bt-sonar i:first-child,
+.bt-study.is-searching .bt-sonar i:first-child { animation: bt-sonar-left 2.2s ease-out infinite; }
+.bt-pill.is-searching .bt-sonar i:last-child,
+.bt-study.is-searching .bt-sonar i:last-child { animation: bt-sonar-right 2.2s 0.12s ease-out infinite; }
+.bt-link-bridge {
+	position: absolute;
+	z-index: 1;
+	left: 50%;
+	top: 9px;
+	width: 54px;
+	height: 26px;
+	margin-left: -27px;
+	border-top: 2px solid color-mix(in srgb, var(--accent, #8fd3ff) 78%, #fff);
+	border-radius: 50% 50% 0 0;
+	box-shadow: 0 -4px 12px -4px color-mix(in srgb, var(--accent, #8fd3ff) 68%, transparent);
+	transform-origin: center bottom;
+	opacity: 0.35;
+	pointer-events: none;
+}
+.bt-link-bridge::before,
+.bt-link-bridge::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	width: 4px;
+	height: 4px;
+	border-radius: 50%;
+	background: color-mix(in srgb, var(--accent, #8fd3ff) 72%, #fff);
+	box-shadow: 0 0 8px var(--accent, #8fd3ff);
+}
+.bt-link-bridge::before { left: 0; }
+.bt-link-bridge::after { right: 0; }
+.bt-pill.is-connected .bt-link-bridge,
+.bt-study.is-connected .bt-link-bridge { animation: bt-link-bridge 3.2s ease-in-out infinite; }
+.bt-pill.is-connected .companion-eyes,
+.bt-study.is-connected .companion-eyes { animation: bt-connect 3.2s ease-in-out infinite; }
+.music-pill.is-paused .dance-stage,
+.music-pill.is-paused .dance-spark { animation-play-state: paused; }
+.identity-chip {
+	position: absolute;
+	right: -1px;
+	bottom: -2px;
+	display: grid;
+	place-items: center;
+	width: 14px;
+	height: 14px;
+	overflow: hidden;
+	border-radius: 5px;
+	background: #1c1c1f;
+	box-shadow: 0 0 0 2px #000;
+}
+.identity-chip.album {
+	background:
+		linear-gradient(135deg, #ff8a3d 0%, #ff3d81 42%, #6d5cff 72%, #2b1a4d 100%);
+}
+.identity-chip.album::after {
+	content: "♪";
+	width: auto;
+	height: auto;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 9px;
+	line-height: 1;
+	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+.identity-chip.app {
+	background: #22c55e;
+	color: #04220f;
+	font-size: 8px;
+	font-weight: 800;
+}
+
+.music-meta {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+.music-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 12.5px;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.music-artist {
+	overflow: hidden;
+	color: var(--muted);
+	font-size: 10.5px;
+	font-weight: 500;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.music-end {
+	flex: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.music-time {
+	color: var(--muted);
+	font-size: 11.5px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+.viz {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 14px;
+}
+.viz i {
+	display: block;
+	width: 2px;
+	height: 40%;
+	border-radius: 99px;
+	background: #b6ffa8;
+	box-shadow: 0 0 6px rgba(150, 255, 135, 0.45);
+	transform-origin: 50% 100%;
+	animation: viz 0.9s ease-in-out infinite alternate;
+}
+.viz i:nth-child(2) { animation-delay: -0.45s; height: 75%; }
+.viz i:nth-child(3) { animation-delay: -0.2s; height: 55%; }
+.viz i:nth-child(4) { animation-delay: -0.65s; height: 90%; }
+.is-paused .viz i { animation-play-state: paused; opacity: 0.35; }
+
+.notif-meta {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+.notif-app {
+	color: #7ef0b4;
+	font-size: 9.5px;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+.notif-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 12px;
+	font-weight: 550;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.notif-count {
+	flex: none;
+	min-width: 20px;
+	padding: 3px 6px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--muted);
+	font-size: 10px;
+	font-weight: 700;
+	text-align: center;
+}
+.bt-meta {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+.bt-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 12.5px;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.bt-sub {
+	color: var(--muted);
+	font-size: 10.5px;
+	font-weight: 500;
+}
+.bt-state {
+	flex: none;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #7ef0b4;
+	box-shadow: 0 0 10px rgba(126, 240, 180, 0.7);
+}
+.bt-state.is-off {
+	background: #5c6070;
+	box-shadow: none;
+}
+
+/* ========================================================================== */
+/* Signal cards                                                               */
+/* ========================================================================== */
+
+.signal {
+	--accent: #74b9ff;
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	height: 108px;
+	margin-top: 14px;
+	padding: 0 22px;
+	overflow: hidden;
+	border-radius: 30px;
+	isolation: isolate;
+	background:
+		radial-gradient(120% 160% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 42%),
+		linear-gradient(180deg, #0a0b0f 0%, #000 58%, #000 100%);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.09),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.055),
+		0 18px 40px -20px rgba(0, 0, 0, 0.9);
+}
+.signal:first-of-type { margin-top: 16px; }
+.signal::before {
+	content: "";
+	position: absolute;
+	z-index: 0;
+	left: 3%;
+	top: 12%;
+	width: 220px;
+	height: 120px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, color-mix(in srgb, var(--accent) 48%, transparent), transparent 70%);
+	filter: blur(30px);
+	opacity: 0.55;
+	pointer-events: none;
+}
+.signal::after {
+	content: "";
+	position: absolute;
+	z-index: 0;
+	inset: 0;
+	pointer-events: none;
+	background: radial-gradient(90% 100% at 90% 0%, rgba(255, 255, 255, 0.045), transparent 55%);
+}
+.signal > * { position: relative; z-index: 1; }
+
+.signal-eye-stage {
+	position: relative;
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 96px;
+	height: 76px;
+	isolation: isolate;
+}
+.signal-eye-motion {
+	position: relative;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	width: 100%;
+	height: 100%;
+}
+.signal-fx {
+	position: absolute;
+	z-index: 0;
+	inset: 0;
+	pointer-events: none;
+}
+.signal-eye-stage .companion-blinker { animation: none; }
+
+/* Volume: the eyes breathe and throw off sound ripples. */
+.volume-waves i {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 84px;
+	height: 84px;
+	margin: -42px 0 0 -42px;
+	border-radius: 50%;
+	border: 1px solid color-mix(in srgb, var(--accent) 72%, transparent);
+	opacity: 0;
+	animation: volume-wave var(--wave-speed, 1.4s) ease-out infinite;
+}
+.volume-waves i:nth-child(2) { animation-delay: calc(var(--wave-speed, 1.4s) * -0.33); }
+.volume-waves i:nth-child(3) { animation-delay: calc(var(--wave-speed, 1.4s) * -0.66); }
+.volume-waves { opacity: var(--wave-opacity, 0.55); }
+#volumeMotion { animation: volume-beat var(--beat, 1.2s) ease-in-out infinite; }
+
+/* Brightness: a slow sunrise bloom behind the eyes. */
+.brightness-rays {
+	inset: -30%;
+	background: repeating-conic-gradient(
+		from 0deg,
+		color-mix(in srgb, var(--accent) 32%, transparent) 0 1.5deg,
+		transparent 1.5deg 17deg
+	);
+	mask-image: radial-gradient(circle, #000 0 31%, transparent 68%);
+	opacity: var(--ray-strength, 0.35);
+	animation: rays-spin 28s linear infinite;
+}
+#brightnessMotion { animation: brightness-breathe 4.4s ease-in-out infinite; }
+
+/* Battery: the eyes power up while a bolt and energy motes orbit them. */
+.charge-sparks .charge-surge i {
+	position: absolute;
+	left: 50%;
+	bottom: 8%;
+	width: 58px;
+	height: 58px;
+	margin-left: -29px;
+	border-radius: 50%;
+	border: 1px solid color-mix(in srgb, var(--accent) 72%, transparent);
+	opacity: 0;
+	animation: charge-surge 2.2s ease-out infinite;
+}
+.charge-sparks .charge-surge i:nth-child(2) { animation-delay: 1.1s; }
+.charge-sparks .charge-orbit {
+	position: absolute;
+	inset: 4px;
+	animation: charge-orbit 3.2s linear infinite;
+}
+.charge-sparks .charge-orbit i {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 4px;
+	height: 4px;
+	margin: -2px 0 0 -2px;
+	border-radius: 50%;
+	background: #c8ffd6;
+	box-shadow:
+		0 0 8px var(--accent),
+		0 0 16px 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.charge-sparks .charge-orbit i:nth-child(1) { transform: rotate(0deg) translateX(42px); }
+.charge-sparks .charge-orbit i:nth-child(2) { transform: rotate(120deg) translateX(42px); }
+.charge-sparks .charge-orbit i:nth-child(3) { transform: rotate(240deg) translateX(42px); }
+.charge-sparks .charge-bolt {
+	position: absolute;
+	z-index: 3;
+	top: -1px;
+	right: 8px;
+	width: 13px;
+	height: 20px;
+	background: #c8ffd6;
+	clip-path: polygon(55% 0, 18% 58%, 46% 58%, 38% 100%, 82% 40%, 54% 40%);
+	filter: drop-shadow(0 0 7px var(--accent));
+	opacity: 0;
+	animation: charge-bolt 1.8s ease-in-out infinite;
+}
+.charge-sparks.is-off .charge-surge i,
+.charge-sparks.is-off .charge-orbit,
+.charge-sparks.is-off .charge-bolt { animation-play-state: paused; opacity: 0; }
+#batteryMotion { animation: battery-charge 2.2s ease-in-out infinite; }
+#batteryMotion.is-off { animation: none; }
+.signal-copy {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+.signal-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 20px;
+	font-weight: 650;
+	line-height: 1.14;
+	letter-spacing: -0.018em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.signal-sub {
+	overflow: hidden;
+	color: var(--muted);
+	font-size: 12.5px;
+	font-weight: 450;
+	line-height: 1.3;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.signal-value {
+	flex: none;
+	display: flex;
+	align-items: baseline;
+	color: #fff;
+	font-size: 38px;
+	font-weight: 640;
+	line-height: 0.9;
+	letter-spacing: -0.05em;
+	font-variant-numeric: tabular-nums;
+	text-shadow: 0 2px 22px rgba(0, 0, 0, 0.8);
+}
+.signal-value .pct {
+	margin-left: 0.1em;
+	color: var(--muted);
+	font-size: 15px;
+	font-weight: 550;
+	letter-spacing: 0;
+}
+.signal-note {
+	margin: 8px 2px 0;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* Dance study --------------------------------------------------------------- */
+
+.dance-study {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	margin-top: 14px;
+	padding: 18px 20px;
+	overflow: hidden;
+	border-radius: 30px;
+	isolation: isolate;
+	background:
+		radial-gradient(120% 160% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 42%),
+		linear-gradient(180deg, #0a0b0f 0%, #000 58%, #000 100%);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.09),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.055),
+		0 18px 40px -20px rgba(0, 0, 0, 0.9);
+}
+.dance-study::before {
+	content: "";
+	position: absolute;
+	z-index: 0;
+	inset: -30%;
+	background: radial-gradient(40% 60% at 18% 45%, rgba(182, 255, 168, 0.12), transparent 70%);
+	pointer-events: none;
+}
+.dance-study-stage {
+	position: relative;
+	z-index: 1;
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 190px;
+	height: 104px;
+	border-radius: 24px;
+	background:
+		radial-gradient(60% 80% at 50% 80%, rgba(182, 255, 168, 0.13), transparent 70%),
+		rgba(255, 255, 255, 0.025);
+	box-shadow:
+		inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+		inset 0 -20px 30px rgba(0, 0, 0, 0.45);
+}
+.dance-study-stage::before {
+	content: "";
+	position: absolute;
+	bottom: 7px;
+	left: 50%;
+	width: 130px;
+	height: 24px;
+	margin-left: -65px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, rgba(182, 255, 168, 0.3), transparent 70%);
+	filter: blur(8px);
+	pointer-events: none;
+}
+.dance-study .companion-eyes {
+	--eye-w: 54px;
+	--eye-h: 26px;
+	gap: 18px;
+}
+.dance-study .companion-eyes::before {
+	width: 158px;
+	height: 54px;
+	opacity: 0.32;
+}
+.dance-study .companion-eyes[data-mood="music"]::after {
+	top: -18px;
+	right: -18px;
+	font-size: 22px;
+}
+.dance-study-stage .dance-spark.left { left: 12px; top: 18px; }
+.dance-study-stage .dance-spark.right { right: 12px; bottom: 16px; }
+.dance-study-copy {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 0;
+}
+.dance-study-title {
+	color: var(--ink);
+	font-size: 18px;
+	font-weight: 650;
+	letter-spacing: -0.015em;
+}
+.dance-study-sub {
+	color: var(--muted);
+	font-size: 11.5px;
+	font-weight: 500;
+}
+
+/* Reaction studies ---------------------------------------------------------- */
+
+.reaction-grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 14px;
+}
+.reaction-grid .signal {
+	height: 108px;
+	margin-top: 0;
+	padding: 0 16px;
+	gap: 12px;
+	border-radius: 26px;
+}
+.reaction-grid .signal-eye-stage {
+	width: 72px;
+	height: 64px;
+}
+.reaction-grid .signal-eye-stage .companion-eyes {
+	--eye-w: 24px;
+	--eye-h: 38px;
+	gap: 9px;
+}
+.reaction-grid .signal-eye-stage .companion-eyes::before {
+	width: 82px;
+	height: 32px;
+	opacity: 0.2;
+}
+.reaction-grid .signal-title { font-size: 16px; }
+.reaction-grid .signal-sub { font-size: 10.5px; }
+.signal-state {
+	flex: none;
+	color: var(--accent);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+}
+.bt-study .bt-scan { left: 4px; right: 4px; }
+.bt-study.is-searching .bt-scan { animation: bt-scan 2.4s ease-in-out infinite; }
+.bt-study.is-connected .bt-link { animation: bt-link 3.2s ease-in-out infinite; }
+.notif-study .notif-ripple {
+	width: 54px;
+	height: 54px;
+	margin: -27px 0 0 -27px;
+}
+.notif-study.is-ping .notif-ripple { animation: notif-ripple 0.62s ease-out; }
+
+/* ========================================================================== */
+/* Expanded music                                                             */
+/* ========================================================================== */
+
+.expanded-section {
+	margin-top: 22px;
+	padding: 20px;
+	border: 1px solid var(--line);
+	border-radius: 24px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+}
+.section-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 24px;
+}
+.section-head p {
+	margin: 0;
+	color: var(--faint);
+	font-size: 11.5px;
+}
+.music-expanded {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	height: 176px;
+	margin-top: 16px;
+	padding: 0 22px;
+	overflow: hidden;
+	border-radius: 32px;
+	background:
+		radial-gradient(120% 160% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 42%),
+		linear-gradient(180deg, #0a0b0f 0%, #000 58%, #000 100%);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.09),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.055),
+		0 18px 40px -20px rgba(0, 0, 0, 0.9);
+}
+.cover {
+	position: relative;
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 132px;
+	height: 132px;
+	overflow: hidden;
+	border-radius: 22px;
+	background: #141019;
+	box-shadow: 0 18px 38px -12px rgba(255, 80, 140, 0.28);
+}
+.cover::before {
+	content: "";
+	position: absolute;
+	inset: -18%;
+	background:
+		radial-gradient(60% 60% at 30% 20%, #ffb15c 0%, transparent 62%),
+		radial-gradient(70% 70% at 78% 32%, #ff4f93 0%, transparent 64%),
+		radial-gradient(80% 80% at 52% 92%, #6d5cff 0%, transparent 68%),
+		linear-gradient(135deg, #2a1235, #100a16);
+	filter: blur(14px) saturate(1.25);
+	transform: scale(1.12);
+}
+.cover::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background:
+		linear-gradient(180deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.38)),
+		radial-gradient(60% 60% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.28));
+}
+.vinyl {
+	position: relative;
+	z-index: 2;
+	display: grid;
+	place-items: center;
+	width: 88px;
+	height: 88px;
+	border-radius: 50%;
+	background: repeating-radial-gradient(circle at center, #1b1620 0 2px, #251d2d 2px 4px);
+	box-shadow:
+		0 0 0 1px rgba(255, 255, 255, 0.12),
+		0 14px 26px rgba(0, 0, 0, 0.42);
+}
+.vinyl::before {
+	content: "";
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #ffb15c, #ff4f93 55%, #6d5cff);
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+.vinyl::after {
+	content: "";
+	position: absolute;
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: #0a0810;
+}
+.album-badge {
+	position: absolute;
+	z-index: 3;
+	right: 8px;
+	bottom: 8px;
+	display: grid;
+	place-items: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 7px;
+	background: #1db954;
+	color: #04220f;
+	font-size: 11px;
+	font-weight: 800;
+	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.55);
+}
+.cover .identity-chip {
+	right: 8px;
+	bottom: 8px;
+	width: 22px;
+	height: 22px;
+	border-radius: 7px;
+	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.55);
+}
+.cover .identity-chip.album::after { width: 7px; height: 7px; }
+.music-expanded-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 112px;
+}
+.music-expanded .eyebrow {
+	color: #b6ffa8;
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+.music-expanded h3 {
+	margin: 4px 0 0;
+	font-size: 21px;
+	font-weight: 650;
+	letter-spacing: -0.025em;
+	line-height: 1.15;
+}
+.music-expanded .artist {
+	margin: 3px 0 0;
+	color: var(--muted);
+	font-size: 12.5px;
+}
+.progress {
+	position: relative;
+	height: 5px;
+	margin-top: 14px;
+	overflow: hidden;
+	border-radius: 99px;
+	background: rgba(255, 255, 255, 0.14);
+}
+.progress span {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	transform-origin: 0 50%;
+	transform: scaleX(0.43);
+	background: linear-gradient(90deg, #ff7a9e, #ffd1a8);
+	box-shadow: 0 0 14px rgba(255, 122, 158, 0.35);
+}
+.times {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 6px;
+	color: var(--faint);
+	font-size: 10px;
+	font-variant-numeric: tabular-nums;
+}
+.expanded-controls {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 8px;
+}
+.ctrl {
+	display: grid;
+	place-items: center;
+	width: 30px;
+	height: 30px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--ink);
+	cursor: pointer;
+	transition: background 0.18s, transform 0.18s;
+}
+.ctrl:hover { background: rgba(255, 255, 255, 0.08); }
+.ctrl:active { transform: scale(0.94); }
+.ctrl.big {
+	width: 38px;
+	height: 38px;
+	background: rgba(255, 255, 255, 0.10);
+}
+.ctrl svg { width: 15px; height: 15px; fill: currentColor; }
+.ctrl.big svg { width: 17px; height: 17px; }
+
+/* ========================================================================== */
+/* Controls                                                                   */
+/* ========================================================================== */
+
+.controls {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 22px;
+	padding: 18px;
+	border: 1px solid var(--line);
+	border-radius: 22px;
+	background: rgba(255, 255, 255, 0.026);
+}
+.control {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+	min-width: 0;
+}
+.control label {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	color: var(--muted);
+	font-size: 11px;
+	font-weight: 600;
+}
+.control output {
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 10.5px;
+	font-variant-numeric: tabular-nums;
+}
+.dance-control { grid-column: 1 / -1; }
+.dance-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.dance-btn {
+	padding: 6px 11px;
+	border: 1px solid var(--line-strong);
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.03);
+	color: var(--muted);
+	font-size: 10.5px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.18s, border-color 0.18s, color 0.18s, transform 0.18s;
+}
+.dance-btn:hover { background: rgba(255, 255, 255, 0.08); color: var(--ink); }
+.dance-btn:active { transform: scale(0.96); }
+.dance-btn.is-active {
+	background: #b6ffa8;
+	border-color: #b6ffa8;
+	color: #071006;
+}
+input[type="range"] {
+	width: 100%;
+	height: 18px;
+	margin: 0;
+	appearance: none;
+	background: transparent;
+	cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+	height: 4px;
+	border-radius: 99px;
+	background: rgba(255, 255, 255, 0.14);
+}
+input[type="range"]::-webkit-slider-thumb {
+	width: 14px;
+	height: 14px;
+	margin-top: -5px;
+	appearance: none;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08), 0 0 12px rgba(255, 255, 255, 0.28);
+}
+input[type="range"]:focus-visible { outline: 2px solid #a8a4ff; outline-offset: 4px; }
+
+.toggle-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	min-height: 28px;
+	color: var(--muted);
+	font-size: 11px;
+	font-weight: 600;
+}
+.switch {
+	position: relative;
+	width: 36px;
+	height: 20px;
+	flex: none;
+	border: 0;
+	border-radius: 99px;
+	background: rgba(255, 255, 255, 0.14);
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.switch::after {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #fff;
+	transition: translate 0.2s var(--ease);
+}
+.switch[aria-pressed="true"] { background: #30d158; }
+.switch[aria-pressed="true"]::after { translate: 16px 0; }
+.action-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: flex-end;
+}
+.action {
+	padding: 8px 12px;
+	border: 1px solid var(--line-strong);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.045);
+	color: var(--ink);
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+.action:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.26); }
+.action:active { transform: scale(0.97); }
+.action.primary { background: #e9ffe4; border-color: #e9ffe4; color: #071006; }
+.action.primary:hover { background: #fff; border-color: #fff; }
+
+footer {
+	display: flex;
+	justify-content: space-between;
+	gap: 20px;
+	margin-top: 26px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* ========================================================================== */
+/* The companion eyes — copied from production                                */
+/* ========================================================================== */
+
+.companion-eyes {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+	--eye-w: 17px;
+	--eye-h: 24px;
+	--eye-radius: 50%;
+	--gaze-x: 0px;
+	--gaze-y: 0px;
+	--action-look-x: 0px;
+	--action-look-y: 0px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+	filter: drop-shadow(0 0 var(--eye-blur, 9px) var(--eye-glow));
+	translate: calc(var(--gaze-x) + var(--action-look-x)) calc(var(--gaze-y) + var(--action-look-y));
+	scale: var(--pet-scale, 1);
+	animation: pet-breathe 4.8s ease-in-out infinite;
+	transition:
+		translate 0.22s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, translate, scale;
+}
+.companion-eyes::before {
+	content: "";
+	position: absolute;
+	width: 78px;
+	height: 26px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, var(--eye-glow), transparent 70%);
+	opacity: 0.22;
+	filter: blur(5px);
+	pointer-events: none;
+	animation: pet-aura 4.8s ease-in-out infinite;
+}
+.companion-eye {
+	position: relative;
+	display: block;
+	width: var(--eye-w);
+	height: var(--eye-h);
+	transform-origin: center;
+	scale: var(--eye-scale-x, 1) var(--eye-scale-y, 1);
+	translate: var(--eye-x, 0px) var(--eye-y, 0px);
+	rotate: var(--eye-rotate, 0deg);
+	transition:
+		width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		rotate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, scale, translate, width, height;
+}
+.companion-eye.left { --eye-rotate: -1deg; }
+.companion-eye.right { --eye-rotate: 1deg; }
+.companion-blinker {
+	position: absolute;
+	inset: 0;
+	display: block;
+	transform-origin: center;
+	scale: var(--action-scale-x, 1) var(--action-scale-y, 1);
+	translate: var(--action-x, 0px) var(--action-y, 0px);
+	animation: pet-blink 7.2s ease-in-out infinite;
+	transition:
+		scale 0.16s ease-out,
+		translate 0.16s ease-out;
+	will-change: transform, scale, translate;
+}
+.companion-eye.right .companion-blinker { animation-delay: 0.16s; }
+.companion-eye-shape {
+	position: absolute;
+	inset: 0;
+	display: block;
+	border-radius: var(--eye-radius);
+	background:
+		radial-gradient(circle at 50% 38%, #fff 0 18%, transparent 60%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 58%, color-mix(in srgb, var(--eye-color) 60%, transparent) 100%);
+	box-shadow:
+		0 0 12px var(--eye-glow),
+		inset 0 0 4px rgba(255, 255, 255, 0.55);
+	transition:
+		background 0.35s ease,
+		box-shadow 0.35s ease,
+		border-radius 0.35s ease;
+}
+
+/* --- mood colours (production values) ----------------------------------- */
+.companion-eyes[data-mood="calm"] {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+}
+.companion-eyes[data-mood="curious"] {
+	--eye-w: 19px;
+	--eye-h: 25px;
+	--eye-color: #bdefff;
+	--eye-glow: rgba(100, 210, 255, 0.62);
+	animation: pet-curious 5.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="curious"] .companion-eye.right {
+	--eye-rotate: 6deg;
+	--eye-x: 1px;
+	--eye-scale-x: 1.05;
+	--eye-scale-y: 1.08;
+}
+.companion-eyes[data-mood="happy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-happy 2.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.left { --eye-rotate: -4deg; }
+.companion-eyes[data-mood="happy"] .companion-eye.right { --eye-rotate: 4deg; }
+.companion-eyes[data-mood="excited"] {
+	--eye-w: 22px;
+	--eye-h: 24px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+	animation: pet-excited 0.9s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye { animation: companion-hop 0.72s ease-in-out infinite; }
+.companion-eyes[data-mood="excited"] .companion-eye.right { animation-delay: 0.12s; }
+.companion-eye.is-chevron svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+}
+.companion-eye.is-arc { background: none; box-shadow: none; }
+.companion-eye.is-arc svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.4;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+.companion-eyes[data-mood="alert"] {
+	--eye-w: 15px;
+	--eye-h: 25px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+}
+.companion-eyes[data-mood="alert"] .companion-eye { animation: companion-alert 1.5s ease-in-out infinite; }
+.companion-eyes[data-mood="alert"] .companion-eye::before,
+.companion-eyes[data-mood="alert"] .companion-eye::after {
+	content: "";
+	position: absolute;
+	width: 6px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--eye-color);
+	box-shadow: 0 6px 0 -0.2px var(--eye-color), 0 0 7px var(--eye-glow);
+	pointer-events: none;
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::before { left: -10px; top: 5px; transform: rotate(-20deg); }
+.companion-eyes[data-mood="alert"] .companion-eye.left::after { left: -11px; top: 14px; transform: rotate(20deg); }
+.companion-eyes[data-mood="alert"] .companion-eye.right::before { right: -10px; top: 5px; transform: rotate(20deg); }
+.companion-eyes[data-mood="alert"] .companion-eye.right::after { right: -11px; top: 14px; transform: rotate(-20deg); }
+.companion-eyes[data-mood="dizzy"] { --eye-color: #b6ffb0; --eye-glow: rgba(140, 255, 140, 0.6); }
+.companion-eye.is-spiral {
+	width: 23px;
+	height: 23px;
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-spiral .companion-blinker { position: absolute; inset: 0; animation: none; }
+.companion-eye.is-spiral svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+	animation: companion-spin 1.4s linear infinite;
+	transform-origin: center;
+}
+.companion-eyes[data-mood="dizzy"] .companion-eye.left svg { animation-direction: reverse; }
+.companion-eyes[data-mood="sleepy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #eaffdf;
+	--eye-glow: rgba(210, 255, 200, 0.48);
+	animation: pet-sleep 4.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"] .companion-blinker { animation: none; }
+.companion-eyes[data-mood="sleepy"] .companion-eye { animation: companion-sleep 4.2s ease-in-out infinite; }
+.companion-eyes[data-mood="sleepy"]::after {
+	content: "z";
+	position: absolute;
+	top: -10px;
+	right: -8px;
+	color: var(--eye-color);
+	font-size: 10px;
+	font-weight: 650;
+	line-height: 1;
+	text-shadow: 0 0 7px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-zzz 3.2s ease-in-out infinite;
+}
+.companion-eyes[data-mood="charging"] {
+	--eye-w: 19px;
+	--eye-h: 25px;
+	--eye-color: #5dff8a;
+	--eye-glow: rgba(48, 255, 120, 0.72);
+	animation: pet-charge 2.2s ease-in-out infinite;
+}
+.companion-eyes[data-mood="charging"] .companion-eye { animation: companion-charge-eye 2.2s cubic-bezier(0.45, 0, 0.2, 1) infinite; }
+.companion-eyes[data-mood="charging"] .companion-eye.right { animation-delay: 0.12s; }
+.companion-eyes[data-mood="charging"] .companion-blinker { animation: none; }
+.companion-eyes[data-mood="charging"] .companion-eye-shape {
+	background:
+		radial-gradient(circle at 50% 34%, #fff 0 20%, transparent 58%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 54%, color-mix(in srgb, var(--eye-color) 48%, transparent) 100%);
+	animation: companion-charge 1.1s ease-in-out infinite;
+}
+.companion-eyes[data-mood="low"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #ff7a8a;
+	--eye-glow: rgba(255, 110, 125, 0.62);
+	animation: pet-low 3.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="low"] .companion-eye { --eye-rotate: 7deg; --eye-y: 1px; }
+.companion-eyes[data-mood="music"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-music 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="music"]::after {
+	content: "♪";
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	color: var(--eye-color);
+	font-size: 13px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-note 2.4s ease-in-out infinite;
+}
+.companion-eyes[data-mood="love"] {
+	--eye-w: 22px;
+	--eye-h: 22px;
+	--eye-color: #ff5c8a;
+	--eye-glow: rgba(255, 92, 138, 0.65);
+	animation: pet-love 1.8s ease-in-out infinite;
+}
+.companion-eye.is-heart { background: none; box-shadow: none; }
+.companion-eye.is-heart svg {
+	width: 100%;
+	height: 100%;
+	fill: var(--eye-color);
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+.companion-eyes[data-mood="love"]::after {
+	content: "✦";
+	position: absolute;
+	top: -8px;
+	right: -9px;
+	color: var(--eye-color);
+	font-size: 10px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-sparkle 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="surprised"] {
+	--eye-w: 22px;
+	--eye-h: 28px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.7);
+	animation:
+		pet-surprised 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both,
+		pet-breathe 4.8s 0.5s ease-in-out infinite;
+}
+.companion-eyes[data-mood="surprised"] .companion-eye {
+	animation: companion-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.companion-eyes.is-searching {
+	animation: bluetooth-search 3.2s ease-in-out infinite;
+}
+
+/* ========================================================================== */
+/* Signal + dance keyframes                                                   */
+/* ========================================================================== */
+
+@keyframes volume-wave {
+	0% { transform: scale(0.35); opacity: 0; }
+	16% { opacity: var(--wave-opacity, 0.55); }
+	100% { transform: scale(1.8); opacity: 0; }
+}
+@keyframes volume-beat {
+	0%, 100% { transform: translateY(0) scale(1); }
+	50% { transform: translateY(-1.5px) scale(1.035); }
+}
+@keyframes rays-spin {
+	to { transform: rotate(360deg); }
+}
+@keyframes brightness-breathe {
+	0%, 100% { filter: brightness(1); }
+	50% { filter: brightness(1.12); }
+}
+@keyframes spark-rise {
+	0% { transform: translateY(0) scale(0.5); opacity: 0; }
+	18% { opacity: 0.9; }
+	100% { transform: translateY(-44px) scale(1.1); opacity: 0; }
+}
+@keyframes battery-charge {
+	0%, 100% { transform: translateY(0) scale(1); }
+	45% { transform: translateY(-2px) scale(1.03); }
+	60% { transform: translateY(0) scale(0.99); }
+}
+@keyframes charge-twinkle {
+	0%, 100% { opacity: 0; transform: scale(0.6) rotate(0deg); }
+	50% { opacity: 0.95; transform: scale(1.2) rotate(20deg); }
+}
+@keyframes notif-ripple {
+	0% { transform: scale(0.4); opacity: 0.85; }
+	100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes bt-scan {
+	0%, 100% { transform: translateY(-9px); opacity: 0.24; }
+	20% { opacity: 0.85; }
+	50% { transform: translateY(9px); opacity: 0.85; }
+	80% { opacity: 0.24; }
+}
+@keyframes bt-link {
+	0%, 100% { opacity: 0; transform: scale(0.6); }
+	50% { opacity: 0.9; transform: scale(1.2); }
+}
+@keyframes bt-sonar-left {
+	0% { transform: scale(0.6) translateX(4px); opacity: 0.22; }
+	30% { opacity: 0.75; }
+	100% { transform: scale(1.15) translateX(-7px); opacity: 0; }
+}
+@keyframes bt-sonar-right {
+	0% { transform: scale(0.6) translateX(-4px); opacity: 0.22; }
+	30% { opacity: 0.75; }
+	100% { transform: scale(1.15) translateX(7px); opacity: 0; }
+}
+@keyframes bt-link-bridge {
+	0%, 100% { opacity: 0.28; transform: scaleX(0.7); }
+	22%, 58% { opacity: 1; transform: scaleX(1); }
+	80% { opacity: 0.45; transform: scaleX(1); }
+}
+@keyframes bt-connect {
+	0%, 100% { transform: translateX(-1.5px) scale(1); }
+	35% { transform: translateX(0) scale(1.04); }
+	55% { transform: translateX(0) scale(1); }
+}
+@keyframes charge-surge {
+	0% { transform: scale(0.45); opacity: 0; }
+	22% { opacity: 0.75; }
+	100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes charge-orbit { to { transform: rotate(360deg); } }
+@keyframes charge-bolt {
+	0%, 100% { opacity: 0; transform: translateY(2px) scale(0.8); }
+	16%, 38% { opacity: 1; transform: translateY(0) scale(1); }
+	56% { opacity: 0.2; }
+}
+@keyframes companion-charge-eye {
+	0%, 100% { scale: 0.94 0.84; filter: brightness(0.95); }
+	28% { scale: 1.02 1.04; filter: brightness(1.18); }
+	48% { scale: 1 0.97; filter: brightness(1.05); }
+	68% { scale: 1.04 1.08; filter: brightness(1.24); }
+}
+@keyframes dance-groove {
+	0%, 100% { transform: translateX(-2px) rotate(-2deg); }
+	50% { transform: translateX(2px) rotate(2deg); }
+}
+@keyframes dance-bounce {
+	0%, 100% { transform: translateY(0) scaleY(1); }
+	35% { transform: translateY(-4px) scaleY(1.06); }
+	55% { transform: translateY(0) scaleY(0.94); }
+	70% { transform: translateY(-1px) scaleY(1); }
+}
+@keyframes dance-shimmy {
+	0% { transform: translateX(-1.5px) rotate(-3deg); }
+	50% { transform: translateX(1.5px) rotate(3deg); }
+	100% { transform: translateX(-1.5px) rotate(-3deg); }
+}
+@keyframes dance-wave {
+	0%, 100% { transform: rotate(-4deg) translateY(0); }
+	50% { transform: rotate(4deg) translateY(-1px); }
+}
+@keyframes dance-spin {
+	0%, 100% { transform: rotate(0) scale(1); }
+	30% { transform: rotate(8deg) scale(1.04); }
+	60% { transform: rotate(-8deg) scale(1.04); }
+}
+@keyframes dance-hop {
+	0%, 100% { transform: translateY(0) scale(1); }
+	25% { transform: translateY(-6px) scale(1.04); }
+	45% { transform: translateY(0) scale(0.96); }
+	60% { transform: translateY(-2px) scale(1.02); }
+}
+@keyframes dance-spark {
+	0%, 100% { opacity: 0; transform: scale(0.5); }
+	50% { opacity: 0.9; transform: scale(1.2); }
+}
+@keyframes eye-wave-left {
+	0%, 100% { rotate: -6deg; }
+	50% { rotate: 2deg; }
+}
+@keyframes eye-wave-right {
+	0%, 100% { rotate: 6deg; }
+	50% { rotate: -2deg; }
+}
+@keyframes eye-shimmy-left {
+	0%, 100% { scale: 1 1; }
+	50% { scale: 0.82 0.92; }
+}
+@keyframes eye-shimmy-right {
+	0%, 100% { scale: 1 1; }
+	50% { scale: 0.82 0.92; }
+}
+
+/* ========================================================================== */
+/* Eye keyframes                                                              */
+/* ========================================================================== */
+
+@keyframes viz {
+	from { transform: scaleY(0.35); }
+	to { transform: scaleY(1); }
+}
+@keyframes pet-breathe {
+	0%, 100% { transform: translateY(0) scale(1); }
+	50% { transform: translateY(-0.7px) scale(1.018, 1.032); }
+}
+@keyframes pet-aura {
+	0%, 100% { opacity: 0.16; transform: scale(0.94); }
+	50% { opacity: 0.28; transform: scale(1.04); }
+}
+@keyframes pet-blink {
+	0%, 39%, 43%, 90%, 94%, 100% { transform: scaleY(1); }
+	41%, 92% { transform: scaleY(0.08); }
+}
+@keyframes pet-curious {
+	0%, 100% { transform: translateY(0) rotate(-1deg); }
+	50% { transform: translateY(-1px) rotate(1.5deg); }
+}
+@keyframes pet-happy {
+	0%, 100% { transform: translateY(0) scale(1); }
+	40% { transform: translateY(-1.5px) scale(1.02); }
+	60% { transform: translateY(-0.5px) scale(1.01); }
+}
+@keyframes pet-excited {
+	0%, 100% { transform: translateY(0) scale(1); }
+	50% { transform: translateY(-1.5px) scale(1.03); }
+}
+@keyframes pet-sleep {
+	0%, 100% { transform: translateY(0) scaleX(0.96); opacity: 0.72; }
+	50% { transform: translateY(0.5px) scaleX(1.02); opacity: 1; }
+}
+@keyframes pet-charge {
+	0%, 100% { filter: drop-shadow(0 0 7px var(--eye-glow)); }
+	50% { filter: drop-shadow(0 0 14px var(--eye-glow)); }
+}
+@keyframes pet-low {
+	0%, 100% { transform: translateY(0); opacity: 0.82; }
+	50% { transform: translateY(0.6px); opacity: 1; }
+}
+@keyframes pet-music {
+	0%, 100% { transform: translateY(0) rotate(0deg); }
+	50% { transform: translateY(-1.2px) rotate(0.6deg); }
+}
+@keyframes pet-love {
+	0%, 100% { transform: scale(1); }
+	50% { transform: scale(1.05); }
+}
+@keyframes pet-surprised {
+	0% { transform: scale(0.72); opacity: 0.4; }
+	70% { transform: scale(1.06); opacity: 1; }
+	100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pet-note {
+	0%, 100% { opacity: 0.55; transform: translateY(0) rotate(-6deg); }
+	50% { opacity: 1; transform: translateY(-3px) rotate(6deg); }
+}
+@keyframes pet-sparkle {
+	0%, 100% { opacity: 0.45; transform: scale(0.8) rotate(0deg); }
+	50% { opacity: 1; transform: scale(1.15) rotate(18deg); }
+}
+@keyframes pet-zzz {
+	0%, 100% { opacity: 0.35; transform: translateY(1px) scale(0.9); }
+	50% { opacity: 0.9; transform: translateY(-2px) scale(1.08); }
+}
+@keyframes companion-hop {
+	0%, 100% { transform: translateY(0) scale(1); }
+	45% { transform: translateY(-2px) scale(1.06); }
+}
+@keyframes companion-alert {
+	0%, 100% { transform: translateX(0) scaleY(1); }
+	25% { transform: translateX(-0.8px) scaleY(0.94); }
+	60% { transform: translateX(0.8px) scaleY(1.02); }
+}
+@keyframes companion-spin { to { transform: rotate(360deg); } }
+@keyframes companion-sleep {
+	0%, 100% { transform: scaleX(0.9); }
+	50% { transform: scaleX(1.05); }
+}
+@keyframes companion-charge {
+	0%, 100% {
+		transform: scale(1);
+		box-shadow: 0 0 9px var(--eye-glow), inset 0 0 4px rgba(255, 255, 255, 0.55);
+	}
+	50% {
+		transform: scale(1.06);
+		box-shadow: 0 0 16px var(--eye-glow), inset 0 0 4px rgba(255, 255, 255, 0.7);
+	}
+}
+@keyframes companion-pop {
+	0% { transform: scale(0.55); opacity: 0.4; }
+	100% { transform: scale(1); opacity: 1; }
+}
+@keyframes eye-charge {
+	0%, 100% { filter: brightness(1); }
+	50% { filter: brightness(1.35); }
+}
+@keyframes meter-glow {
+	0%, 100% { filter: brightness(1); }
+	50% { filter: brightness(1.12); }
+}
+@keyframes meter-waterline {
+	0%, 100% { transform: scaleX(0.92); opacity: 0.62; }
+	50% { transform: scaleX(1); opacity: 0.92; }
+}
+@keyframes bluetooth-search {
+	0%, 100% { translate: 0 0; }
+	22% { translate: -3px 0; }
+	52% { translate: 3px 0; }
+	78% { translate: -1px 0; }
+}
+
+/* ========================================================================== */
+/* Sizes for each surface                                                     */
+/* ========================================================================== */
+
+.music-pill .companion-eyes {
+	--eye-w: 17px;
+	--eye-h: 22px;
+	gap: 8px;
+}
+.music-pill .companion-eyes::before {
+	width: 56px;
+	height: 22px;
+}
+.music-pill .companion-eyes[data-mood="music"] {
+	--eye-w: 20px;
+	--eye-h: 12px;
+}
+.bt-pill .companion-eyes[data-mood="happy"] {
+	--eye-w: 18px;
+	--eye-h: 10px;
+}
+.notif-pill .companion-eyes {
+	--eye-w: 14px;
+	--eye-h: 19px;
+	gap: 6px;
+}
+.notif-pill .companion-eyes::before {
+	width: 46px;
+	height: 18px;
+}
+.bt-pill .companion-eyes {
+	--eye-w: 15px;
+	--eye-h: 21px;
+	gap: 7px;
+}
+.bt-pill .companion-eyes::before {
+	width: 50px;
+	height: 20px;
+}
+.signal-eye-stage .companion-eyes {
+	--eye-w: 30px;
+	--eye-h: 48px;
+	gap: 12px;
+}
+.signal-eye-stage .companion-eyes::before {
+	width: 104px;
+	height: 38px;
+	opacity: 0.24;
+}
+.signal-eye-stage .companion-eye {
+	transition:
+		width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+		translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		rotate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.music-pill .companion-eyes[data-mood="music"]::after {
+	top: -7px;
+	right: -7px;
+	font-size: 10px;
+}
+.notif-pill .companion-eyes[data-mood="surprised"] {
+	--eye-w: 14px;
+	--eye-h: 19px;
+}
+.notif-pill .companion-eyes[data-mood="surprised"] .companion-eye {
+	animation-duration: 0.45s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.companion-eyes,
+	.companion-eyes::before,
+	.companion-eyes::after,
+	.companion-eye,
+	.companion-blinker,
+	.companion-eye-shape,
+	.companion-eye.is-spiral svg,
+	.viz i,
+	.dance-stage,
+	.dance-spark,
+	.volume-waves i,
+	.brightness-rays,
+	.charge-sparks i,
+	.charge-sparks .charge-orbit,
+	.charge-sparks .charge-bolt,
+	.charge-sparks::before,
+	.charge-sparks::after,
+	.bt-sonar i,
+	.bt-link-bridge,
+	#volumeMotion,
+	#brightnessMotion,
+	#batteryMotion,
+	.notif-ripple,
+	.bt-scan,
+	.bt-link {
+		animation: none !important;
+	}
+}
+
+@media (max-width: 900px) {
+	.hero { grid-template-columns: 1fr; gap: 24px; }
+	.board { grid-template-columns: minmax(0, 1fr); }
+	.column { min-width: 0; }
+	.controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.section-head { display: block; }
+	.section-head p { margin-top: 6px; }
+}
+@media (max-width: 560px) {
+	.page { width: calc(100% - 28px); padding-top: 18px; }
+	.column, .expanded-section { padding: 14px; border-radius: 20px; }
+	.music-expanded { gap: 16px; height: auto; min-height: 176px; padding: 16px 14px; }
+	.music-expanded-info { height: auto; min-height: 112px; }
+	.cover { width: 104px; height: 104px; }
+	.music-expanded h3 { font-size: 18px; }
+	.controls { grid-template-columns: 1fr; }
+	.signal { padding: 0 14px; gap: 10px; }
+	.signal-eye-stage { width: 80px; height: 68px; }
+	.signal-eye-stage .companion-eyes { --eye-w: 26px; --eye-h: 42px; gap: 10px; }
+	.signal-title { font-size: 18px; }
+	.signal-sub { font-size: 11.5px; }
+	.signal-value { font-size: 28px; }
+	.reaction-grid { grid-template-columns: 1fr; }
+	.reaction-grid .signal { padding: 0 14px; gap: 10px; }
+	.dance-study { gap: 14px; padding: 14px; }
+	.dance-study-stage { width: 140px; height: 90px; }
+	.dance-study .companion-eyes { --eye-w: 40px; --eye-h: 20px; gap: 12px; }
+	.dance-study .companion-eyes::before { width: 116px; height: 42px; }
+	footer { display: block; line-height: 1.8; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+	<header class="site-head">
+		<div class="brand">
+			<span class="brand-mark"><i></i><i></i></span>
+			Notchly <span style="opacity:.4">/</span> Companion Lab
+		</div>
+		<span class="sample-tag">Sample 02 · Signal studies</span>
+	</header>
+
+	<section class="hero">
+		<div>
+			<p class="kicker">Eyes that perform</p>
+			<h1>Not a meter. <em>A performance.</em></h1>
+			<p class="lede">The compact island keeps the eyes. The signal cards get a different idea: each one has its own little performance instead of a fill line. Expanded music stays exactly as it is — album art, no eyes.</p>
+		</div>
+		<div class="hero-note">
+			<span class="dot"></span>
+			<p>Volume breathes like a speaker. Brightness blooms like sunrise. Battery powers up with a surge. Bluetooth scans, then links. Notifications startle. Music gets a dance floor.</p>
+		</div>
+	</section>
+
+	<main class="board">
+		<section class="column">
+			<h2>Compact island</h2>
+
+			<div class="surface-label">Music · playing</div>
+			<div class="pill music-pill" id="musicPill">
+				<div class="eyes-slot music-dance-slot">
+					<div class="dance-stage" data-dance="groove" id="musicDance">
+						<div data-eyes="music" data-size="compact"></div>
+					</div>
+					<span class="dance-spark left" aria-hidden="true"></span>
+					<span class="dance-spark right" aria-hidden="true"></span>
+				</div>
+				<div class="music-meta">
+					<span class="music-title">Midnight City</span>
+					<span class="music-artist">M83</span>
+				</div>
+				<div class="music-end">
+					<span class="music-time">1:42</span>
+					<span class="viz" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+				</div>
+			</div>
+
+			<div class="surface-label">Notification · unread</div>
+			<div class="pill notif-pill" id="notifPill">
+				<div class="eyes-slot">
+					<span class="notif-ripple" id="notifRipple" aria-hidden="true"></span>
+					<div data-eyes="surprised" data-size="compact" id="notifEyes"></div>
+					<span class="identity-chip app" title="WhatsApp">W</span>
+				</div>
+				<div class="notif-meta">
+					<span class="notif-app">WhatsApp</span>
+					<span class="notif-title">Maya: Are you free at 6?</span>
+				</div>
+				<span class="notif-count">+2</span>
+			</div>
+
+			<div class="surface-label">Bluetooth · connected</div>
+			<div class="pill bt-pill" id="btPill">
+				<div class="eyes-slot">
+					<span class="bt-scan" id="btScan" aria-hidden="true"></span>
+					<span class="bt-sonar" id="btSonar" aria-hidden="true"><i></i><i></i></span>
+					<span class="bt-link-bridge" id="btBridge" aria-hidden="true"></span>
+					<div data-eyes="happy" data-size="compact" id="btEyes" style="--eye-color:#8fd3ff;--eye-glow:rgba(100,190,255,.62)"></div>
+				</div>
+				<div class="bt-meta">
+					<span class="bt-title">WH-1000XM5</span>
+					<span class="bt-sub" id="btSub">Bluetooth · Connected</span>
+				</div>
+				<span class="bt-state" id="btDot"></span>
+			</div>
+
+			<div class="surface-label">Music · dance study</div>
+			<div class="dance-study" title="Auto-cycles through Groove, Bounce, Shimmy, Wave, Spin, and Hop">
+				<div class="dance-study-stage">
+					<div class="dance-stage" data-dance="groove" id="danceStudy">
+						<div data-eyes="music" data-size="large"></div>
+					</div>
+					<span class="dance-spark left" aria-hidden="true"></span>
+					<span class="dance-spark right" aria-hidden="true"></span>
+				</div>
+				<div class="dance-study-copy">
+					<span class="dance-study-title">Dance study</span>
+					<span class="dance-study-sub" id="danceStudyLabel">Groove · auto-cycling</span>
+				</div>
+			</div>
+
+			<div class="surface-label">Reaction studies</div>
+			<div class="reaction-grid">
+				<div class="signal bt-study" id="btStudy" style="--accent:#8fd3ff">
+					<div class="signal-eye-stage">
+						<span class="bt-scan" id="btStudyScan" aria-hidden="true"></span>
+						<span class="bt-sonar" id="btStudySonar" aria-hidden="true"><i></i><i></i></span>
+						<span class="bt-link-bridge" id="btStudyBridge" aria-hidden="true"></span>
+						<div class="signal-eye-motion">
+							<div data-eyes="happy" data-color="#8fd3ff" data-glow="rgba(100,190,255,.62)" id="btStudyEyes"></div>
+						</div>
+					</div>
+					<div class="signal-copy">
+						<span class="signal-title">WH-1000XM5</span>
+						<span class="signal-sub" id="btStudySub">Bluetooth · Connected</span>
+					</div>
+					<div class="signal-state" id="btStudyState">On</div>
+				</div>
+				<div class="signal notif-study" id="notifStudy" style="--accent:#ff5a6e">
+					<div class="signal-eye-stage">
+						<span class="notif-ripple" id="notifStudyRipple" aria-hidden="true"></span>
+						<div class="signal-eye-motion">
+							<div data-eyes="surprised" data-color="#ff7a8a" data-glow="rgba(255,90,110,.7)" id="notifStudyEyes"></div>
+						</div>
+					</div>
+					<div class="signal-copy">
+						<span class="signal-title">WhatsApp</span>
+						<span class="signal-sub">Maya: Are you free at 6?</span>
+					</div>
+					<div class="signal-state">+2</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="column">
+			<h2>Signal studies</h2>
+
+			<div class="surface-label">Volume · the eyes breathe like a speaker</div>
+			<div class="signal" id="volumeCard" style="--accent:#74b9ff">
+				<div class="signal-eye-stage">
+					<div class="signal-fx volume-waves" aria-hidden="true"><i></i><i></i><i></i></div>
+					<div class="signal-eye-motion" id="volumeMotion">
+						<div data-eyes="calm" data-color="#bfe6ff" data-glow="rgba(120,200,255,.65)" id="volumeEyes"></div>
+					</div>
+				</div>
+				<div class="signal-copy">
+					<span class="signal-title">Volume</span>
+					<span class="signal-sub">Speakers · Realtek</span>
+				</div>
+				<div class="signal-value"><span id="volumeValue">65</span><span class="pct">%</span></div>
+			</div>
+			<div class="signal-note">No ring · eyelid openness + sound ripples</div>
+
+			<div class="surface-label">Brightness · the eyes bloom like sunrise</div>
+			<div class="signal" id="brightnessCard" style="--accent:#ffcf8a">
+				<div class="signal-eye-stage">
+					<div class="signal-fx brightness-rays" aria-hidden="true"></div>
+					<div class="signal-eye-motion" id="brightnessMotion">
+						<div data-eyes="calm" data-color="#fff0c9" data-glow="rgba(255,220,150,.68)" id="brightnessEyes"></div>
+					</div>
+				</div>
+				<div class="signal-copy">
+					<span class="signal-title">Brightness</span>
+					<span class="signal-sub">Built-in display</span>
+				</div>
+				<div class="signal-value"><span id="brightnessValue">38</span><span class="pct">%</span></div>
+			</div>
+			<div class="signal-note">No ring · eyelid openness + a warm bloom</div>
+
+			<div class="surface-label">Battery · the eyes power up</div>
+			<div class="signal" id="batteryCard" style="--accent:#30d158">
+				<div class="signal-eye-stage">
+					<div class="signal-fx charge-sparks" id="chargeSparks" aria-hidden="true">
+						<div class="charge-surge"><i></i><i></i></div>
+						<div class="charge-orbit"><i></i><i></i><i></i></div>
+						<span class="charge-bolt"></span>
+					</div>
+					<div class="signal-eye-motion" id="batteryMotion">
+						<div data-eyes="calm" data-color="#8dffb0" data-glow="rgba(80,255,140,.62)" id="batteryEyes"></div>
+					</div>
+				</div>
+				<div class="signal-copy">
+					<span class="signal-title" id="batteryTitle">Charging</span>
+					<span class="signal-sub" id="batterySub">Battery at 82% · 1h 12m to full</span>
+				</div>
+				<div class="signal-value"><span id="batteryValue">82</span><span class="pct">%</span></div>
+			</div>
+			<div class="signal-note" id="batteryNote">No ring · eyelids, energy motes + a bolt while charging</div>
+		</section>
+	</main>
+
+	<section class="expanded-section">
+		<div class="section-head">
+			<h2>Expanded music</h2>
+			<p>Unchanged. Album art stays the cover; no eyes in this view.</p>
+		</div>
+		<div class="music-expanded">
+			<div class="cover album-cover">
+				<div class="vinyl" aria-hidden="true"></div>
+				<span class="album-badge" aria-hidden="true">♪</span>
+			</div>
+			<div class="music-expanded-info">
+				<div>
+					<span class="eyebrow">Now playing</span>
+					<h3>Midnight City</h3>
+					<p class="artist">M83 — Hurry Up, We're Dreaming</p>
+				</div>
+				<div>
+					<div class="progress"><span id="expandedProgress"></span></div>
+					<div class="times"><span>1:42</span><span>-2:21</span></div>
+					<div class="expanded-controls">
+						<button class="ctrl" aria-label="Previous" title="Previous">
+							<svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg>
+						</button>
+						<button class="ctrl big" aria-label="Pause" title="Pause" id="expandedPlay">
+							<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+						</button>
+						<button class="ctrl" aria-label="Next" title="Next">
+							<svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="controls">
+		<div class="control">
+			<label for="volume">Volume <output id="volumeOut">65%</output></label>
+			<input id="volume" type="range" min="0" max="100" value="65" aria-label="Volume">
+		</div>
+		<div class="control">
+			<label for="brightness">Brightness <output id="brightnessOut">38%</output></label>
+			<input id="brightness" type="range" min="0" max="100" value="38" aria-label="Brightness">
+		</div>
+		<div class="control">
+			<label for="battery">Battery <output id="batteryOut">82%</output></label>
+			<input id="battery" type="range" min="0" max="100" value="82" aria-label="Battery">
+		</div>
+		<div class="control">
+			<div class="toggle-row">
+				<span>Charging</span>
+				<button class="switch" id="charging" aria-pressed="true" aria-label="Charging"></button>
+			</div>
+			<div class="toggle-row">
+				<span>Bluetooth connected</span>
+				<button class="switch" id="bluetooth" aria-pressed="true" aria-label="Bluetooth connected"></button>
+			</div>
+		</div>
+		<div class="control dance-control">
+			<label>Music dance <output id="danceOut">Groove</output></label>
+			<div class="dance-buttons">
+				<button class="dance-btn is-active" data-dance="groove">Groove</button>
+				<button class="dance-btn" data-dance="bounce">Bounce</button>
+				<button class="dance-btn" data-dance="shimmy">Shimmy</button>
+				<button class="dance-btn" data-dance="wave">Wave</button>
+				<button class="dance-btn" data-dance="spin">Spin</button>
+				<button class="dance-btn" data-dance="hop">Hop</button>
+			</div>
+		</div>
+		<div class="action-row" style="grid-column: 1 / -1; margin-top: 4px;">
+			<button class="action primary" id="notify">Send notification</button>
+			<button class="action" id="play">Pause music</button>
+			<button class="action" id="replay">Replay motion</button>
+			<button class="action" id="cycleDance">Cycle dance</button>
+			<button class="action" id="demo">Run signal demo</button>
+		</div>
+	</section>
+
+	<footer>
+		<span>Notchly · companion lab</span>
+		<span>Sample 02 · no production files changed</span>
+	</footer>
+</div>
+
+<script>
+/* -------------------------------------------------------------------------- */
+/* Eye markup                                                                 */
+/* -------------------------------------------------------------------------- */
+
+const eyeMarkup = (side, mood) => {
+	if (mood === "dizzy") {
+		return `<span class="companion-eye is-spiral ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 12c0-2 3-2 3 0s-4 3-5 0 2-5 5-3 3 7-2 8-8-4-6-8 8-4 9 1"/></svg></span></span>`;
+	}
+	if (mood === "love") {
+		return `<span class="companion-eye is-heart ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 21s-8-4.8-8-11a4.6 4.6 0 0 1 8-3.1A4.6 4.6 0 0 1 20 10c0 6.2-8 11-8 11z"/></svg></span></span>`;
+	}
+	if (mood === "excited") {
+		return `<span class="companion-eye is-chevron ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="${side === "left" ? "M8 4 L17 12 L8 20" : "M16 4 L7 12 L16 20"}"/></svg></span></span>`;
+	}
+	if (mood === "happy" || mood === "music" || mood === "sleepy" || mood === "low") {
+		const down = mood === "sleepy" || mood === "low";
+		return `<span class="companion-eye is-arc ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 12"><path d="${down ? "M3 3 Q12 10 21 3" : "M3 9 Q12 2 21 9"}"/></svg></span></span>`;
+	}
+	return `<span class="companion-eye ${side}"><span class="companion-blinker"><span class="companion-eye-shape"></span></span></span>`;
+};
+
+function renderEyes() {
+	document.querySelectorAll("[data-eyes]").forEach((node) => {
+		const mood = node.dataset.eyes || "calm";
+		const color = node.dataset.color;
+		const glow = node.dataset.glow;
+		const style = [
+			color ? `--eye-color:${color}` : "",
+			glow ? `--eye-glow:${glow}` : "",
+		].filter(Boolean).join(";");
+		node.innerHTML = `<div class="companion-eyes" data-mood="${mood}" data-action="rest"${style ? ` style="${style}"` : ""}>${eyeMarkup("left", mood)}${eyeMarkup("right", mood)}</div>`;
+	});
+}
+renderEyes();
+
+/* -------------------------------------------------------------------------- */
+/* State and controls                                                         */
+/* -------------------------------------------------------------------------- */
+
+const state = {
+	volume: 65,
+	brightness: 38,
+	battery: 82,
+	charging: true,
+	bluetooth: true,
+	playing: true,
+};
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const volumeEyes = $("#volumeEyes .companion-eyes");
+const brightnessEyes = $("#brightnessEyes .companion-eyes");
+const batteryEyes = $("#batteryEyes .companion-eyes");
+const batteryCard = $("#batteryCard");
+const batteryTitle = $("#batteryTitle");
+const batterySub = $("#batterySub");
+const batteryNote = $("#batteryNote");
+
+const volumeMotion = $("#volumeMotion");
+const brightnessMotion = $("#brightnessMotion");
+const batteryMotion = $("#batteryMotion");
+const chargeSparks = $("#chargeSparks");
+const volumeWaves = $("#volumeCard .volume-waves");
+const brightnessRays = $("#brightnessCard .brightness-rays");
+const musicDance = $("#musicDance");
+const danceStudyLabel = $("#danceStudyLabel");
+const notifPill = $("#notifPill");
+const notifStudy = $("#notifStudy");
+const notifStudyEyes = $("#notifStudyEyes .companion-eyes");
+const btPill = $("#btPill");
+const btStudy = $("#btStudy");
+const btStudyEyes = $("#btStudyEyes .companion-eyes");
+const btStudySub = $("#btStudySub");
+const btStudyState = $("#btStudyState");
+const danceOut = $("#danceOut");
+
+function setEyeOpen(eyes, level) {
+	if (!eyes) return;
+	const open = 0.14 + clamp(level, 0, 1) * 0.86;
+	eyes.style.setProperty("--eye-scale-y", open.toFixed(3));
+	eyes.style.setProperty("--eye-scale-x", (0.94 + clamp(level, 0, 1) * 0.06).toFixed(3));
+}
+
+function updateVolume() {
+	const level = state.volume / 100;
+	setEyeOpen(volumeEyes, level);
+	$("#volumeValue").textContent = String(Math.round(state.volume));
+	$("#volumeOut").textContent = `${Math.round(state.volume)}%`;
+	// The eyes open like a speaker cone; the ripples speed up with the level.
+	volumeEyes?.style.setProperty("--eye-glow", `rgba(120,200,255,${0.35 + level * 0.42})`);
+	volumeEyes?.style.setProperty("--eye-blur", `${8 + level * 5}px`);
+	volumeEyes?.style.setProperty("--pet-scale", String(0.96 + level * 0.08));
+	volumeMotion?.style.setProperty("--beat", `${(1.45 - level * 0.55).toFixed(2)}s`);
+	volumeWaves?.style.setProperty("--wave-speed", `${(1.9 - level * 0.95).toFixed(2)}s`);
+	volumeWaves?.style.setProperty("--wave-opacity", (0.12 + level * 0.58).toFixed(2));
+}
+
+function updateBrightness() {
+	const level = state.brightness / 100;
+	setEyeOpen(brightnessEyes, level);
+	$("#brightnessValue").textContent = String(Math.round(state.brightness));
+	$("#brightnessOut").textContent = `${Math.round(state.brightness)}%`;
+	// A sunrise bloom grows behind the eyes as they open.
+	brightnessEyes?.style.setProperty("--eye-glow", `rgba(255,220,150,${0.3 + level * 0.5})`);
+	brightnessEyes?.style.setProperty("--eye-blur", `${6 + level * 12}px`);
+	brightnessEyes?.style.setProperty("--pet-scale", String(0.96 + level * 0.08));
+	brightnessRays?.style.setProperty("--ray-strength", (0.08 + level * 0.72).toFixed(2));
+}
+
+function updateBattery() {
+	if (!batteryEyes) return;
+	const low = state.battery <= 20 && !state.charging;
+	if (low) {
+		batteryEyes.classList.add("is-low");
+		batteryEyes.classList.remove("is-meter", "is-charging");
+		batteryEyes.setAttribute("data-mood", "low");
+		batteryEyes.style.setProperty("--eye-scale-y", "1");
+		batteryEyes.style.setProperty("--eye-scale-x", "1");
+		batteryEyes.style.setProperty("--eye-color", "#ff7a8a");
+		batteryEyes.style.setProperty("--eye-glow", "rgba(255,110,125,.62)");
+		batteryEyes.innerHTML = `${eyeMarkup("left", "low")}${eyeMarkup("right", "low")}`;
+		batteryTitle.textContent = "Low battery";
+		batterySub.textContent = `Battery at ${Math.round(state.battery)}% · Plug in soon`;
+		batteryNote.textContent = "No ring · the eyes droop when the battery is low";
+	} else {
+		const mood = state.charging ? "charging" : "calm";
+		batteryEyes.classList.remove("is-low");
+		batteryEyes.setAttribute("data-mood", mood);
+		batteryEyes.style.setProperty("--eye-color", "#8dffb0");
+		batteryEyes.style.setProperty("--eye-glow", "rgba(80,255,140,.62)");
+		if (!batteryEyes.querySelector(".companion-eye-shape")) {
+			batteryEyes.innerHTML = `${eyeMarkup("left", mood)}${eyeMarkup("right", mood)}`;
+		}
+		setEyeOpen(batteryEyes, state.battery / 100);
+		batteryTitle.textContent = state.charging ? "Charging" : "Battery";
+		batterySub.textContent = state.charging
+			? `Battery at ${Math.round(state.battery)}% · 1h 12m to full`
+			: `Battery at ${Math.round(state.battery)}% · 4h 18m left`;
+		batteryNote.textContent = state.charging
+			? "No ring · eyelids, energy motes + a bolt while charging"
+			: "No ring · eyelids open with the charge";
+	}
+	batteryEyes.classList.toggle("is-charging", state.charging && !low);
+	batteryMotion?.classList.toggle("is-off", !state.charging || low);
+	chargeSparks?.classList.toggle("is-off", !state.charging || low);
+	$("#batteryValue").textContent = String(Math.round(state.battery));
+	$("#batteryOut").textContent = `${Math.round(state.battery)}%`;
+	batteryCard.style.setProperty("--accent", low ? "#ff5a6e" : "#30d158");
+}
+
+function updateMusic() {
+	const pill = $("#musicPill");
+	pill?.classList.toggle("is-paused", !state.playing);
+	$("#play").textContent = state.playing ? "Pause music" : "Play music";
+	const expandedPlay = $("#expandedPlay");
+	expandedPlay.setAttribute("aria-label", state.playing ? "Pause" : "Play");
+	expandedPlay.innerHTML = state.playing
+		? `<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`
+		: `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+}
+
+function updateBluetooth() {
+	const connected = state.bluetooth;
+	const pairs = [
+		[$("#btEyes .companion-eyes"), btPill],
+		[btStudyEyes, btStudy],
+	];
+	pairs.forEach(([eyes, surface]) => {
+		if (!eyes) return;
+		eyes.classList.toggle("is-searching", !connected);
+		eyes.setAttribute("data-mood", connected ? "happy" : "curious");
+		eyes.innerHTML = connected
+			? `${eyeMarkup("left", "happy")}${eyeMarkup("right", "happy")}`
+			: `${eyeMarkup("left", "curious")}${eyeMarkup("right", "curious")}`;
+		surface?.classList.toggle("is-searching", !connected);
+		surface?.classList.toggle("is-connected", connected);
+	});
+	$("#btSub").textContent = connected ? "Bluetooth · Connected" : "Bluetooth · Searching";
+	$("#btDot").classList.toggle("is-off", !connected);
+	if (btStudySub) btStudySub.textContent = connected ? "Bluetooth · Connected" : "Bluetooth · Searching";
+	if (btStudyState) btStudyState.textContent = connected ? "On" : "Scan";
+}
+
+function pingNotification() {
+	const surfaces = [notifPill, notifStudy];
+	const eyesList = [$("#notifEyes .companion-eyes"), notifStudyEyes];
+	surfaces.forEach((surface) => {
+		if (!surface) return;
+		surface.classList.remove("is-ping");
+		// Force a reflow so the ripple and the pop replay.
+		void surface.offsetWidth;
+		surface.classList.add("is-ping");
+		window.setTimeout(() => surface.classList.remove("is-ping"), 700);
+	});
+	eyesList.forEach((eyes) => {
+		if (!eyes) return;
+		eyes.style.animation = "none";
+		void eyes.offsetWidth;
+		eyes.style.animation = "";
+		eyes.setAttribute("data-mood", "surprised");
+	});
+}
+
+const DANCES = [
+	{ id: "groove", label: "Groove" },
+	{ id: "bounce", label: "Bounce" },
+	{ id: "shimmy", label: "Shimmy" },
+	{ id: "wave", label: "Wave" },
+	{ id: "spin", label: "Spin" },
+	{ id: "hop", label: "Hop" },
+];
+let danceIndex = 0;
+let danceTimer = null;
+
+function setDance(id) {
+	const found = DANCES.findIndex((dance) => dance.id === id);
+	danceIndex = found >= 0 ? found : 0;
+	const dance = DANCES[danceIndex];
+	$$(".dance-stage").forEach((stage) => {
+		stage.dataset.dance = dance.id;
+	});
+	if (danceOut) danceOut.textContent = dance.label;
+	if (danceStudyLabel) danceStudyLabel.textContent = `${dance.label} · auto-cycling`;
+	$$(".dance-btn").forEach((button) => {
+		const active = button.dataset.dance === dance.id;
+		button.classList.toggle("is-active", active);
+		button.setAttribute("aria-pressed", String(active));
+	});
+}
+
+function nextDance() {
+	setDance(DANCES[(danceIndex + 1) % DANCES.length].id);
+}
+
+function startDanceCycle() {
+	if (danceTimer) window.clearInterval(danceTimer);
+	if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+	danceTimer = window.setInterval(nextDance, 5200);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Wiring                                                                     */
+/* -------------------------------------------------------------------------- */
+
+$("#volume").addEventListener("input", (event) => {
+	state.volume = Number(event.target.value);
+	updateVolume();
+});
+$("#brightness").addEventListener("input", (event) => {
+	state.brightness = Number(event.target.value);
+	updateBrightness();
+});
+$("#battery").addEventListener("input", (event) => {
+	state.battery = Number(event.target.value);
+	updateBattery();
+});
+$("#charging").addEventListener("click", (event) => {
+	state.charging = !state.charging;
+	event.currentTarget.setAttribute("aria-pressed", String(state.charging));
+	updateBattery();
+});
+$("#bluetooth").addEventListener("click", (event) => {
+	state.bluetooth = !state.bluetooth;
+	event.currentTarget.setAttribute("aria-pressed", String(state.bluetooth));
+	updateBluetooth();
+});
+$("#notify").addEventListener("click", pingNotification);
+$("#play").addEventListener("click", () => {
+	state.playing = !state.playing;
+	updateMusic();
+});
+$("#expandedPlay").addEventListener("click", () => {
+	state.playing = !state.playing;
+	updateMusic();
+});
+$("#replay").addEventListener("click", () => {
+	$$(".signal, .pill, .music-expanded").forEach((node) => {
+		node.style.animation = "none";
+		void node.offsetWidth;
+		node.style.animation = "";
+	});
+	setDance("groove");
+	startDanceCycle();
+	pingNotification();
+});
+$$(".dance-btn").forEach((button) => {
+	button.addEventListener("click", () => {
+		setDance(button.dataset.dance);
+		startDanceCycle();
+	});
+});
+$("#cycleDance").addEventListener("click", () => {
+	nextDance();
+	startDanceCycle();
+});
+$("#demo").addEventListener("click", async () => {
+	const sequence = [
+		[100, 38, 82, true],
+		[20, 12, 70, false],
+		[55, 78, 45, false],
+		[85, 95, 12, false],
+		[65, 38, 82, true],
+	];
+	for (const [volume, brightness, battery, charging] of sequence) {
+		state.volume = volume;
+		state.brightness = brightness;
+		state.battery = battery;
+		state.charging = charging;
+		$("#volume").value = String(volume);
+		$("#brightness").value = String(brightness);
+		$("#battery").value = String(battery);
+		$("#charging").setAttribute("aria-pressed", String(charging));
+		updateVolume();
+		updateBrightness();
+		updateBattery();
+		nextDance();
+		await new Promise((resolve) => setTimeout(resolve, 900));
+	}
+});
+
+updateVolume();
+updateBrightness();
+updateBattery();
+updateMusic();
+updateBluetooth();
+setDance("groove");
+startDanceCycle();
+</script>
+</body>
+</html>

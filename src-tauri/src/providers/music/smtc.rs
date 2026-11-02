@@ -1,7 +1,7 @@
 //! Now-playing metadata and transport controls through SMTC.
 
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::time::Duration;
 
 use base64::Engine;
@@ -23,6 +23,11 @@ use crate::settings::Settings;
 
 /// Off by default: the YouTube lookup is a search request per browser track.
 const VIDEO_KEY: &str = "music.video.label";
+/// Which player wins when several apps expose a session.
+const SOURCE_KEY: &str = "music.sourcePriority";
+
+/// 0 = system default, 1 = Spotify first, 2 = browser first.
+static SOURCE_PRIORITY: AtomicU8 = AtomicU8::new(0);
 
 /// 100ns ticks between 1601-01-01 and 1970-01-01.
 const EPOCH_DIFF_TICKS: i64 = 116_444_736_000_000_000;
@@ -38,6 +43,18 @@ pub fn poll_loop(hub: Arc<Hub>, playing_flag: Arc<AtomicBool>, spotify: Arc<Spot
         if manager.is_none() {
             manager = SessionManager::RequestAsync().and_then(|op| op.join()).ok();
         }
+        let priority = hub
+            .app()
+            .state::<Settings>()
+            .get(SOURCE_KEY)
+            .and_then(|value| value.as_str().map(str::to_string))
+            .map(|value| match value.as_str() {
+                "spotify" => 1,
+                "browser" => 2,
+                _ => 0,
+            })
+            .unwrap_or(0);
+        SOURCE_PRIORITY.store(priority, Ordering::Relaxed);
         let state = match manager.as_ref().map(read_state) {
             Some(Ok(Some((mut state, session)))) => {
                 let key = format!(
@@ -135,14 +152,47 @@ pub fn control(action: &str, payload: Value) -> Result<()> {
 }
 
 /// Prefer a session that is actively playing; fall back to the system's current one.
+/// When several are playing, the user's source priority decides which one wins.
 fn pick_session(manager: &SessionManager) -> Result<Option<Session>> {
     let sessions = manager.GetSessions()?;
+    let priority = SOURCE_PRIORITY.load(Ordering::Relaxed);
+    if priority != 0 {
+        for session in &sessions {
+            if session.GetPlaybackInfo()?.PlaybackStatus()? != Status::Playing {
+                continue;
+            }
+            let app_id = session.SourceAppUserModelId()?.to_string();
+            let preferred = match priority {
+                1 => spotify::is_spotify(&app_id),
+                2 => is_browser(&app_id),
+                _ => false,
+            };
+            if preferred {
+                return Ok(Some(session));
+            }
+        }
+    }
     for session in &sessions {
         if session.GetPlaybackInfo()?.PlaybackStatus()? == Status::Playing {
             return Ok(Some(session));
         }
     }
     Ok(manager.GetCurrentSession().ok())
+}
+
+fn is_browser(app_id: &str) -> bool {
+    let lower = app_id.to_lowercase();
+    [
+        "chrome",
+        "msedge",
+        "firefox",
+        "308046b0af4a39cb",
+        "opera",
+        "brave",
+        "vivaldi",
+    ]
+    .iter()
+    .any(|name| lower.contains(name))
 }
 
 fn read_state(manager: &SessionManager) -> Result<Option<(MusicState, Session)>> {

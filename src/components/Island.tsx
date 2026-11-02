@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type CSSProperties } from "react";
 import { modules } from "../modules";
 import { useHitRects } from "../core/useHitRects";
 import { useIslandController } from "../core/useIslandController";
@@ -8,6 +8,8 @@ import { IslandContext, type IslandApi } from "../core/island";
 import { useAppearance } from "../core/appearance";
 import { useTauriEvent } from "../core/bridge";
 import { useSyncLocale } from "../core/i18n";
+import { companionSettings, useSetting } from "../core/settings";
+import { useCompanion } from "../companion/useCompanion";
 import {
 	chatRequest,
 	instantPrompt,
@@ -19,7 +21,7 @@ import {
 import { requestFindFocus } from "../modules/find/store";
 import { AmbientBubbles, SecondaryBubble } from "./island/Bubbles";
 import { islandContent } from "./island/content";
-import { ambientWidth, BUBBLE, BUBBLE_GAP, geometry, variantOf } from "./island/geometry";
+import { ambientWidth, BUBBLE, BUBBLE_GAP, companionGeometry, geometry, variantOf } from "./island/geometry";
 import { launcherSize } from "./island/Launcher";
 import { Rim } from "./island/Rim";
 import { Surface } from "./island/Surface";
@@ -31,19 +33,49 @@ export function Island() {
 	const look = useAppearance();
 	const windows = look.style === "windows";
 	const v = variantOf(look);
+	const intensity = useSetting(companionSettings.intensity);
+	const speed = useSetting(companionSettings.speed);
+	const glow = useSetting(companionSettings.glow);
+	const reduceMotion = useSetting(companionSettings.reduceMotion);
+	const motionIntensity = intensity === "energetic" ? 1.45 : intensity === "calm" ? 0.68 : 1;
+	const motionScale = 1 / Math.max(0.5, speed * look.animationSpeed);
+	const stageStyle = {
+		"--motion-scale": String(motionScale),
+		"--motion-intensity": String(motionIntensity),
+		"--motion-glow": glow ? "1" : "0",
+		"--island-bg-alpha": String(1 - Math.min(0.3, look.backgroundBlur / 80)),
+		"--island-blur": `${look.backgroundBlur}px`,
+		"--island-scale": String(look.scale),
+		"--rim-speed": `${look.borderSpeed}s`,
+	} as CSSProperties;
 	useHitRects();
 	useSyncLocale();
 	useIslandFileDrop(ctl);
 
 	const bigSize = ctl.launcher ? launcherSize(ctl.entries.length) : focused?.view.expandedSize;
 	const hideTabs = !ctl.launcher && !!focused?.view.hideTabs;
-	const g = geometry(v, look, mode, bigSize, primary, hideTabs);
+	const companion = useCompanion({
+		islandMode: mode,
+		fullscreen: ctl.fullscreen,
+		hovered: ctl.hoverAction === "companion" && ctl.hovering,
+	});
+	const showCompanion = companion.visible && mode === "idle";
+	const g = showCompanion
+		? companionGeometry(v, look)
+		: geometry(v, look, mode, bigSize, primary, hideTabs);
 	const big = mode === "expanded" || mode === "peek";
 	const hidden = mode === "hidden";
 	const swallowed = mode === "swallowed";
 	const resting = mode === "compact" || mode === "idle";
 	const showSecondary = mode === "compact" && secondary !== undefined;
-	const transition = big ? v.expandSpring : v.shellSpring;
+	// A spring's frequency scales with sqrt(stiffness); keeping the damping ratio
+	// means damping scales with the same factor as the speed.
+	const speedUp = (t: typeof v.shellSpring) => ({
+		...t,
+		stiffness: typeof t.stiffness === "number" ? t.stiffness * look.animationSpeed ** 2 : t.stiffness,
+		damping: typeof t.damping === "number" ? t.damping * look.animationSpeed : t.damping,
+	});
+	const transition = speedUp(big ? v.expandSpring : v.shellSpring);
 
 	const drag = useIslandDrag({
 		width: g.width,
@@ -52,6 +84,11 @@ export function Island() {
 		canReturn: !big,
 		onDragChange: ctl.lockHover,
 	});
+
+	// A drag makes the companion dizzy for a moment.
+	useEffect(() => {
+		if (drag.dragging) companion.react("drag");
+	}, [drag.dragging, companion.react]);
 
 	// Global shortcut: the page opens (controller) and its input takes the keyboard.
 	useTauriEvent("island://ask", requestAskFocus);
@@ -92,13 +129,18 @@ export function Island() {
 		[mode, ctl.tab, ctl.expand, ctl.collapse, ctl.keepOpen],
 	);
 
-	const content = islandContent(ctl, look, v);
+	const content = islandContent(ctl, look, v, companion);
 	const rim = windows ? <Rim look={look} /> : null;
-	const bubble = { transition: v.shellSpring, rim, onOpen: ctl.expand };
+	const bubble = { transition, rim, onOpen: ctl.expand };
 
 	return (
 		<IslandContext.Provider value={api}>
-			<div className="stage">
+			<div
+				className="stage"
+				style={stageStyle}
+				data-density={look.density}
+				data-reduce-motion={reduceMotion ? "always" : undefined}
+			>
 				{/* The tray's black hole: the island spins into its own center and comes back out. */}
 				<motion.div
 					className="blackhole"
@@ -129,8 +171,8 @@ export function Island() {
 						transition={transition}
 						onClick={() => resting && ctl.expand()}
 					>
-						<motion.span className="ear left" initial={false} animate={{ width: g.ear, height: g.ear }} transition={v.shellSpring} />
-						<motion.span className="ear right" initial={false} animate={{ width: g.ear, height: g.ear }} transition={v.shellSpring} />
+						<motion.span className="ear left" initial={false} animate={{ width: g.ear, height: g.ear }} transition={transition} />
+						<motion.span className="ear right" initial={false} animate={{ width: g.ear, height: g.ear }} transition={transition} />
 
 						<Surface
 							g={g}

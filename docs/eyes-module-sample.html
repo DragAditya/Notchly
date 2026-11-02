@@ -1,0 +1,1812 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notchly — Eyes in the lead (sample 01)</title>
+<style>
+/* ========================================================================== */
+/* Review board                                                                */
+/* ========================================================================== */
+
+:root {
+	color-scheme: dark;
+	--bg: #06070a;
+	--ink: #f5f6f9;
+	--muted: #a4a8b8;
+	--faint: #6d7182;
+	--line: rgba(255, 255, 255, 0.09);
+	--line-strong: rgba(255, 255, 255, 0.16);
+	--panel: rgba(255, 255, 255, 0.045);
+	--panel-2: rgba(255, 255, 255, 0.026);
+	--accent: #9a96ff;
+	--green: #7ef0b4;
+	--blue: #74b9ff;
+	--pink: #ff6b9a;
+	--orange: #ffb45c;
+	--font: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui, -apple-system, sans-serif;
+	--mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+	--ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+* { box-sizing: border-box; }
+html { min-height: 100%; background: var(--bg); }
+body {
+	margin: 0;
+	min-height: 100vh;
+	color: var(--ink);
+	font-family: var(--font);
+	font-feature-settings: "tnum" 1, "cv11" 1;
+	-webkit-font-smoothing: antialiased;
+	background:
+		radial-gradient(1000px 620px at 12% -8%, rgba(80, 108, 255, 0.20), transparent 62%),
+		radial-gradient(900px 520px at 92% 2%, rgba(255, 92, 138, 0.10), transparent 58%),
+		radial-gradient(760px 500px at 50% 108%, rgba(48, 209, 88, 0.06), transparent 62%),
+		var(--bg);
+}
+body::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0.28;
+	background-image:
+		linear-gradient(rgba(255, 255, 255, 0.026) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.026) 1px, transparent 1px);
+	background-size: 54px 54px;
+	mask-image: linear-gradient(to bottom, #000, transparent 78%);
+}
+button, input { font: inherit; }
+button { color: inherit; }
+::selection { background: rgba(154, 150, 255, 0.35); }
+
+.page {
+	position: relative;
+	width: min(1180px, calc(100% - 48px));
+	margin: 0 auto;
+	padding: 28px 0 64px;
+}
+
+.site-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+	margin-bottom: 42px;
+}
+.brand {
+	display: inline-flex;
+	align-items: center;
+	gap: 11px;
+	font-size: 12px;
+	font-weight: 650;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--muted);
+}
+.brand-mark {
+	position: relative;
+	width: 36px;
+	height: 23px;
+	border-radius: 999px;
+	background: #000;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.10), 0 8px 24px rgba(0, 0, 0, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+}
+.brand-mark i {
+	display: block;
+	width: 4px;
+	height: 8px;
+	border-radius: 999px;
+	background: #e9ffe4;
+	box-shadow: 0 0 7px rgba(160, 255, 160, 0.8);
+}
+.brand-mark i:last-child { height: 6px; opacity: 0.8; }
+.sample-tag {
+	padding: 7px 11px;
+	border: 1px solid var(--line-strong);
+	border-radius: 999px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 10px;
+	letter-spacing: 0.13em;
+	text-transform: uppercase;
+}
+
+.hero {
+	display: grid;
+	grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+	gap: 48px;
+	align-items: end;
+	margin-bottom: 46px;
+}
+.kicker {
+	margin: 0 0 13px;
+	color: #a8a4ff;
+	font-family: var(--mono);
+	font-size: 10.5px;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+}
+h1 {
+	margin: 0;
+	font-size: clamp(38px, 5vw, 64px);
+	font-weight: 620;
+	line-height: 0.98;
+	letter-spacing: -0.055em;
+}
+h1 em {
+	font-style: normal;
+	color: #b6ffa8;
+	text-shadow: 0 0 28px rgba(150, 255, 135, 0.28);
+}
+.lede {
+	max-width: 560px;
+	margin: 20px 0 0;
+	color: var(--muted);
+	font-size: 15px;
+	line-height: 1.6;
+	letter-spacing: -0.005em;
+}
+.hero-note {
+	position: relative;
+	padding: 18px 18px 18px 42px;
+	border: 1px solid var(--line);
+	border-radius: 18px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018));
+	color: var(--muted);
+	font-size: 12.5px;
+	line-height: 1.55;
+}
+.hero-note .dot {
+	position: absolute;
+	left: 18px;
+	top: 21px;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #b6ffa8;
+	box-shadow: 0 0 12px rgba(150, 255, 135, 0.8);
+}
+.hero-note p { margin: 0; }
+
+.board {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	gap: 22px;
+	align-items: start;
+}
+.column {
+	padding: 20px;
+	border: 1px solid var(--line);
+	border-radius: 24px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+}
+.column h2,
+.section-head h2 {
+	margin: 0;
+	font-size: 11px;
+	font-weight: 650;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--faint);
+}
+.surface-label {
+	margin: 20px 2px 8px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 10px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+.surface-label:first-of-type { margin-top: 16px; }
+
+/* ========================================================================== */
+/* The island surfaces                                                        */
+/* ========================================================================== */
+
+.pill {
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	max-width: 360px;
+	height: 38px;
+	padding: 0 12px;
+	overflow: hidden;
+	border-radius: 19px;
+	background: #000;
+	box-shadow:
+		0 0 0 1px rgba(255, 255, 255, 0.07),
+		0 16px 36px -16px rgba(0, 0, 0, 0.9),
+		inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.pill::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	border-radius: inherit;
+	background: radial-gradient(70% 120% at 12% 0%, rgba(255, 255, 255, 0.07), transparent 55%);
+}
+.pill > * { position: relative; z-index: 1; }
+
+.eyes-slot {
+	position: relative;
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 46px;
+	height: 30px;
+}
+.identity-chip {
+	position: absolute;
+	right: -1px;
+	bottom: -2px;
+	display: grid;
+	place-items: center;
+	width: 14px;
+	height: 14px;
+	overflow: hidden;
+	border-radius: 5px;
+	background: #1c1c1f;
+	box-shadow: 0 0 0 2px #000;
+}
+.identity-chip.album {
+	background:
+		linear-gradient(135deg, #ff8a3d 0%, #ff3d81 42%, #6d5cff 72%, #2b1a4d 100%);
+}
+.identity-chip.album::after {
+	content: "♪";
+	width: auto;
+	height: auto;
+	border-radius: 0;
+	background: none;
+	box-shadow: none;
+	color: rgba(255, 255, 255, 0.9);
+	font-size: 9px;
+	line-height: 1;
+	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.75);
+}
+.identity-chip.app {
+	background: #22c55e;
+	color: #04220f;
+	font-size: 8px;
+	font-weight: 800;
+}
+
+.music-meta {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+.music-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 12.5px;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.music-artist {
+	overflow: hidden;
+	color: var(--muted);
+	font-size: 10.5px;
+	font-weight: 500;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.music-end {
+	flex: none;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.music-time {
+	color: var(--muted);
+	font-size: 11.5px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+}
+.viz {
+	display: flex;
+	align-items: flex-end;
+	gap: 2px;
+	height: 14px;
+}
+.viz i {
+	display: block;
+	width: 2px;
+	height: 40%;
+	border-radius: 99px;
+	background: #b6ffa8;
+	box-shadow: 0 0 6px rgba(150, 255, 135, 0.45);
+	transform-origin: 50% 100%;
+	animation: viz 0.9s ease-in-out infinite alternate;
+}
+.viz i:nth-child(2) { animation-delay: -0.45s; height: 75%; }
+.viz i:nth-child(3) { animation-delay: -0.2s; height: 55%; }
+.viz i:nth-child(4) { animation-delay: -0.65s; height: 90%; }
+.is-paused .viz i { animation-play-state: paused; opacity: 0.35; }
+
+.notif-meta {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+.notif-app {
+	color: #7ef0b4;
+	font-size: 9.5px;
+	font-weight: 700;
+	letter-spacing: 0.03em;
+	text-transform: uppercase;
+}
+.notif-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 12px;
+	font-weight: 550;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.notif-count {
+	flex: none;
+	min-width: 20px;
+	padding: 3px 6px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--muted);
+	font-size: 10px;
+	font-weight: 700;
+	text-align: center;
+}
+.bt-meta {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	line-height: 1.15;
+}
+.bt-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 12.5px;
+	font-weight: 600;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.bt-sub {
+	color: var(--muted);
+	font-size: 10.5px;
+	font-weight: 500;
+}
+.bt-state {
+	flex: none;
+	width: 7px;
+	height: 7px;
+	border-radius: 50%;
+	background: #7ef0b4;
+	box-shadow: 0 0 10px rgba(126, 240, 180, 0.7);
+}
+.bt-state.is-off {
+	background: #5c6070;
+	box-shadow: none;
+}
+
+/* ========================================================================== */
+/* Signal cards                                                               */
+/* ========================================================================== */
+
+.signal {
+	--accent: #74b9ff;
+	position: relative;
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	height: 108px;
+	margin-top: 14px;
+	padding: 0 22px;
+	overflow: hidden;
+	border-radius: 30px;
+	isolation: isolate;
+	background:
+		radial-gradient(120% 160% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 42%),
+		linear-gradient(180deg, #0a0b0f 0%, #000 58%, #000 100%);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.09),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.055),
+		0 18px 40px -20px rgba(0, 0, 0, 0.9);
+}
+.signal:first-of-type { margin-top: 16px; }
+.signal::before {
+	content: "";
+	position: absolute;
+	z-index: 0;
+	left: 3%;
+	top: 12%;
+	width: 220px;
+	height: 120px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, color-mix(in srgb, var(--accent) 48%, transparent), transparent 70%);
+	filter: blur(30px);
+	opacity: 0.55;
+	pointer-events: none;
+}
+.signal::after {
+	content: "";
+	position: absolute;
+	z-index: 0;
+	inset: 0;
+	pointer-events: none;
+	background: radial-gradient(90% 100% at 90% 0%, rgba(255, 255, 255, 0.045), transparent 55%);
+}
+.signal > * { position: relative; z-index: 1; }
+
+.signal-eyes {
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 88px;
+	height: 64px;
+}
+.signal-copy {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+.signal-title {
+	overflow: hidden;
+	color: var(--ink);
+	font-size: 20px;
+	font-weight: 650;
+	line-height: 1.14;
+	letter-spacing: -0.018em;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.signal-sub {
+	overflow: hidden;
+	color: var(--muted);
+	font-size: 12.5px;
+	font-weight: 450;
+	line-height: 1.3;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+.signal-value {
+	flex: none;
+	display: flex;
+	align-items: baseline;
+	color: #fff;
+	font-size: 38px;
+	font-weight: 640;
+	line-height: 0.9;
+	letter-spacing: -0.05em;
+	font-variant-numeric: tabular-nums;
+	text-shadow: 0 2px 22px rgba(0, 0, 0, 0.8);
+}
+.signal-value .pct {
+	margin-left: 0.1em;
+	color: var(--muted);
+	font-size: 15px;
+	font-weight: 550;
+	letter-spacing: 0;
+}
+.signal-note {
+	margin: 8px 2px 0;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* ========================================================================== */
+/* Expanded music                                                             */
+/* ========================================================================== */
+
+.expanded-section {
+	margin-top: 22px;
+	padding: 20px;
+	border: 1px solid var(--line);
+	border-radius: 24px;
+	background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012));
+}
+.section-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 24px;
+}
+.section-head p {
+	margin: 0;
+	color: var(--faint);
+	font-size: 11.5px;
+}
+.music-expanded {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	height: 176px;
+	margin-top: 16px;
+	padding: 0 22px;
+	overflow: hidden;
+	border-radius: 32px;
+	background:
+		radial-gradient(120% 160% at 8% 0%, rgba(255, 255, 255, 0.07), transparent 42%),
+		linear-gradient(180deg, #0a0b0f 0%, #000 58%, #000 100%);
+	box-shadow:
+		inset 0 1px 0 rgba(255, 255, 255, 0.09),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.055),
+		0 18px 40px -20px rgba(0, 0, 0, 0.9);
+}
+.cover {
+	position: relative;
+	flex: none;
+	display: grid;
+	place-items: center;
+	width: 132px;
+	height: 132px;
+	overflow: hidden;
+	border-radius: 22px;
+	background: #141019;
+	box-shadow: 0 18px 38px -12px rgba(255, 80, 140, 0.28);
+}
+.cover::before {
+	content: "";
+	position: absolute;
+	inset: -18%;
+	background:
+		radial-gradient(60% 60% at 30% 20%, #ffb15c 0%, transparent 62%),
+		radial-gradient(70% 70% at 78% 32%, #ff4f93 0%, transparent 64%),
+		radial-gradient(80% 80% at 52% 92%, #6d5cff 0%, transparent 68%),
+		linear-gradient(135deg, #2a1235, #100a16);
+	filter: blur(14px) saturate(1.25);
+	transform: scale(1.12);
+}
+.cover::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background:
+		linear-gradient(180deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.38)),
+		radial-gradient(60% 60% at 50% 50%, transparent 30%, rgba(0, 0, 0, 0.28));
+}
+.cover .eyes-slot {
+	position: relative;
+	z-index: 2;
+	width: 100px;
+	height: 80px;
+}
+.cover .identity-chip {
+	right: 8px;
+	bottom: 8px;
+	width: 22px;
+	height: 22px;
+	border-radius: 7px;
+	box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.55);
+}
+.cover .identity-chip.album::after { width: 7px; height: 7px; }
+.music-expanded-info {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 112px;
+}
+.music-expanded .eyebrow {
+	color: #b6ffa8;
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+.music-expanded h3 {
+	margin: 4px 0 0;
+	font-size: 21px;
+	font-weight: 650;
+	letter-spacing: -0.025em;
+	line-height: 1.15;
+}
+.music-expanded .artist {
+	margin: 3px 0 0;
+	color: var(--muted);
+	font-size: 12.5px;
+}
+.progress {
+	position: relative;
+	height: 5px;
+	margin-top: 14px;
+	overflow: hidden;
+	border-radius: 99px;
+	background: rgba(255, 255, 255, 0.14);
+}
+.progress span {
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	transform-origin: 0 50%;
+	transform: scaleX(0.43);
+	background: linear-gradient(90deg, #ff7a9e, #ffd1a8);
+	box-shadow: 0 0 14px rgba(255, 122, 158, 0.35);
+}
+.times {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 6px;
+	color: var(--faint);
+	font-size: 10px;
+	font-variant-numeric: tabular-nums;
+}
+.expanded-controls {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 8px;
+}
+.ctrl {
+	display: grid;
+	place-items: center;
+	width: 30px;
+	height: 30px;
+	border: 0;
+	border-radius: 50%;
+	background: transparent;
+	color: var(--ink);
+	cursor: pointer;
+	transition: background 0.18s, transform 0.18s;
+}
+.ctrl:hover { background: rgba(255, 255, 255, 0.08); }
+.ctrl:active { transform: scale(0.94); }
+.ctrl.big {
+	width: 38px;
+	height: 38px;
+	background: rgba(255, 255, 255, 0.10);
+}
+.ctrl svg { width: 15px; height: 15px; fill: currentColor; }
+.ctrl.big svg { width: 17px; height: 17px; }
+
+/* ========================================================================== */
+/* Controls                                                                   */
+/* ========================================================================== */
+
+.controls {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 22px;
+	padding: 18px;
+	border: 1px solid var(--line);
+	border-radius: 22px;
+	background: rgba(255, 255, 255, 0.026);
+}
+.control {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+	min-width: 0;
+}
+.control label {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	color: var(--muted);
+	font-size: 11px;
+	font-weight: 600;
+}
+.control output {
+	color: var(--ink);
+	font-family: var(--mono);
+	font-size: 10.5px;
+	font-variant-numeric: tabular-nums;
+}
+input[type="range"] {
+	width: 100%;
+	height: 18px;
+	margin: 0;
+	appearance: none;
+	background: transparent;
+	cursor: pointer;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+	height: 4px;
+	border-radius: 99px;
+	background: rgba(255, 255, 255, 0.14);
+}
+input[type="range"]::-webkit-slider-thumb {
+	width: 14px;
+	height: 14px;
+	margin-top: -5px;
+	appearance: none;
+	border-radius: 50%;
+	background: #fff;
+	box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08), 0 0 12px rgba(255, 255, 255, 0.28);
+}
+input[type="range"]:focus-visible { outline: 2px solid #a8a4ff; outline-offset: 4px; }
+
+.toggle-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	min-height: 28px;
+	color: var(--muted);
+	font-size: 11px;
+	font-weight: 600;
+}
+.switch {
+	position: relative;
+	width: 36px;
+	height: 20px;
+	flex: none;
+	border: 0;
+	border-radius: 99px;
+	background: rgba(255, 255, 255, 0.14);
+	cursor: pointer;
+	transition: background 0.2s;
+}
+.switch::after {
+	content: "";
+	position: absolute;
+	left: 3px;
+	top: 3px;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	background: #fff;
+	transition: translate 0.2s var(--ease);
+}
+.switch[aria-pressed="true"] { background: #30d158; }
+.switch[aria-pressed="true"]::after { translate: 16px 0; }
+.action-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: flex-end;
+}
+.action {
+	padding: 8px 12px;
+	border: 1px solid var(--line-strong);
+	border-radius: 10px;
+	background: rgba(255, 255, 255, 0.045);
+	color: var(--ink);
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.18s, border-color 0.18s, transform 0.18s;
+}
+.action:hover { background: rgba(255, 255, 255, 0.09); border-color: rgba(255, 255, 255, 0.26); }
+.action:active { transform: scale(0.97); }
+.action.primary { background: #e9ffe4; border-color: #e9ffe4; color: #071006; }
+.action.primary:hover { background: #fff; border-color: #fff; }
+
+footer {
+	display: flex;
+	justify-content: space-between;
+	gap: 20px;
+	margin-top: 26px;
+	color: var(--faint);
+	font-family: var(--mono);
+	font-size: 9.5px;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+/* ========================================================================== */
+/* The companion eyes — copied from production, with a meter variant          */
+/* ========================================================================== */
+
+.companion-eyes {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+	--eye-w: 17px;
+	--eye-h: 24px;
+	--eye-radius: 50%;
+	--gaze-x: 0px;
+	--gaze-y: 0px;
+	--action-look-x: 0px;
+	--action-look-y: 0px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+	filter: drop-shadow(0 0 var(--eye-blur, 9px) var(--eye-glow));
+	translate: calc(var(--gaze-x) + var(--action-look-x)) calc(var(--gaze-y) + var(--action-look-y));
+	scale: var(--pet-scale, 1);
+	animation: pet-breathe 4.8s ease-in-out infinite;
+	transition:
+		translate 0.22s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, translate, scale;
+}
+.companion-eyes::before {
+	content: "";
+	position: absolute;
+	width: 78px;
+	height: 26px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, var(--eye-glow), transparent 70%);
+	opacity: 0.22;
+	filter: blur(5px);
+	pointer-events: none;
+	animation: pet-aura 4.8s ease-in-out infinite;
+}
+.companion-eye {
+	position: relative;
+	display: block;
+	width: var(--eye-w);
+	height: var(--eye-h);
+	transform-origin: center;
+	scale: var(--eye-scale-x, 1) var(--eye-scale-y, 1);
+	translate: var(--eye-x, 0px) var(--eye-y, 0px);
+	rotate: var(--eye-rotate, 0deg);
+	transition:
+		width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		rotate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, scale, translate, width, height;
+}
+.companion-eye.left { --eye-rotate: -1deg; }
+.companion-eye.right { --eye-rotate: 1deg; }
+.companion-blinker {
+	position: absolute;
+	inset: 0;
+	display: block;
+	transform-origin: center;
+	scale: var(--action-scale-x, 1) var(--action-scale-y, 1);
+	translate: var(--action-x, 0px) var(--action-y, 0px);
+	animation: pet-blink 7.2s ease-in-out infinite;
+	transition:
+		scale 0.16s ease-out,
+		translate 0.16s ease-out;
+	will-change: transform, scale, translate;
+}
+.companion-eye.right .companion-blinker { animation-delay: 0.16s; }
+.companion-eye-shape {
+	position: absolute;
+	inset: 0;
+	display: block;
+	border-radius: var(--eye-radius);
+	background:
+		radial-gradient(circle at 50% 38%, #fff 0 18%, transparent 60%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 58%, color-mix(in srgb, var(--eye-color) 60%, transparent) 100%);
+	box-shadow:
+		0 0 12px var(--eye-glow),
+		inset 0 0 4px rgba(255, 255, 255, 0.55);
+	transition:
+		background 0.35s ease,
+		box-shadow 0.35s ease,
+		border-radius 0.35s ease;
+}
+
+/* --- meter eyes: the fill itself is the level ---------------------------- */
+.companion-eyes.is-meter .companion-blinker {
+	animation: none;
+}
+.companion-eyes.is-meter .companion-eye-shape {
+	background:
+		radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.10) 0 18%, transparent 60%),
+		radial-gradient(circle at 50% 52%, rgba(255, 255, 255, 0.025) 0%, color-mix(in srgb, var(--eye-color) 10%, transparent) 58%, transparent 100%);
+	box-shadow:
+		inset 0 0 0 1px color-mix(in srgb, var(--eye-color) 36%, transparent),
+		inset 0 0 7px rgba(0, 0, 0, 0.38);
+}
+.companion-eyes.is-meter .companion-eye-shape::before {
+	content: "";
+	position: absolute;
+	z-index: 2;
+	left: 31%;
+	top: 14%;
+	width: 22%;
+	height: 15%;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.72);
+	filter: blur(0.6px);
+	opacity: 0.55;
+	pointer-events: none;
+}
+/* A crisp waterline makes the fill level readable through the glow. */
+.companion-eyes.is-meter .companion-eye::after {
+	content: "";
+	position: absolute;
+	z-index: 3;
+	left: 12%;
+	right: 12%;
+	bottom: calc(var(--level, 1) * 100% - 1px);
+	height: 2px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.9);
+	box-shadow:
+		0 0 8px var(--eye-glow),
+		0 0 16px var(--eye-glow);
+	opacity: clamp(0, calc(var(--level, 1) * 2), 0.85);
+	pointer-events: none;
+	transition: bottom 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+	animation: meter-waterline 3.2s ease-in-out infinite;
+}
+.companion-eyes.is-meter .companion-eye-shape::after {
+	content: "";
+	position: absolute;
+	z-index: 1;
+	inset: 0;
+	border-radius: inherit;
+	background:
+		radial-gradient(circle at 50% 38%, #fff 0 18%, transparent 60%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 58%, color-mix(in srgb, var(--eye-color) 60%, transparent) 100%);
+	box-shadow:
+		0 0 12px var(--eye-glow),
+		inset 0 0 4px rgba(255, 255, 255, 0.55);
+	clip-path: inset(calc((1 - var(--level, 1)) * 100%) 0 0 0);
+	transition: clip-path 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+	animation: meter-glow 3.6s ease-in-out infinite;
+}
+.companion-eyes.is-meter.is-charging .companion-eye-shape::after {
+	animation: eye-charge 1.8s ease-in-out infinite;
+}
+.companion-eyes.is-meter.is-charging::before {
+	animation: pet-charge 1.8s ease-in-out infinite;
+}
+
+/* --- mood colours (production values) ----------------------------------- */
+.companion-eyes[data-mood="calm"] {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+}
+.companion-eyes[data-mood="curious"] {
+	--eye-w: 19px;
+	--eye-h: 25px;
+	--eye-color: #bdefff;
+	--eye-glow: rgba(100, 210, 255, 0.62);
+	animation: pet-curious 5.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="curious"] .companion-eye.right {
+	--eye-rotate: 6deg;
+	--eye-x: 1px;
+	--eye-scale-x: 1.05;
+	--eye-scale-y: 1.08;
+}
+.companion-eyes[data-mood="happy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-happy 2.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.left { --eye-rotate: -4deg; }
+.companion-eyes[data-mood="happy"] .companion-eye.right { --eye-rotate: 4deg; }
+.companion-eyes[data-mood="excited"] {
+	--eye-w: 22px;
+	--eye-h: 24px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+	animation: pet-excited 0.9s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye { animation: companion-hop 0.72s ease-in-out infinite; }
+.companion-eyes[data-mood="excited"] .companion-eye.right { animation-delay: 0.12s; }
+.companion-eye.is-chevron svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+}
+.companion-eye.is-arc { background: none; box-shadow: none; }
+.companion-eye.is-arc svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.4;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+.companion-eyes[data-mood="alert"] {
+	--eye-w: 15px;
+	--eye-h: 25px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+}
+.companion-eyes[data-mood="alert"] .companion-eye { animation: companion-alert 1.5s ease-in-out infinite; }
+.companion-eyes[data-mood="alert"] .companion-eye::before,
+.companion-eyes[data-mood="alert"] .companion-eye::after {
+	content: "";
+	position: absolute;
+	width: 6px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--eye-color);
+	box-shadow: 0 6px 0 -0.2px var(--eye-color), 0 0 7px var(--eye-glow);
+	pointer-events: none;
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::before { left: -10px; top: 5px; transform: rotate(-20deg); }
+.companion-eyes[data-mood="alert"] .companion-eye.left::after { left: -11px; top: 14px; transform: rotate(20deg); }
+.companion-eyes[data-mood="alert"] .companion-eye.right::before { right: -10px; top: 5px; transform: rotate(20deg); }
+.companion-eyes[data-mood="alert"] .companion-eye.right::after { right: -11px; top: 14px; transform: rotate(-20deg); }
+.companion-eyes[data-mood="dizzy"] { --eye-color: #b6ffb0; --eye-glow: rgba(140, 255, 140, 0.6); }
+.companion-eye.is-spiral {
+	width: 23px;
+	height: 23px;
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-spiral .companion-blinker { position: absolute; inset: 0; animation: none; }
+.companion-eye.is-spiral svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+	animation: companion-spin 1.4s linear infinite;
+	transform-origin: center;
+}
+.companion-eyes[data-mood="dizzy"] .companion-eye.left svg { animation-direction: reverse; }
+.companion-eyes[data-mood="sleepy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #eaffdf;
+	--eye-glow: rgba(210, 255, 200, 0.48);
+	animation: pet-sleep 4.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"] .companion-blinker { animation: none; }
+.companion-eyes[data-mood="sleepy"] .companion-eye { animation: companion-sleep 4.2s ease-in-out infinite; }
+.companion-eyes[data-mood="sleepy"]::after {
+	content: "z";
+	position: absolute;
+	top: -10px;
+	right: -8px;
+	color: var(--eye-color);
+	font-size: 10px;
+	font-weight: 650;
+	line-height: 1;
+	text-shadow: 0 0 7px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-zzz 3.2s ease-in-out infinite;
+}
+.companion-eyes[data-mood="charging"] {
+	--eye-w: 18px;
+	--eye-h: 25px;
+	--eye-color: #30d158;
+	--eye-glow: rgba(48, 209, 88, 0.65);
+	animation: pet-charge 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="charging"] .companion-eye-shape { animation: companion-charge 1.5s ease-in-out infinite; }
+.companion-eyes[data-mood="low"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #ff7a8a;
+	--eye-glow: rgba(255, 110, 125, 0.62);
+	animation: pet-low 3.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="low"] .companion-eye { --eye-rotate: 7deg; --eye-y: 1px; }
+.companion-eyes[data-mood="music"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-music 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="music"]::after {
+	content: "♪";
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	color: var(--eye-color);
+	font-size: 13px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-note 2.4s ease-in-out infinite;
+}
+.companion-eyes[data-mood="love"] {
+	--eye-w: 22px;
+	--eye-h: 22px;
+	--eye-color: #ff5c8a;
+	--eye-glow: rgba(255, 92, 138, 0.65);
+	animation: pet-love 1.8s ease-in-out infinite;
+}
+.companion-eye.is-heart { background: none; box-shadow: none; }
+.companion-eye.is-heart svg {
+	width: 100%;
+	height: 100%;
+	fill: var(--eye-color);
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+.companion-eyes[data-mood="love"]::after {
+	content: "✦";
+	position: absolute;
+	top: -8px;
+	right: -9px;
+	color: var(--eye-color);
+	font-size: 10px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-sparkle 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="surprised"] {
+	--eye-w: 22px;
+	--eye-h: 28px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.7);
+	animation:
+		pet-surprised 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both,
+		pet-breathe 4.8s 0.5s ease-in-out infinite;
+}
+.companion-eyes[data-mood="surprised"] .companion-eye {
+	animation: companion-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+.companion-eyes.is-searching {
+	animation: bluetooth-search 3.2s ease-in-out infinite;
+}
+
+/* ========================================================================== */
+/* Eye keyframes                                                              */
+/* ========================================================================== */
+
+@keyframes viz {
+	from { transform: scaleY(0.35); }
+	to { transform: scaleY(1); }
+}
+@keyframes pet-breathe {
+	0%, 100% { transform: translateY(0) scale(1); }
+	50% { transform: translateY(-0.7px) scale(1.018, 1.032); }
+}
+@keyframes pet-aura {
+	0%, 100% { opacity: 0.16; transform: scale(0.94); }
+	50% { opacity: 0.28; transform: scale(1.04); }
+}
+@keyframes pet-blink {
+	0%, 39%, 43%, 90%, 94%, 100% { transform: scaleY(1); }
+	41%, 92% { transform: scaleY(0.08); }
+}
+@keyframes pet-curious {
+	0%, 100% { transform: translateY(0) rotate(-1deg); }
+	50% { transform: translateY(-1px) rotate(1.5deg); }
+}
+@keyframes pet-happy {
+	0%, 100% { transform: translateY(0) scale(1); }
+	40% { transform: translateY(-1.5px) scale(1.02); }
+	60% { transform: translateY(-0.5px) scale(1.01); }
+}
+@keyframes pet-excited {
+	0%, 100% { transform: translateY(0) scale(1); }
+	50% { transform: translateY(-1.5px) scale(1.03); }
+}
+@keyframes pet-sleep {
+	0%, 100% { transform: translateY(0) scaleX(0.96); opacity: 0.72; }
+	50% { transform: translateY(0.5px) scaleX(1.02); opacity: 1; }
+}
+@keyframes pet-charge {
+	0%, 100% { filter: drop-shadow(0 0 7px var(--eye-glow)); }
+	50% { filter: drop-shadow(0 0 14px var(--eye-glow)); }
+}
+@keyframes pet-low {
+	0%, 100% { transform: translateY(0); opacity: 0.82; }
+	50% { transform: translateY(0.6px); opacity: 1; }
+}
+@keyframes pet-music {
+	0%, 100% { transform: translateY(0) rotate(0deg); }
+	50% { transform: translateY(-1.2px) rotate(0.6deg); }
+}
+@keyframes pet-love {
+	0%, 100% { transform: scale(1); }
+	50% { transform: scale(1.05); }
+}
+@keyframes pet-surprised {
+	0% { transform: scale(0.72); opacity: 0.4; }
+	70% { transform: scale(1.06); opacity: 1; }
+	100% { transform: scale(1); opacity: 1; }
+}
+@keyframes pet-note {
+	0%, 100% { opacity: 0.55; transform: translateY(0) rotate(-6deg); }
+	50% { opacity: 1; transform: translateY(-3px) rotate(6deg); }
+}
+@keyframes pet-sparkle {
+	0%, 100% { opacity: 0.45; transform: scale(0.8) rotate(0deg); }
+	50% { opacity: 1; transform: scale(1.15) rotate(18deg); }
+}
+@keyframes pet-zzz {
+	0%, 100% { opacity: 0.35; transform: translateY(1px) scale(0.9); }
+	50% { opacity: 0.9; transform: translateY(-2px) scale(1.08); }
+}
+@keyframes companion-hop {
+	0%, 100% { transform: translateY(0) scale(1); }
+	45% { transform: translateY(-2px) scale(1.06); }
+}
+@keyframes companion-alert {
+	0%, 100% { transform: translateX(0) scaleY(1); }
+	25% { transform: translateX(-0.8px) scaleY(0.94); }
+	60% { transform: translateX(0.8px) scaleY(1.02); }
+}
+@keyframes companion-spin { to { transform: rotate(360deg); } }
+@keyframes companion-sleep {
+	0%, 100% { transform: scaleX(0.9); }
+	50% { transform: scaleX(1.05); }
+}
+@keyframes companion-charge {
+	0%, 100% {
+		transform: scale(1);
+		box-shadow: 0 0 9px var(--eye-glow), inset 0 0 4px rgba(255, 255, 255, 0.55);
+	}
+	50% {
+		transform: scale(1.06);
+		box-shadow: 0 0 16px var(--eye-glow), inset 0 0 4px rgba(255, 255, 255, 0.7);
+	}
+}
+@keyframes companion-pop {
+	0% { transform: scale(0.55); opacity: 0.4; }
+	100% { transform: scale(1); opacity: 1; }
+}
+@keyframes eye-charge {
+	0%, 100% { filter: brightness(1); }
+	50% { filter: brightness(1.35); }
+}
+@keyframes meter-glow {
+	0%, 100% { filter: brightness(1); }
+	50% { filter: brightness(1.12); }
+}
+@keyframes meter-waterline {
+	0%, 100% { transform: scaleX(0.92); opacity: 0.62; }
+	50% { transform: scaleX(1); opacity: 0.92; }
+}
+@keyframes bluetooth-search {
+	0%, 100% { translate: 0 0; }
+	22% { translate: -3px 0; }
+	52% { translate: 3px 0; }
+	78% { translate: -1px 0; }
+}
+
+/* ========================================================================== */
+/* Sizes for each surface                                                     */
+/* ========================================================================== */
+
+.music-pill .companion-eyes {
+	--eye-w: 15px;
+	--eye-h: 21px;
+	gap: 7px;
+}
+.music-pill .companion-eyes::before {
+	width: 50px;
+	height: 20px;
+}
+.music-pill .companion-eyes[data-mood="music"] {
+	--eye-w: 18px;
+	--eye-h: 10px;
+}
+.bt-pill .companion-eyes[data-mood="happy"] {
+	--eye-w: 18px;
+	--eye-h: 10px;
+}
+.notif-pill .companion-eyes {
+	--eye-w: 14px;
+	--eye-h: 19px;
+	gap: 6px;
+}
+.notif-pill .companion-eyes::before {
+	width: 46px;
+	height: 18px;
+}
+.bt-pill .companion-eyes {
+	--eye-w: 15px;
+	--eye-h: 21px;
+	gap: 7px;
+}
+.bt-pill .companion-eyes::before {
+	width: 50px;
+	height: 20px;
+}
+.signal-eyes .companion-eyes {
+	--eye-w: 30px;
+	--eye-h: 44px;
+	gap: 12px;
+}
+.signal-eyes .companion-eyes::before {
+	width: 100px;
+	height: 36px;
+	opacity: 0.24;
+}
+.cover .companion-eyes {
+	--eye-w: 34px;
+	--eye-h: 46px;
+	gap: 14px;
+}
+.cover .companion-eyes::before {
+	width: 112px;
+	height: 40px;
+	opacity: 0.28;
+}
+.cover .companion-eyes[data-mood="music"] {
+	--eye-w: 46px;
+	--eye-h: 26px;
+}
+.cover .companion-eyes[data-mood="music"]::after {
+	top: -16px;
+	right: -16px;
+	font-size: 20px;
+}
+.music-pill .companion-eyes[data-mood="music"]::after {
+	top: -7px;
+	right: -7px;
+	font-size: 10px;
+}
+.notif-pill .companion-eyes[data-mood="surprised"] {
+	--eye-w: 14px;
+	--eye-h: 19px;
+}
+.notif-pill .companion-eyes[data-mood="surprised"] .companion-eye {
+	animation-duration: 0.45s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.companion-eyes,
+	.companion-eyes::before,
+	.companion-eyes::after,
+	.companion-eye,
+	.companion-blinker,
+	.companion-eye-shape,
+	.companion-eye.is-spiral svg,
+	.viz i {
+		animation: none !important;
+	}
+}
+
+@media (max-width: 900px) {
+	.hero { grid-template-columns: 1fr; gap: 24px; }
+	.board { grid-template-columns: 1fr; }
+	.controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.section-head { display: block; }
+	.section-head p { margin-top: 6px; }
+}
+@media (max-width: 560px) {
+	.page { width: calc(100% - 28px); padding-top: 18px; }
+	.column, .expanded-section { padding: 14px; border-radius: 20px; }
+	.music-expanded { gap: 16px; padding: 0 14px; }
+	.cover { width: 104px; height: 104px; }
+	.music-expanded h3 { font-size: 18px; }
+	.controls { grid-template-columns: 1fr; }
+	.signal { padding: 0 16px; gap: 12px; }
+	.signal-value { font-size: 30px; }
+	footer { display: block; line-height: 1.8; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+	<header class="site-head">
+		<div class="brand">
+			<span class="brand-mark"><i></i><i></i></span>
+			Notchly <span style="opacity:.4">/</span> Companion Lab
+		</div>
+		<span class="sample-tag">Sample 01 · Approach A</span>
+	</header>
+
+	<section class="hero">
+		<div>
+			<p class="kicker">Eyes in the lead</p>
+			<h1>The eyes <em>are</em> the instrument.</h1>
+			<p class="lede">No progress ring. No glyph doing the work. The companion carries the level, the mood and the moment. Module identity stays in the copy, with a tiny chip where it matters.</p>
+		</div>
+		<div class="hero-note">
+			<span class="dot"></span>
+			<p>Volume, brightness and battery fill the eyes from the bottom. Charging pulses. Bluetooth searches. Notifications widen. Music makes them sing.</p>
+		</div>
+	</section>
+
+	<main class="board">
+		<section class="column">
+			<h2>Compact island</h2>
+
+			<div class="surface-label">Music · playing</div>
+			<div class="pill music-pill" id="musicPill">
+				<div class="eyes-slot">
+					<div data-eyes="music" data-size="compact"></div>
+				</div>
+				<div class="music-meta">
+					<span class="music-title">Midnight City</span>
+					<span class="music-artist">M83</span>
+				</div>
+				<div class="music-end">
+					<span class="music-time">1:42</span>
+					<span class="viz" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+				</div>
+			</div>
+
+			<div class="surface-label">Notification · unread</div>
+			<div class="pill notif-pill" id="notifPill">
+				<div class="eyes-slot">
+					<div data-eyes="surprised" data-size="compact" id="notifEyes"></div>
+					<span class="identity-chip app" title="WhatsApp">W</span>
+				</div>
+				<div class="notif-meta">
+					<span class="notif-app">WhatsApp</span>
+					<span class="notif-title">Maya: Are you free at 6?</span>
+				</div>
+				<span class="notif-count">+2</span>
+			</div>
+
+			<div class="surface-label">Bluetooth · connected</div>
+			<div class="pill bt-pill" id="btPill">
+				<div class="eyes-slot">
+					<div data-eyes="happy" data-size="compact" id="btEyes" style="--eye-color:#8fd3ff;--eye-glow:rgba(100,190,255,.62)"></div>
+				</div>
+				<div class="bt-meta">
+					<span class="bt-title">WH-1000XM5</span>
+					<span class="bt-sub" id="btSub">Bluetooth · Connected</span>
+				</div>
+				<span class="bt-state" id="btDot"></span>
+			</div>
+		</section>
+
+		<section class="column">
+			<h2>Signal cards</h2>
+
+			<div class="surface-label">Volume · the fill is the level</div>
+			<div class="signal" id="volumeCard" style="--accent:#74b9ff">
+				<div class="signal-eyes">
+					<div data-eyes="meter" data-level="0.65" data-color="#bfe6ff" data-glow="rgba(120,200,255,.65)" id="volumeEyes"></div>
+				</div>
+				<div class="signal-copy">
+					<span class="signal-title">Volume</span>
+					<span class="signal-sub">Speakers · Realtek</span>
+				</div>
+				<div class="signal-value"><span id="volumeValue">65</span><span class="pct">%</span></div>
+			</div>
+			<div class="signal-note">No ring · eyes fill from the bottom</div>
+
+			<div class="surface-label">Brightness · glow follows the level</div>
+			<div class="signal" id="brightnessCard" style="--accent:#ffcf8a">
+				<div class="signal-eyes">
+					<div data-eyes="meter" data-level="0.38" data-color="#fff0c9" data-glow="rgba(255,220,150,.68)" id="brightnessEyes"></div>
+				</div>
+				<div class="signal-copy">
+					<span class="signal-title">Brightness</span>
+					<span class="signal-sub">Built-in display</span>
+				</div>
+				<div class="signal-value"><span id="brightnessValue">38</span><span class="pct">%</span></div>
+			</div>
+			<div class="signal-note">No ring · glow widens as the eyes fill</div>
+
+			<div class="surface-label">Battery · charging</div>
+			<div class="signal" id="batteryCard" style="--accent:#30d158">
+				<div class="signal-eyes">
+					<div data-eyes="meter" data-level="0.82" data-color="#8dffb0" data-glow="rgba(80,255,140,.62)" id="batteryEyes"></div>
+				</div>
+				<div class="signal-copy">
+					<span class="signal-title" id="batteryTitle">Charging</span>
+					<span class="signal-sub" id="batterySub">Battery at 82% · 1h 12m to full</span>
+				</div>
+				<div class="signal-value"><span id="batteryValue">82</span><span class="pct">%</span></div>
+			</div>
+			<div class="signal-note" id="batteryNote">No ring · green fill, pulse while charging</div>
+		</section>
+	</main>
+
+	<section class="expanded-section">
+		<div class="section-head">
+			<h2>Expanded music</h2>
+			<p>Eyes as the cover. Album art stays as a small identity chip.</p>
+		</div>
+		<div class="music-expanded">
+			<div class="cover">
+				<div class="eyes-slot">
+					<div data-eyes="music" data-size="large" id="expandedEyes"></div>
+					<span class="identity-chip album" title="Album art"></span>
+				</div>
+			</div>
+			<div class="music-expanded-info">
+				<div>
+					<span class="eyebrow">Now playing</span>
+					<h3>Midnight City</h3>
+					<p class="artist">M83 — Hurry Up, We're Dreaming</p>
+				</div>
+				<div>
+					<div class="progress"><span id="expandedProgress"></span></div>
+					<div class="times"><span>1:42</span><span>-2:21</span></div>
+					<div class="expanded-controls">
+						<button class="ctrl" aria-label="Previous" title="Previous">
+							<svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14l-11-7z"/></svg>
+						</button>
+						<button class="ctrl big" aria-label="Pause" title="Pause" id="expandedPlay">
+							<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+						</button>
+						<button class="ctrl" aria-label="Next" title="Next">
+							<svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="controls">
+		<div class="control">
+			<label for="volume">Volume <output id="volumeOut">65%</output></label>
+			<input id="volume" type="range" min="0" max="100" value="65" aria-label="Volume">
+		</div>
+		<div class="control">
+			<label for="brightness">Brightness <output id="brightnessOut">38%</output></label>
+			<input id="brightness" type="range" min="0" max="100" value="38" aria-label="Brightness">
+		</div>
+		<div class="control">
+			<label for="battery">Battery <output id="batteryOut">82%</output></label>
+			<input id="battery" type="range" min="0" max="100" value="82" aria-label="Battery">
+		</div>
+		<div class="control">
+			<div class="toggle-row">
+				<span>Charging</span>
+				<button class="switch" id="charging" aria-pressed="true" aria-label="Charging"></button>
+			</div>
+			<div class="toggle-row">
+				<span>Bluetooth connected</span>
+				<button class="switch" id="bluetooth" aria-pressed="true" aria-label="Bluetooth connected"></button>
+			</div>
+		</div>
+		<div class="action-row" style="grid-column: 1 / -1; margin-top: 4px;">
+			<button class="action primary" id="notify">Send notification</button>
+			<button class="action" id="play">Pause music</button>
+			<button class="action" id="replay">Replay entrance</button>
+			<button class="action" id="demo">Run level demo</button>
+		</div>
+	</section>
+
+	<footer>
+		<span>Notchly · companion lab</span>
+		<span>Sample 01 · no production files changed</span>
+	</footer>
+</div>
+
+<script>
+/* -------------------------------------------------------------------------- */
+/* Eye markup                                                                 */
+/* -------------------------------------------------------------------------- */
+
+const eyeMarkup = (side, mood) => {
+	if (mood === "dizzy") {
+		return `<span class="companion-eye is-spiral ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 12c0-2 3-2 3 0s-4 3-5 0 2-5 5-3 3 7-2 8-8-4-6-8 8-4 9 1"/></svg></span></span>`;
+	}
+	if (mood === "love") {
+		return `<span class="companion-eye is-heart ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="M12 21s-8-4.8-8-11a4.6 4.6 0 0 1 8-3.1A4.6 4.6 0 0 1 20 10c0 6.2-8 11-8 11z"/></svg></span></span>`;
+	}
+	if (mood === "excited") {
+		return `<span class="companion-eye is-chevron ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 24"><path d="${side === "left" ? "M8 4 L17 12 L8 20" : "M16 4 L7 12 L16 20"}"/></svg></span></span>`;
+	}
+	if (mood === "happy" || mood === "music" || mood === "sleepy" || mood === "low") {
+		const down = mood === "sleepy" || mood === "low";
+		return `<span class="companion-eye is-arc ${side}"><span class="companion-blinker"><svg viewBox="0 0 24 12"><path d="${down ? "M3 3 Q12 10 21 3" : "M3 9 Q12 2 21 9"}"/></svg></span></span>`;
+	}
+	return `<span class="companion-eye ${side}"><span class="companion-blinker"><span class="companion-eye-shape"></span></span></span>`;
+};
+
+function renderEyes() {
+	document.querySelectorAll("[data-eyes]").forEach((node) => {
+		const mood = node.dataset.eyes || "calm";
+		const meter = mood === "meter";
+		const level = node.dataset.level ?? "1";
+		const color = node.dataset.color;
+		const glow = node.dataset.glow;
+		const style = [
+			meter ? `--level:${level}` : "",
+			color ? `--eye-color:${color}` : "",
+			glow ? `--eye-glow:${glow}` : "",
+		].filter(Boolean).join(";");
+		node.innerHTML = `<div class="companion-eyes${meter ? " is-meter" : ""}" data-mood="${meter ? "calm" : mood}" data-action="rest"${style ? ` style="${style}"` : ""}>${eyeMarkup("left", meter ? "calm" : mood)}${eyeMarkup("right", meter ? "calm" : mood)}</div>`;
+	});
+}
+renderEyes();
+
+/* -------------------------------------------------------------------------- */
+/* State and controls                                                         */
+/* -------------------------------------------------------------------------- */
+
+const state = {
+	volume: 65,
+	brightness: 38,
+	battery: 82,
+	charging: true,
+	bluetooth: true,
+	playing: true,
+};
+
+const $ = (selector, root = document) => root.querySelector(selector);
+const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+const volumeEyes = $("#volumeEyes .companion-eyes");
+const brightnessEyes = $("#brightnessEyes .companion-eyes");
+const batteryEyes = $("#batteryEyes .companion-eyes");
+const batteryCard = $("#batteryCard");
+const batteryTitle = $("#batteryTitle");
+const batterySub = $("#batterySub");
+const batteryNote = $("#batteryNote");
+
+function setLevel(eyes, level) {
+	if (eyes) eyes.style.setProperty("--level", String(clamp(level, 0, 1)));
+}
+
+function updateVolume() {
+	const level = state.volume / 100;
+	setLevel(volumeEyes, level);
+	$("#volumeValue").textContent = String(Math.round(state.volume));
+	$("#volumeOut").textContent = `${Math.round(state.volume)}%`;
+	// The glow and the eye pair lean in as the eyes fill.
+	volumeEyes?.style.setProperty("--eye-glow", `rgba(120,200,255,${0.35 + level * 0.42})`);
+	volumeEyes?.style.setProperty("--eye-blur", `${8 + level * 5}px`);
+	volumeEyes?.style.setProperty("--pet-scale", String(0.96 + level * 0.08));
+}
+
+function updateBrightness() {
+	const level = state.brightness / 100;
+	setLevel(brightnessEyes, level);
+	$("#brightnessValue").textContent = String(Math.round(state.brightness));
+	$("#brightnessOut").textContent = `${Math.round(state.brightness)}%`;
+	brightnessEyes?.style.setProperty("--eye-glow", `rgba(255,220,150,${0.3 + level * 0.5})`);
+	brightnessEyes?.style.setProperty("--eye-blur", `${6 + level * 12}px`);
+	brightnessEyes?.style.setProperty("--pet-scale", String(0.96 + level * 0.08));
+}
+
+function updateBattery() {
+	const low = state.battery <= 20 && !state.charging;
+	if (low) {
+		batteryEyes?.classList.add("is-low");
+		batteryEyes?.classList.remove("is-meter", "is-charging");
+		batteryEyes?.setAttribute("data-mood", "low");
+		batteryEyes.style.setProperty("--eye-color", "#ff7a8a");
+		batteryEyes.style.setProperty("--eye-glow", "rgba(255,110,125,.62)");
+		batteryEyes.innerHTML = `${eyeMarkup("left", "low")}${eyeMarkup("right", "low")}`;
+		batteryTitle.textContent = "Low battery";
+		batterySub.textContent = `Battery at ${Math.round(state.battery)}% · Plug in soon`;
+		batteryNote.textContent = "No ring · the eyes droop when the battery is low";
+	} else {
+		batteryEyes?.classList.remove("is-low");
+		batteryEyes?.classList.add("is-meter");
+		batteryEyes?.setAttribute("data-mood", "calm");
+		batteryEyes.style.setProperty("--eye-color", "#8dffb0");
+		batteryEyes.style.setProperty("--eye-glow", "rgba(80,255,140,.62)");
+		if (!batteryEyes.querySelector(".companion-eye-shape")) {
+			batteryEyes.innerHTML = `${eyeMarkup("left", "calm")}${eyeMarkup("right", "calm")}`;
+		}
+		setLevel(batteryEyes, state.battery / 100);
+		batteryTitle.textContent = state.charging ? "Charging" : "Battery";
+		batterySub.textContent = state.charging
+			? `Battery at ${Math.round(state.battery)}% · 1h 12m to full`
+			: `Battery at ${Math.round(state.battery)}% · 4h 18m left`;
+		batteryNote.textContent = state.charging
+			? "No ring · green fill, pulse while charging"
+			: "No ring · green fill shows the charge";
+	}
+	batteryEyes?.classList.toggle("is-charging", state.charging && !low);
+	$("#batteryValue").textContent = String(Math.round(state.battery));
+	$("#batteryOut").textContent = `${Math.round(state.battery)}%`;
+	batteryCard.style.setProperty("--accent", low ? "#ff5a6e" : "#30d158");
+}
+
+function updateMusic() {
+	const pills = [$("#musicPill")];
+	pills.forEach((pill) => pill.classList.toggle("is-paused", !state.playing));
+	$("#play").textContent = state.playing ? "Pause music" : "Play music";
+	const expandedPlay = $("#expandedPlay");
+	expandedPlay.setAttribute("aria-label", state.playing ? "Pause" : "Play");
+	expandedPlay.innerHTML = state.playing
+		? `<svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`
+		: `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+	$("#expandedEyes .companion-eyes")?.classList.toggle("is-paused", !state.playing);
+}
+
+function updateBluetooth() {
+	const eyes = $("#btEyes .companion-eyes");
+	const connected = state.bluetooth;
+	eyes?.classList.toggle("is-searching", !connected);
+	eyes?.setAttribute("data-mood", connected ? "happy" : "curious");
+	eyes.innerHTML = connected
+		? `${eyeMarkup("left", "happy")}${eyeMarkup("right", "happy")}`
+		: `${eyeMarkup("left", "curious")}${eyeMarkup("right", "curious")}`;
+	$("#btSub").textContent = connected ? "Bluetooth · Connected" : "Bluetooth · Searching";
+	$("#btDot").classList.toggle("is-off", !connected);
+}
+
+function pingNotification() {
+	const eyes = $("#notifEyes .companion-eyes");
+	if (!eyes) return;
+	eyes.style.animation = "none";
+	// Force a reflow so the pop replays.
+	void eyes.offsetWidth;
+	eyes.style.animation = "";
+	eyes.setAttribute("data-mood", "surprised");
+}
+
+/* -------------------------------------------------------------------------- */
+/* Wiring                                                                     */
+/* -------------------------------------------------------------------------- */
+
+$("#volume").addEventListener("input", (event) => {
+	state.volume = Number(event.target.value);
+	updateVolume();
+});
+$("#brightness").addEventListener("input", (event) => {
+	state.brightness = Number(event.target.value);
+	updateBrightness();
+});
+$("#battery").addEventListener("input", (event) => {
+	state.battery = Number(event.target.value);
+	updateBattery();
+});
+$("#charging").addEventListener("click", (event) => {
+	state.charging = !state.charging;
+	event.currentTarget.setAttribute("aria-pressed", String(state.charging));
+	updateBattery();
+});
+$("#bluetooth").addEventListener("click", (event) => {
+	state.bluetooth = !state.bluetooth;
+	event.currentTarget.setAttribute("aria-pressed", String(state.bluetooth));
+	updateBluetooth();
+});
+$("#notify").addEventListener("click", pingNotification);
+$("#play").addEventListener("click", () => {
+	state.playing = !state.playing;
+	updateMusic();
+});
+$("#expandedPlay").addEventListener("click", () => {
+	state.playing = !state.playing;
+	updateMusic();
+});
+$("#replay").addEventListener("click", () => {
+	$$(".signal, .pill, .music-expanded").forEach((node) => {
+		node.style.animation = "none";
+		void node.offsetWidth;
+		node.style.animation = "";
+	});
+	pingNotification();
+});
+$("#demo").addEventListener("click", async () => {
+	const sequence = [
+		[100, 38, 82, true],
+		[20, 12, 70, false],
+		[55, 78, 45, false],
+		[85, 95, 12, false],
+		[65, 38, 82, true],
+	];
+	for (const [volume, brightness, battery, charging] of sequence) {
+		state.volume = volume;
+		state.brightness = brightness;
+		state.battery = battery;
+		state.charging = charging;
+		$("#volume").value = String(volume);
+		$("#brightness").value = String(brightness);
+		$("#battery").value = String(battery);
+		$("#charging").setAttribute("aria-pressed", String(charging));
+		updateVolume();
+		updateBrightness();
+		updateBattery();
+		await new Promise((resolve) => setTimeout(resolve, 900));
+	}
+});
+
+updateVolume();
+updateBrightness();
+updateBattery();
+updateMusic();
+updateBluetooth();
+</script>
+</body>
+</html>

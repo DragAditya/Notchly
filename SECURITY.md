@@ -14,7 +14,7 @@ Use GitHub's private vulnerability reporting:
 2. Choose **Report a vulnerability**.
 3. Include the affected version, Windows version, reproduction steps and any relevant logs.
 
-If private reporting is unavailable, contact the maintainer through the GitHub profile [DragAditya](https://github.com/DragAditya) and ask for a private channel. Do not include secrets or personal data in a public issue.
+If private reporting is unavailable, open an issue asking the maintainers for a private channel. Do not include secrets or personal data in a public issue.
 
 You can expect an initial response within a few days. Please allow time for a fix before public disclosure.
 

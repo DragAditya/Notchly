@@ -1,39 +1,154 @@
-import { useRef, type PointerEvent } from "react";
+import { useRef, useState, type PointerEvent } from "react";
 import { Glyph } from "../../../components/Glyph";
 import { providerAction } from "../../../core/bridge";
 import { useT } from "../../../core/i18n";
 import { draggingFiles, useIsland } from "../../../core/island";
+import { useNow } from "../../ai-agents/common/format";
 import { attachFiles, requestAskFocus, useAskEnabled } from "../../ask/store";
-import { SHELF_PROVIDER, shelfAction, type ShelfItem, type ShelfState } from "../actions";
+import {
+  clipPendingAction,
+  type PendingScreenshotView,
+} from "../../clipboard/types";
+import { formatRemaining, remainingFraction } from "../../clipboard/screenshot";
+import {
+  addToShelf,
+  SHELF_PROVIDER,
+  shelfAction,
+  type ShelfItem,
+  type ShelfState,
+} from "../actions";
 
 const DRAG_THRESHOLD = 5;
 
 /** Files dropped on the island; drag them out to any app, double-click to open. */
-export function ShelfPanel({ state }: { state: ShelfState | undefined }) {
+export function ShelfPanel({
+  state,
+  pending,
+}: {
+  state: ShelfState | undefined;
+  pending: PendingScreenshotView[];
+}) {
   const t = useT();
   const dragging = draggingFiles.use();
   const items = state?.items ?? [];
+  const showShelf = items.length > 0 || pending.length === 0;
 
   return (
     <div className="shelf-panel" onClick={(e) => e.stopPropagation()}>
-      <div className="shelf-head">
-        <span className="shelf-hint">{items.length ? t("shelf.hint") : t("shelf.empty")}</span>
-        {items.length > 0 && (
-          <button className="shelf-clear" onClick={() => providerAction(SHELF_PROVIDER, "clear")}>
-            {t("shelf.clear")}
-          </button>
-        )}
-      </div>
-      <div className={`shelf-items ${dragging ? "is-dropping" : ""}`} data-scroll>
-        {items.map((item) => (
-          <Tile key={item.path} item={item} />
-        ))}
-        {!items.length && (
-          <div className="shelf-drop">
-            <Glyph name="download" size={22} />
-            <span>{t("shelf.drop")}</span>
+      {pending.length > 0 && (
+        <section className="shelf-pending">
+          <div className="shelf-pending-head">
+            <span className="shelf-pending-title">
+              <span className="shelf-pending-dot" />
+              {t("shelf.pending.title")}
+            </span>
+            <span className="shelf-pending-hint">{t("shelf.pending.hint")}</span>
           </div>
-        )}
+          <div className="shelf-pending-list" data-scroll>
+            {pending.map((item) => (
+              <PendingRow key={item.path} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {showShelf && (
+        <>
+          <div className="shelf-head">
+            <span className="shelf-hint">{items.length ? t("shelf.hint") : t("shelf.empty")}</span>
+            {items.length > 0 && (
+              <button className="shelf-clear" onClick={() => providerAction(SHELF_PROVIDER, "clear")}>
+                {t("shelf.clear")}
+              </button>
+            )}
+          </div>
+          <div className={`shelf-items ${dragging ? "is-dropping" : ""}`} data-scroll>
+            {items.map((item) => (
+              <Tile key={item.path} item={item} />
+            ))}
+            {!items.length && (
+              <div className="shelf-drop">
+                <Glyph name="download" size={22} />
+                <span>{t("shelf.drop")}</span>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** A screenshot in the Shelf's pending-deletion group. */
+function PendingRow({ item }: { item: PendingScreenshotView }) {
+  const t = useT();
+  const now = useNow(250);
+  const left = Math.max(0, item.deleteAt - now);
+  const fraction = remainingFraction(item, now);
+  const expired = left <= 0;
+  const [busy, setBusy] = useState(false);
+
+  const keep = async () => {
+    if (busy || expired) return;
+    setBusy(true);
+    try {
+      // Keep the file in place, then link it from the permanent shelf.
+      const path = await clipPendingAction<string>("keepPending", item.path);
+      if (path) await addToShelf([path]);
+    } catch (error) {
+      console.error("shelf: can't keep pending screenshot", error);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async () => {
+    if (busy || expired) return;
+    setBusy(true);
+    try {
+      await clipPendingAction("deletePending", item.path);
+    } catch (error) {
+      console.error("shelf: can't delete pending screenshot", error);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="shelf-pending-item" title={item.path} data-no-drag>
+      <div className="shelf-pending-thumb">
+        {item.thumb ? <img src={item.thumb} alt="" draggable={false} /> : <Glyph name="camera" size={20} />}
+      </div>
+      <div className="shelf-pending-copy">
+        <span className="shelf-pending-name">{item.name}</span>
+        <span className={`shelf-pending-time${expired ? " is-expired" : ""}`}>
+          <Glyph name="clock" size={11} />
+          {expired
+            ? t("shelf.pending.deleting")
+            : t("shelf.pending.deletesIn", { time: formatRemaining(left) })}
+        </span>
+        <span className="shelf-pending-bar" aria-hidden>
+          <span style={{ width: `${fraction * 100}%` }} />
+        </span>
+      </div>
+      <div className="shelf-pending-actions">
+        <button
+          className="shelf-pending-delete"
+          type="button"
+          disabled={busy || expired}
+          onClick={() => void remove()}
+        >
+          {t("clipboard.cleanup.delete")}
+        </button>
+        <button
+          className="shelf-pending-keep"
+          type="button"
+          disabled={busy || expired}
+          onClick={() => void keep()}
+        >
+          <Glyph name="check" size={12} />
+          {t("clipboard.cleanup.keep")}
+        </button>
       </div>
     </div>
   );

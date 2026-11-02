@@ -14,25 +14,40 @@ use tauri_plugin_autostart::ManagerExt;
 pub const CHANGED_EVENT: &str = "settings://changed";
 pub const SETTINGS_LABEL: &str = "settings";
 
-/// One-time friendly upgrade from the old Dynamic Island bundle id. Notchly
-/// uses its own app-data directory; copy the user's existing settings and
-/// shelf before the first read so the rename doesn't lose their setup.
+/// One-time friendly upgrade from a previous app-data directory. Copy the
+/// user's existing files before the first read so a bundle-id change doesn't
+/// lose settings, the shelf or pending screenshot cleanup records.
 fn migrate_legacy(dir: &Path) {
+    if dir
+        .read_dir()
+        .map(|mut entries| entries.next().is_some())
+        .unwrap_or(false)
+    {
+        return;
+    }
     let Ok(appdata) = std::env::var("APPDATA") else {
         return;
     };
-    let old = Path::new(&appdata).join("com.heyyczer.dynamicisland");
-    if !old.is_dir() {
-        return;
-    }
-    let _ = std::fs::create_dir_all(dir);
-    for name in ["settings.json", "shelf.json"] {
-        let dst = dir.join(name);
-        let src = old.join(name);
-        if !dst.exists() && src.is_file() {
-            let _ = std::fs::copy(src, dst);
+    for id in ["com.dragaditya.notchly", "com.heyyczer.dynamicisland"] {
+        let old = Path::new(&appdata).join(id);
+        if old.is_dir() && copy_dir(&old, dir).is_ok() {
+            return;
         }
     }
+}
+
+fn copy_dir(src: &Path, dst: &Path) -> std::io::Result<()> {
+    std::fs::create_dir_all(dst)?;
+    for entry in std::fs::read_dir(src)? {
+        let entry = entry?;
+        let target = dst.join(entry.file_name());
+        if entry.file_type()?.is_dir() {
+            copy_dir(&entry.path(), &target)?;
+        } else {
+            std::fs::copy(entry.path(), target)?;
+        }
+    }
+    Ok(())
 }
 
 pub struct Settings {
@@ -81,6 +96,58 @@ pub fn get_settings(settings: State<Settings>) -> Map<String, Value> {
 #[tauri::command]
 pub fn set_setting(app: AppHandle, key: String, value: Value) {
     set(&app, &key, value);
+}
+
+/// Pretty JSON snapshot for the Advanced page's export button.
+#[tauri::command]
+pub fn export_settings(settings: State<Settings>) -> String {
+    let data = settings.data.lock().unwrap();
+    serde_json::to_string_pretty(&*data).unwrap_or_else(|_| "{}".into())
+}
+
+/// Replaces every setting from a JSON object. The frontend validates the file
+/// before calling this; a bad payload is rejected rather than partially applied.
+#[tauri::command]
+pub fn import_settings(app: AppHandle, json: String) -> Result<(), String> {
+    let data: Map<String, Value> =
+        serde_json::from_str(&json).map_err(|_| "invalid settings file".to_string())?;
+    replace(&app, data);
+    crate::shortcuts::register_saved(&app);
+    Ok(())
+}
+
+/// Removes the given keys so their defaults apply again. An empty list resets
+/// everything, including keys written by older versions.
+#[tauri::command]
+pub fn reset_settings(app: AppHandle, keys: Vec<String>) {
+    let settings = app.state::<Settings>();
+    let snapshot = {
+        let mut data = settings.data.lock().unwrap();
+        if keys.is_empty() {
+            data.clear();
+        } else {
+            for key in keys {
+                data.remove(&key);
+            }
+        }
+        settings.save(&data);
+        data.clone()
+    };
+    let _ = app.emit(CHANGED_EVENT, snapshot);
+    crate::tray::sync_hidden(&app);
+    crate::shortcuts::register_saved(&app);
+}
+
+fn replace(app: &AppHandle, data: Map<String, Value>) {
+    let settings = app.state::<Settings>();
+    let snapshot = {
+        let mut current = settings.data.lock().unwrap();
+        *current = data;
+        settings.save(&current);
+        current.clone()
+    };
+    let _ = app.emit(CHANGED_EVENT, snapshot);
+    crate::tray::sync_hidden(app);
 }
 
 /// Store and broadcast a setting (backend side of `setSetting`).
@@ -134,14 +201,6 @@ fn create(app: &AppHandle) -> tauri::Result<()> {
         .background_color(tauri::webview::Color(12, 12, 16, 255))
         .build()?;
     Ok(())
-}
-
-const REPO_URL: &str = "https://github.com/DragAditya/Notchly";
-
-/// Open the GitHub repo in the default browser (About page).
-#[tauri::command]
-pub fn open_repo() {
-    open_url(REPO_URL);
 }
 
 /// Open a web page in the default browser (island links, e.g. usage pages).

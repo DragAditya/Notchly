@@ -2,7 +2,14 @@
  * Island look: the visual style (`dynamic` / `windows`) and, in the Windows
  * Island style, the colored rim around the black island.
  */
-import { appearanceSettings, readSetting, useSettings, type IslandStyle } from "./settings";
+import {
+  appearanceSettings,
+  readSetting,
+  useSettings,
+  type CompactDensity,
+  type IdleClockFormat,
+  type IslandStyle,
+} from "./settings";
 import type { MessageKey } from "./i18n";
 
 export interface BorderPreset {
@@ -39,6 +46,26 @@ export interface Appearance {
   animate: boolean;
   glow: boolean;
   idleClock: boolean;
+  /** Blur radius in px behind the island (0 = opaque). */
+  backgroundBlur: number;
+  /** 0 = the radius that belongs to the style. */
+  radius: number;
+  scale: number;
+  density: CompactDensity;
+  animationSpeed: number;
+  borderSpeed: number;
+  idleClockFormat: IdleClockFormat;
+}
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, Number.isFinite(value) ? value : min));
+
+function densityOf(value: unknown): CompactDensity {
+  return value === "compact" || value === "roomy" ? value : "cozy";
+}
+
+function clockFormatOf(value: unknown): IdleClockFormat {
+  return value === "date" || value === "both" ? value : "time";
 }
 
 export function borderColors(border: string, custom: string[]): string[] {
@@ -56,6 +83,13 @@ export function useAppearance(): Appearance {
     animate: readSetting(s, appearanceSettings.animate),
     glow: readSetting(s, appearanceSettings.glow),
     idleClock: readSetting(s, appearanceSettings.idleClock),
+    backgroundBlur: clamp(readSetting(s, appearanceSettings.backgroundBlur), 0, 40),
+    radius: clamp(readSetting(s, appearanceSettings.cornerRadius), 0, 48),
+    scale: clamp(readSetting(s, appearanceSettings.scale), 0.8, 1.3),
+    density: densityOf(readSetting(s, appearanceSettings.density)),
+    animationSpeed: clamp(readSetting(s, appearanceSettings.animationSpeed), 0.5, 2),
+    borderSpeed: clamp(readSetting(s, appearanceSettings.borderSpeed), 2, 20),
+    idleClockFormat: clockFormatOf(readSetting(s, appearanceSettings.idleClockFormat)),
   };
 }
 

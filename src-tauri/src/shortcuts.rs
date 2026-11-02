@@ -1,53 +1,134 @@
 //! User-configurable global shortcuts.
 //!
-//! The only one so far is the "instant prompt": a combination that opens Ask
-//! Gemini's one-line prompt from anywhere. It is stored in the settings as a
-//! `global-hotkey` accelerator ("Ctrl+Alt+G") and registered alongside the
-//! built-in shortcuts.
+//! Ask, Find and the two companion keys have defaults but can be changed (or
+//! turned off) from Advanced. The "instant prompt" shortcut belongs to Ask's
+//! own settings page. Combinations are stored in the settings as
+//! `global-hotkey` accelerators ("Ctrl+Alt+G") and registered at startup.
 
 use std::sync::Mutex;
 
+use serde_json::Value;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut};
 
 use crate::settings::Settings;
 
-/// Setting key holding the accelerator (empty = off).
+/// Setting key holding the instant-prompt accelerator (empty = off).
 pub const INSTANT_SETTING: &str = "ask.instantShortcut";
+pub const ASK_SETTING: &str = "shortcuts.ask";
+pub const FIND_SETTING: &str = "shortcuts.find";
+pub const SUMMON_SETTING: &str = "shortcuts.companionSummon";
+pub const TOGGLE_SETTING: &str = "shortcuts.companionToggle";
+
+const ASK_DEFAULT: &str = "Ctrl+Alt+Space";
+const ASK_FALLBACK: &str = "Ctrl+Shift+Space";
+const FIND_DEFAULT: &str = "Ctrl+Alt+F";
+const SUMMON_DEFAULT: &str = "Ctrl+Alt+R";
+const TOGGLE_DEFAULT: &str = "Ctrl+Alt+Shift+R";
 
 static INSTANT: Mutex<Option<Shortcut>> = Mutex::new(None);
+static ASK: Mutex<Option<Shortcut>> = Mutex::new(None);
+static FIND: Mutex<Option<Shortcut>> = Mutex::new(None);
+static SUMMON: Mutex<Option<Shortcut>> = Mutex::new(None);
+static TOGGLE: Mutex<Option<Shortcut>> = Mutex::new(None);
 
 /// The registered instant-prompt shortcut, if any.
 pub fn instant() -> Option<Shortcut> {
     *INSTANT.lock().unwrap()
 }
 
-/// Registers the shortcut saved in the settings (once, during setup).
-pub fn register_saved(app: &AppHandle) {
-    let combo = app
-        .state::<Settings>()
-        .get(INSTANT_SETTING)
-        .and_then(|value| value.as_str().map(str::to_string))
-        .unwrap_or_default();
-    if combo.trim().is_empty() {
-        return;
-    }
-    if let Err(error) = apply(app, &combo) {
-        log::warn!("instant ask shortcut '{combo}': {error}");
+pub fn ask() -> Option<Shortcut> {
+    *ASK.lock().unwrap()
+}
+
+pub fn find() -> Option<Shortcut> {
+    *FIND.lock().unwrap()
+}
+
+pub fn companion_summon() -> Option<Shortcut> {
+    *SUMMON.lock().unwrap()
+}
+
+pub fn companion_toggle() -> Option<Shortcut> {
+    *TOGGLE.lock().unwrap()
+}
+
+fn slot(key: &str) -> Option<&'static Mutex<Option<Shortcut>>> {
+    match key {
+        INSTANT_SETTING => Some(&INSTANT),
+        ASK_SETTING => Some(&ASK),
+        FIND_SETTING => Some(&FIND),
+        SUMMON_SETTING => Some(&SUMMON),
+        TOGGLE_SETTING => Some(&TOGGLE),
+        _ => None,
     }
 }
 
-/// Replaces the instant-prompt shortcut. An empty `combo` turns it off.
-/// Returns `"invalid"` for an unusable combination and `"taken"` when another
-/// app already owns it (the previous shortcut is restored in that case).
-pub fn apply(app: &AppHandle, combo: &str) -> Result<(), String> {
+fn default_for(key: &str) -> &'static str {
+    match key {
+        ASK_SETTING => ASK_DEFAULT,
+        FIND_SETTING => FIND_DEFAULT,
+        SUMMON_SETTING => SUMMON_DEFAULT,
+        TOGGLE_SETTING => TOGGLE_DEFAULT,
+        _ => "",
+    }
+}
+
+fn fallback_for(key: &str) -> Option<&'static str> {
+    (key == ASK_SETTING).then_some(ASK_FALLBACK)
+}
+
+/// Registers every shortcut saved in the settings (once, during setup).
+pub fn register_saved(app: &AppHandle) {
+    for key in [
+        ASK_SETTING,
+        FIND_SETTING,
+        SUMMON_SETTING,
+        TOGGLE_SETTING,
+        INSTANT_SETTING,
+    ] {
+        let saved = app
+            .state::<Settings>()
+            .get(key)
+            .and_then(|value| value.as_str().map(str::to_string));
+        let combo = saved
+            .clone()
+            .unwrap_or_else(|| default_for(key).to_string());
+        if combo.trim().is_empty() {
+            // Also clears a shortcut that was registered before an import or
+            // reset removed its setting.
+            let _ = apply(app, key, "");
+            continue;
+        }
+        if let Err(error) = apply(app, key, &combo) {
+            // The default Ask key has a second chance; a user's choice does not.
+            if saved.is_none() {
+                if let Some(fallback) = fallback_for(key) {
+                    if apply(app, key, fallback).is_ok() {
+                        continue;
+                    }
+                }
+            }
+            log::warn!("shortcut {key} '{combo}': {error}");
+        }
+    }
+}
+
+/// Replaces one shortcut. An empty `combo` turns it off. Returns `"invalid"`
+/// for an unusable combination and `"taken"` when another app already owns it
+/// (the previous shortcut is restored in that case).
+pub fn apply(app: &AppHandle, key: &str, combo: &str) -> Result<(), String> {
+    let Some(slot) = slot(key) else {
+        return Err("unknown".into());
+    };
     let combo = combo.trim();
-    let mut current = INSTANT.lock().unwrap();
+    let mut current = slot.lock().unwrap();
 
     if combo.is_empty() {
         if let Some(old) = current.take() {
             let _ = app.global_shortcut().unregister(old);
         }
+        sync_hotkey_label(key, None);
         return Ok(());
     }
 
@@ -57,6 +138,7 @@ pub fn apply(app: &AppHandle, combo: &str) -> Result<(), String> {
         return Err("invalid".into());
     }
     if *current == Some(hotkey) {
+        sync_hotkey_label(key, Some(combo.to_string()));
         return Ok(());
     }
 
@@ -68,6 +150,7 @@ pub fn apply(app: &AppHandle, combo: &str) -> Result<(), String> {
     match app.global_shortcut().register(hotkey) {
         Ok(()) => {
             *current = Some(hotkey);
+            sync_hotkey_label(key, Some(combo.to_string()));
             Ok(())
         }
         Err(_) => {
@@ -80,15 +163,25 @@ pub fn apply(app: &AppHandle, combo: &str) -> Result<(), String> {
     }
 }
 
+fn sync_hotkey_label(key: &str, label: Option<String>) {
+    match key {
+        ASK_SETTING => crate::providers::ask::set_hotkey(label),
+        FIND_SETTING => crate::providers::find::set_hotkey(label),
+        _ => {}
+    }
+}
+
 /// Settings-window command: register first (so a conflict can be reported),
 /// then store the value.
 #[tauri::command]
-pub fn set_instant_shortcut(app: AppHandle, combo: String) -> Result<(), String> {
-    apply(&app, &combo)?;
-    crate::settings::set(
-        &app,
-        INSTANT_SETTING,
-        serde_json::Value::String(combo.trim().into()),
-    );
+pub fn set_shortcut(app: AppHandle, key: String, combo: String) -> Result<(), String> {
+    apply(&app, &key, &combo)?;
+    crate::settings::set(&app, &key, Value::String(combo.trim().to_string()));
     Ok(())
+}
+
+/// Ask's own settings page still uses this older command name.
+#[tauri::command]
+pub fn set_instant_shortcut(app: AppHandle, combo: String) -> Result<(), String> {
+    set_shortcut(app, INSTANT_SETTING.into(), combo)
 }

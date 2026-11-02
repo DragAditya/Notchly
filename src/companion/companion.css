@@ -1,0 +1,809 @@
+/* The companion at rest: two eyes in the island, no face or mouth. */
+.companion-idle {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	height: 100%;
+	padding: 0 12px;
+}
+
+.companion-idle.has-clock {
+	justify-content: space-between;
+	padding-left: 18px;
+	padding-right: 14px;
+}
+
+.companion-idle .idle-clock {
+	flex: none;
+	font-size: 13px;
+	opacity: 0.9;
+}
+
+/* ------------------------------------------------------------------ */
+/* Eyes                                                               */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+	--eye-w: 17px;
+	--eye-h: 24px;
+	--eye-radius: 50%;
+	--gaze-x: 0px;
+	--gaze-y: 0px;
+	--action-look-x: 0px;
+	--action-look-y: 0px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	height: 100%;
+	filter: drop-shadow(0 0 9px var(--eye-glow));
+	translate: calc(var(--gaze-x) + var(--action-look-x)) calc(var(--gaze-y) + var(--action-look-y));
+	scale: var(--pet-scale, 1);
+	animation: pet-breathe 4.8s ease-in-out infinite;
+	transition:
+		translate 0.22s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, translate, scale;
+}
+
+/* A faint aura keeps the eyes from looking like two stickers. */
+.companion-eyes::before {
+	content: "";
+	position: absolute;
+	width: 78px;
+	height: 26px;
+	border-radius: 50%;
+	background: radial-gradient(ellipse, var(--eye-glow), transparent 70%);
+	opacity: 0.22;
+	filter: blur(5px);
+	pointer-events: none;
+	animation: pet-aura 4.8s ease-in-out infinite;
+}
+
+.companion-eye {
+	position: relative;
+	display: block;
+	width: var(--eye-w);
+	height: var(--eye-h);
+	transform-origin: center;
+	scale: var(--eye-scale-x, 1) var(--eye-scale-y, 1);
+	translate: var(--eye-x, 0px) var(--eye-y, 0px);
+	rotate: var(--eye-rotate, 0deg);
+	transition:
+		width 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		height 0.35s cubic-bezier(0.2, 0.9, 0.3, 1),
+		scale 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		translate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1),
+		rotate 0.25s cubic-bezier(0.2, 0.9, 0.3, 1);
+	will-change: transform, scale, translate, width, height;
+}
+
+.companion-eye.left {
+	--eye-rotate: -1deg;
+}
+.companion-eye.right {
+	--eye-rotate: 1deg;
+}
+
+.companion-blinker {
+	position: absolute;
+	inset: 0;
+	display: block;
+	transform-origin: center;
+	scale: var(--action-scale-x, 1) var(--action-scale-y, 1);
+	translate: var(--action-x, 0px) var(--action-y, 0px);
+	animation: pet-blink var(--blink-duration, 7.2s) ease-in-out infinite;
+	transition:
+		scale 0.16s ease-out,
+		translate 0.16s ease-out;
+	will-change: transform, scale, translate;
+}
+
+.companion-eye.right .companion-blinker {
+	animation-delay: 0.16s;
+}
+
+.companion-eye-shape {
+	position: absolute;
+	inset: 0;
+	display: block;
+	border-radius: var(--eye-radius);
+	background:
+		radial-gradient(circle at 50% 38%, #fff 0 18%, transparent 60%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 58%, color-mix(in srgb, var(--eye-color) 60%, transparent) 100%);
+	box-shadow:
+		0 0 12px var(--eye-glow),
+		inset 0 0 4px rgba(255, 255, 255, 0.55);
+	transition:
+		background 0.35s ease,
+		box-shadow 0.35s ease,
+		border-radius 0.35s ease;
+}
+
+/* ------------------------------------------------------------------ */
+/* Autonomous pet behaviours                                          */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes[data-action="look-left"] {
+	--action-look-x: -2.4px;
+}
+.companion-eyes[data-action="look-right"] {
+	--action-look-x: 2.4px;
+}
+.companion-eyes[data-action="peek"] {
+	--action-look-x: 1.4px;
+}
+.companion-eyes[data-action="peek"] .companion-eye.right .companion-blinker {
+	--action-scale-y: 0.1;
+}
+.companion-eyes[data-action="squint"] .companion-blinker {
+	--action-scale-y: 0.56;
+}
+.companion-eyes[data-action="perk"] {
+	--pet-scale: 1.07;
+	--action-look-y: -1px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Moods                                                              */
+/* ------------------------------------------------------------------ */
+
+.companion-eyes[data-mood="calm"] {
+	--eye-color: #e9ffe4;
+	--eye-glow: rgba(160, 255, 160, 0.55);
+}
+
+.companion-eyes[data-mood="curious"] {
+	--eye-w: 19px;
+	--eye-h: 25px;
+	--eye-color: #bdefff;
+	--eye-glow: rgba(100, 210, 255, 0.62);
+	animation: pet-curious 5.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="curious"] .companion-eye.right {
+	--eye-rotate: 6deg;
+	--eye-x: 1px;
+	--eye-scale-x: 1.05;
+	--eye-scale-y: 1.08;
+}
+
+.companion-eyes[data-mood="happy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-happy 2.6s ease-in-out infinite;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.left {
+	--eye-rotate: -4deg;
+}
+.companion-eyes[data-mood="happy"] .companion-eye.right {
+	--eye-rotate: 4deg;
+}
+
+.companion-eyes[data-mood="excited"] {
+	--eye-w: 22px;
+	--eye-h: 24px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+	animation: pet-excited 0.9s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye {
+	animation: companion-hop 0.72s ease-in-out infinite;
+}
+.companion-eyes[data-mood="excited"] .companion-eye.right {
+	animation-delay: 0.12s;
+}
+.companion-eye.is-chevron svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.2;
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+}
+.companion-eye.is-arc {
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-arc svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 3.4;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+
+.companion-eyes[data-mood="alert"] {
+	--eye-w: 15px;
+	--eye-h: 25px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.65);
+}
+.companion-eyes[data-mood="alert"] .companion-eye {
+	animation: companion-alert 1.5s ease-in-out infinite;
+}
+/* The little emphasis lines on either side of an alert eye. */
+.companion-eyes[data-mood="alert"] .companion-eye::before,
+.companion-eyes[data-mood="alert"] .companion-eye::after {
+	content: "";
+	position: absolute;
+	width: 6px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--eye-color);
+	box-shadow:
+		0 6px 0 -0.2px var(--eye-color),
+		0 0 7px var(--eye-glow);
+	pointer-events: none;
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::before {
+	left: -10px;
+	top: 5px;
+	transform: rotate(-20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.left::after {
+	left: -11px;
+	top: 14px;
+	transform: rotate(20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.right::before {
+	right: -10px;
+	top: 5px;
+	transform: rotate(20deg);
+}
+.companion-eyes[data-mood="alert"] .companion-eye.right::after {
+	right: -11px;
+	top: 14px;
+	transform: rotate(-20deg);
+}
+
+.companion-eyes[data-mood="dizzy"] {
+	--eye-color: #b6ffb0;
+	--eye-glow: rgba(140, 255, 140, 0.6);
+}
+.companion-eye.is-spiral {
+	width: 23px;
+	height: 23px;
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-spiral .companion-blinker {
+	position: absolute;
+	inset: 0;
+	animation: none;
+}
+.companion-eye.is-spiral svg {
+	width: 100%;
+	height: 100%;
+	fill: none;
+	stroke: var(--eye-color);
+	stroke-width: 2.2;
+	stroke-linecap: round;
+	filter: drop-shadow(0 0 7px var(--eye-glow));
+	animation: companion-spin 1.4s linear infinite;
+	transform-origin: center;
+}
+.companion-eyes[data-mood="dizzy"] .companion-eye.left svg {
+	animation-direction: reverse;
+}
+
+.companion-eyes[data-mood="sleepy"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #eaffdf;
+	--eye-glow: rgba(210, 255, 200, 0.48);
+	animation: pet-sleep 4.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"] .companion-blinker {
+	animation: none;
+}
+.companion-eyes[data-mood="sleepy"] .companion-eye {
+	animation: companion-sleep 4.2s ease-in-out infinite;
+}
+.companion-eyes[data-mood="sleepy"]::after {
+	content: "z";
+	position: absolute;
+	top: -10px;
+	right: -8px;
+	color: var(--eye-color);
+	font-size: 10px;
+	font-weight: 650;
+	line-height: 1;
+	text-shadow: 0 0 7px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-zzz 3.2s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="charging"] {
+	--eye-w: 19px;
+	--eye-h: 25px;
+	--eye-color: #5dff8a;
+	--eye-glow: rgba(48, 255, 120, 0.72);
+	animation: pet-charge 2.2s ease-in-out infinite;
+}
+.companion-eyes[data-mood="charging"] .companion-eye {
+	animation: companion-charge-eye 2.2s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+.companion-eyes[data-mood="charging"] .companion-eye.right {
+	animation-delay: 0.12s;
+}
+.companion-eyes[data-mood="charging"] .companion-blinker {
+	animation: none;
+}
+.companion-eyes[data-mood="charging"] .companion-eye-shape {
+	background:
+		radial-gradient(circle at 50% 34%, #fff 0 20%, transparent 58%),
+		radial-gradient(circle at 50% 52%, #fff 0%, var(--eye-color) 54%, color-mix(in srgb, var(--eye-color) 48%, transparent) 100%);
+	animation: companion-charge 1.1s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="low"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #ff7a8a;
+	--eye-glow: rgba(255, 110, 125, 0.62);
+	animation: pet-low 3.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="low"] .companion-eye {
+	--eye-rotate: 7deg;
+	--eye-y: 1px;
+}
+
+.companion-eyes[data-mood="music"] {
+	--eye-w: 22px;
+	--eye-h: 12px;
+	--eye-color: #b6ffa8;
+	--eye-glow: rgba(150, 255, 135, 0.62);
+	animation: pet-music 1.8s ease-in-out infinite;
+}
+.companion-eyes[data-mood="music"]::after {
+	content: "♪";
+	position: absolute;
+	top: -10px;
+	right: -10px;
+	color: var(--eye-color);
+	font-size: 13px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-note 2.4s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="love"] {
+	--eye-w: 22px;
+	--eye-h: 22px;
+	--eye-color: #ff5c8a;
+	--eye-glow: rgba(255, 92, 138, 0.65);
+	animation: pet-love 1.8s ease-in-out infinite;
+}
+.companion-eye.is-heart {
+	background: none;
+	box-shadow: none;
+}
+.companion-eye.is-heart svg {
+	width: 100%;
+	height: 100%;
+	fill: var(--eye-color);
+	filter: drop-shadow(0 0 8px var(--eye-glow));
+}
+.companion-eyes[data-mood="love"]::after {
+	content: "✦";
+	position: absolute;
+	top: -8px;
+	right: -9px;
+	color: var(--eye-color);
+	font-size: 10px;
+	line-height: 1;
+	text-shadow: 0 0 8px var(--eye-glow);
+	pointer-events: none;
+	animation: pet-sparkle 1.8s ease-in-out infinite;
+}
+
+.companion-eyes[data-mood="surprised"] {
+	--eye-w: 22px;
+	--eye-h: 28px;
+	--eye-color: #ff5a6e;
+	--eye-glow: rgba(255, 90, 110, 0.7);
+	animation:
+		pet-surprised 0.5s cubic-bezier(0.2, 1.4, 0.4, 1) both,
+		pet-breathe 4.8s 0.5s ease-in-out infinite;
+}
+.companion-eyes[data-mood="surprised"] .companion-eye {
+	animation: companion-pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+
+/* ------------------------------------------------------------------ */
+/* Compact performances                                               */
+/* ------------------------------------------------------------------ */
+
+/* Music: six choreographies, cycled by the compact player. */
+.companion-eyes[data-dance="groove"] {
+	animation: dance-groove calc(0.96s * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.companion-eyes[data-dance="bounce"] {
+	animation: dance-bounce calc(0.76s * var(--motion-scale, 1)) cubic-bezier(0.3, 1.5, 0.5, 1) infinite;
+}
+.companion-eyes[data-dance="shimmy"] {
+	animation: dance-shimmy calc(0.52s * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.companion-eyes[data-dance="shimmy"] .companion-eye.left {
+	animation: eye-shimmy 0.52s ease-in-out infinite;
+}
+.companion-eyes[data-dance="shimmy"] .companion-eye.right {
+	animation: eye-shimmy 0.52s 0.26s ease-in-out infinite;
+}
+.companion-eyes[data-dance="wave"] {
+	animation: dance-wave calc(1.18s * var(--motion-scale, 1)) ease-in-out infinite;
+}
+.companion-eyes[data-dance="wave"] .companion-eye.left {
+	animation: eye-wave-left 1.18s ease-in-out infinite;
+}
+.companion-eyes[data-dance="wave"] .companion-eye.right {
+	animation: eye-wave-right 1.18s 0.2s ease-in-out infinite;
+}
+.companion-eyes[data-dance="spin"] {
+	animation: dance-spin calc(1.35s * var(--motion-scale, 1)) cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+.companion-eyes[data-dance="hop"] {
+	animation: dance-hop calc(0.9s * var(--motion-scale, 1)) cubic-bezier(0.3, 1.4, 0.5, 1) infinite;
+}
+.companion-eyes[data-paused="true"],
+.companion-eyes[data-paused="true"] * {
+	animation-play-state: paused !important;
+}
+
+/* Bluetooth searching: a slow sonar sweep, not a volume ripple. */
+.companion-eyes[data-searching="true"] {
+	animation: bt-search 2.8s ease-in-out infinite;
+}
+.companion-eyes[data-searching="true"] .companion-eye.left {
+	--eye-rotate: -7deg;
+}
+.companion-eyes[data-searching="true"] .companion-eye.right {
+	--eye-rotate: 7deg;
+}
+.companion-eyes[data-searching="true"] .companion-eye.left .companion-blinker {
+	animation: bt-listen-left 2.8s ease-in-out infinite;
+}
+.companion-eyes[data-searching="true"] .companion-eye.right .companion-blinker {
+	animation: bt-listen-right 2.8s 0.35s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/* Keyframes                                                          */
+/* ------------------------------------------------------------------ */
+
+@keyframes pet-breathe {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	50% {
+		transform: translateY(-0.7px) scale(1.018, 1.032);
+	}
+}
+
+@keyframes pet-aura {
+	0%,
+	100% {
+		opacity: 0.16;
+		transform: scale(0.94);
+	}
+	50% {
+		opacity: 0.28;
+		transform: scale(1.04);
+	}
+}
+
+@keyframes pet-blink {
+	0%,
+	39%,
+	43%,
+	90%,
+	94%,
+	100% {
+		transform: scaleY(1);
+	}
+	41%,
+	92% {
+		transform: scaleY(0.08);
+	}
+}
+
+@keyframes pet-curious {
+	0%,
+	100% {
+		transform: translateY(0) rotate(-1deg);
+	}
+	50% {
+		transform: translateY(-1px) rotate(1.5deg);
+	}
+}
+
+@keyframes pet-happy {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	40% {
+		transform: translateY(-1.5px) scale(1.02);
+	}
+	60% {
+		transform: translateY(-0.5px) scale(1.01);
+	}
+}
+
+@keyframes pet-excited {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	50% {
+		transform: translateY(-1.5px) scale(1.03);
+	}
+}
+
+@keyframes pet-sleep {
+	0%,
+	100% {
+		transform: translateY(0) scaleX(0.96);
+		opacity: 0.72;
+	}
+	50% {
+		transform: translateY(0.5px) scaleX(1.02);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-charge {
+	0%,
+	100% {
+		filter: drop-shadow(0 0 7px var(--eye-glow));
+	}
+	50% {
+		filter: drop-shadow(0 0 14px var(--eye-glow));
+	}
+}
+
+@keyframes pet-low {
+	0%,
+	100% {
+		transform: translateY(0);
+		opacity: 0.82;
+	}
+	50% {
+		transform: translateY(0.6px);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-music {
+	0%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	50% {
+		transform: translateY(-1.2px) rotate(0.6deg);
+	}
+}
+
+@keyframes pet-love {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.05);
+	}
+}
+
+@keyframes pet-surprised {
+	0% {
+		transform: scale(0.72);
+		opacity: 0.4;
+	}
+	70% {
+		transform: scale(1.06);
+		opacity: 1;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@keyframes pet-note {
+	0%,
+	100% {
+		opacity: 0.55;
+		transform: translateY(0) rotate(-6deg);
+	}
+	50% {
+		opacity: 1;
+		transform: translateY(-3px) rotate(6deg);
+	}
+}
+
+@keyframes pet-sparkle {
+	0%,
+	100% {
+		opacity: 0.45;
+		transform: scale(0.8) rotate(0deg);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.15) rotate(18deg);
+	}
+}
+
+@keyframes pet-zzz {
+	0%,
+	100% {
+		opacity: 0.35;
+		transform: translateY(1px) scale(0.9);
+	}
+	50% {
+		opacity: 0.9;
+		transform: translateY(-2px) scale(1.08);
+	}
+}
+
+@keyframes dance-groove {
+	0%, 100% { transform: translateX(-2px) rotate(-2deg); }
+	50% { transform: translateX(2px) rotate(2deg); }
+}
+@keyframes dance-bounce {
+	0%, 100% { transform: translateY(0) scaleY(1); }
+	35% { transform: translateY(-4px) scaleY(1.06); }
+	55% { transform: translateY(0) scaleY(0.94); }
+	72% { transform: translateY(-1px) scaleY(1); }
+}
+@keyframes dance-shimmy {
+	0%, 100% { transform: translateX(-1.5px) rotate(-3deg); }
+	50% { transform: translateX(1.5px) rotate(3deg); }
+}
+@keyframes dance-wave {
+	0%, 100% { transform: rotate(-4deg) translateY(0); }
+	50% { transform: rotate(4deg) translateY(-1px); }
+}
+@keyframes dance-spin {
+	0%, 100% { transform: rotate(0) scale(1); }
+	30% { transform: rotate(8deg) scale(1.04); }
+	60% { transform: rotate(-8deg) scale(1.04); }
+}
+@keyframes dance-hop {
+	0%, 100% { transform: translateY(0) scale(1); }
+	25% { transform: translateY(-6px) scale(1.04); }
+	45% { transform: translateY(0) scale(0.96); }
+	62% { transform: translateY(-2px) scale(1.02); }
+}
+@keyframes eye-shimmy {
+	0%, 100% { scale: 1 1; }
+	50% { scale: 0.82 0.92; }
+}
+@keyframes eye-wave-left {
+	0%, 100% { rotate: -6deg; }
+	50% { rotate: 2deg; }
+}
+@keyframes eye-wave-right {
+	0%, 100% { rotate: 6deg; }
+	50% { rotate: -2deg; }
+}
+@keyframes bt-search {
+	0%, 100% { translate: 0 0; }
+	22% { translate: -3px 0; }
+	52% { translate: 3px 0; }
+	78% { translate: -1px 0; }
+}
+@keyframes bt-listen-left {
+	0%, 100% { scale: 1 1; }
+	40% { scale: 0.82 0.92; }
+	58% { scale: 1 1; }
+}
+@keyframes bt-listen-right {
+	0%, 100% { scale: 1 1; }
+	40% { scale: 0.82 0.92; }
+	58% { scale: 1 1; }
+}
+@keyframes companion-charge-eye {
+	0%, 100% { scale: 0.94 0.84; filter: brightness(0.95); }
+	28% { scale: 1.02 1.04; filter: brightness(1.18); }
+	48% { scale: 1 0.97; filter: brightness(1.05); }
+	68% { scale: 1.04 1.08; filter: brightness(1.24); }
+}
+@keyframes companion-hop {
+	0%,
+	100% {
+		transform: translateY(0) scale(1);
+	}
+	45% {
+		transform: translateY(-2px) scale(1.06);
+	}
+}
+
+@keyframes companion-alert {
+	0%,
+	100% {
+		transform: translateX(0) scaleY(1);
+	}
+	25% {
+		transform: translateX(-0.8px) scaleY(0.94);
+	}
+	60% {
+		transform: translateX(0.8px) scaleY(1.02);
+	}
+}
+
+@keyframes companion-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes companion-sleep {
+	0%,
+	100% {
+		transform: scaleX(0.9);
+	}
+	50% {
+		transform: scaleX(1.05);
+	}
+}
+
+@keyframes companion-charge {
+	0%,
+	100% {
+		transform: scale(1);
+		box-shadow:
+			0 0 9px var(--eye-glow),
+			inset 0 0 4px rgba(255, 255, 255, 0.55);
+	}
+	50% {
+		transform: scale(1.06);
+		box-shadow:
+			0 0 16px var(--eye-glow),
+			inset 0 0 4px rgba(255, 255, 255, 0.7);
+	}
+}
+
+@keyframes companion-pop {
+	0% {
+		transform: scale(0.55);
+		opacity: 0.4;
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.companion-eyes,
+	.companion-eyes::before,
+	.companion-eyes::after,
+	.companion-eye,
+	.companion-blinker,
+	.companion-eye-shape,
+	.companion-eye.is-spiral svg {
+		animation: none !important;
+	}
+}
+
+/* Companion settings can force reduced motion independently of the OS. */
+.stage[data-reduce-motion="always"] .companion-eyes,
+.stage[data-reduce-motion="always"] .companion-eyes *,
+.stage[data-reduce-motion="always"] .companion-eyes *::before,
+.stage[data-reduce-motion="always"] .companion-eyes *::after {
+	animation-duration: 0.001s !important;
+	animation-iteration-count: 1 !important;
+	transition-duration: 0.001s !important;
+}

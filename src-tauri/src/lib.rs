@@ -1,3 +1,4 @@
+mod companion;
 mod display;
 mod file_drop;
 mod hub;
@@ -15,7 +16,7 @@ mod window;
 use std::sync::Arc;
 
 use tauri::{AppHandle, Emitter, Manager};
-use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
+use tauri_plugin_global_shortcut::{Shortcut, ShortcutState};
 
 use hub::Hub;
 use providers::Providers;
@@ -28,6 +29,9 @@ pub use providers::claude::statusline::run_bridge as run_statusline_bridge;
 const ASK_EVENT: &str = "island://ask";
 const ASK_INSTANT_EVENT: &str = "island://ask-instant";
 const FIND_EVENT: &str = "island://find";
+/// The companion's call/dismiss and Auto/Off shortcuts.
+const COMPANION_SUMMON_EVENT: &str = "companion://summon";
+const COMPANION_TOGGLE_EVENT: &str = "companion://toggle";
 
 pub fn run() {
     tauri::Builder::default()
@@ -40,17 +44,27 @@ pub fn run() {
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, shortcut, event| {
-                    if event.state() == ShortcutState::Pressed {
-                        let instant = shortcuts::instant();
-                        let event = if *shortcut == find_shortcut() {
-                            FIND_EVENT
-                        } else if instant.is_some_and(|registered| registered == *shortcut) {
-                            ASK_INSTANT_EVENT
-                        } else {
-                            ASK_EVENT
-                        };
-                        open_page(app, event);
+                    if event.state() != ShortcutState::Pressed {
+                        return;
                     }
+                    if matches(*shortcut, shortcuts::companion_summon()) {
+                        let _ = app.emit(COMPANION_SUMMON_EVENT, ());
+                        return;
+                    }
+                    if matches(*shortcut, shortcuts::companion_toggle()) {
+                        let _ = app.emit(COMPANION_TOGGLE_EVENT, ());
+                        return;
+                    }
+                    let event = if matches(*shortcut, shortcuts::find()) {
+                        FIND_EVENT
+                    } else if matches(*shortcut, shortcuts::instant()) {
+                        ASK_INSTANT_EVENT
+                    } else if matches(*shortcut, shortcuts::ask()) {
+                        ASK_EVENT
+                    } else {
+                        return;
+                    };
+                    open_page(app, event);
                 })
                 .build(),
         )
@@ -82,28 +96,31 @@ pub fn run() {
             tray::setup(&handle)?;
             tray::enable_autostart_on_first_run(&handle);
             updater::spawn(handle.clone());
-            register_ask_shortcut(&handle);
-            register_find_shortcut(&handle);
             shortcuts::register_saved(&handle);
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
             providers::get_snapshot,
             providers::provider_action,
+            providers::activities::test_activity,
             providers::music::lyrics::get_lyrics,
             window::set_hit_rects,
             window::set_dragging,
             window::is_fullscreen_active,
+            companion::companion_idle_seconds,
             window::focus_island,
             window::restore_focus,
             display::list_monitors,
             settings::get_settings,
             settings::set_setting,
+            settings::export_settings,
+            settings::import_settings,
+            settings::reset_settings,
             settings::open_settings,
             settings::get_autostart,
             settings::set_autostart,
+            shortcuts::set_shortcut,
             shortcuts::set_instant_shortcut,
-            settings::open_repo,
             settings::open_external,
             updater::check_update,
             updater::install_update,
@@ -118,37 +135,9 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
-/// Ctrl+Alt+Space opens "Ask Claude" from anywhere; Ctrl+Shift+Space when
-/// another app already took it.
-fn register_ask_shortcut(app: &AppHandle) {
-    let options = [
-        (Modifiers::CONTROL | Modifiers::ALT, "Ctrl+Alt+Space"),
-        (Modifiers::CONTROL | Modifiers::SHIFT, "Ctrl+Shift+Space"),
-    ];
-    for (modifiers, label) in options {
-        if app
-            .global_shortcut()
-            .register(Shortcut::new(Some(modifiers), Code::Space))
-            .is_ok()
-        {
-            providers::ask::set_hotkey(Some(label.to_string()));
-            return;
-        }
-    }
-    log::warn!("ask shortcut unavailable: both combinations are taken by other apps");
-}
-
-/// Ctrl+Alt+F opens "Find on screen" from anywhere.
-fn find_shortcut() -> Shortcut {
-    Shortcut::new(Some(Modifiers::CONTROL | Modifiers::ALT), Code::KeyF)
-}
-
-fn register_find_shortcut(app: &AppHandle) {
-    if app.global_shortcut().register(find_shortcut()).is_ok() {
-        providers::find::set_hotkey(Some("Ctrl+Alt+F".to_string()));
-    } else {
-        log::warn!("find shortcut unavailable: Ctrl+Alt+F is taken by another app");
-    }
+/// True when a registered shortcut is the one the user saved for `event`.
+fn matches(pressed: Shortcut, saved: Option<Shortcut>) -> bool {
+    saved.is_some_and(|registered| registered == pressed)
 }
 
 /// Brings the island forward on a page that takes the keyboard (`event` tells which).

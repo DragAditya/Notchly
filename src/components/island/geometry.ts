@@ -94,13 +94,24 @@ export function ambientWidth(count: number) {
 	return count ? BUBBLE_GAP + count * BUBBLE + (count - 1) * AMBIENT_GAP : 0;
 }
 
+/**
+ * The resting island while the companion is peeking: a short pill tall enough
+ * for the eyes. Windows Island keeps its clock beside them.
+ */
+export function companionGeometry(v: Variant, look: Appearance): Geo {
+	const windows = look.style === "windows";
+	const width = windows ? (look.idleClock ? 176 : 150) : 150;
+	return { ...v.idle, width, height: 34, radius: 17 };
+}
+
 /** CSS corner radii: the notch-like look hangs from the top, so only its bottom is round. */
-export function cornerRadius(g: Geo, windows: boolean) {
-	const top = windows ? g.radius : 0;
+export function cornerRadius(g: Geo, windows: boolean, override = 0) {
+	const radius = override > 0 ? override : g.radius;
+	const top = windows ? radius : 0;
 	return {
 		borderTopLeftRadius: top,
 		borderTopRightRadius: top,
-		borderBottomLeftRadius: g.radius,
-		borderBottomRightRadius: g.radius,
+		borderBottomLeftRadius: radius,
+		borderBottomRightRadius: radius,
 	};
 }

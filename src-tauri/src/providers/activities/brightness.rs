@@ -290,6 +290,6 @@ fn show(activities: &Activities, percent: u8) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some("slide".into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }

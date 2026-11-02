@@ -2,13 +2,37 @@
 
 All notable changes to Notchly are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-11-02
+
+### Added
+
+- Large screenshot card in the notch with Keep and Delete actions.
+- Deletion countdown and a separate card auto-close progress line.
+- Pending screenshot section in the Shelf, with thumbnails, live countdowns and Keep/Delete actions.
+- Pending screenshot cleanup that survives a restart.
+- Configurable screenshot card width and height.
+
+### Changed
+
+- The second screenshot replaces the card and restarts the timer; older screenshots go to the pending Shelf.
+- Hovering over the screenshot card no longer expands, collapses, pauses or otherwise changes it.
+- Removed the small floating Keep/Delete bar.
+- The application data directory is now `%APPDATA%\com.notchly.desktop`.
+- Existing settings, Shelf contents and pending screenshot records migrate automatically from the previous directory.
+- The About page now shows version, update controls and license information.
+
+### Fixed
+
+- Pending screenshot records are cleaned up when the clipboard module is disabled.
+- Expired pending screenshots are removed from the Shelf on startup.
+
 ## [1.0.0] — 2026-10-29
 
 The first public Notchly release.
 
 ### Added
 
-- New Notchly identity, icon, application id (`com.dragaditya.notchly`), binary name (`notchly.exe`) and installers.
+- New Notchly identity, icon, application id, binary name (`notchly.exe`) and installers.
 - New settings and shelf migration from the legacy Dynamic Island app-data folder.
 - Ask Gemini module with a configurable API key, model selection, screenshots and attachments.
 - Live lyrics in the music module.
@@ -25,7 +49,6 @@ The first public Notchly release.
 - The island now closes an auto-peek when its activity becomes inactive, while manual peeks continue to work.
 - Activity priorities use the newest event when several alerts compete.
 - Music play/pause no longer re-expands the music panel.
-- The About page credits the maintainer and the upstream GPL project.
 
 ### Fixed
 

@@ -42,6 +42,10 @@ export async function startSettings() {
     } catch {
       values = {};
     }
+    // Browser preview: `?mode=eyes` / `?mode=activities` / `?mode=off` lets
+    // the compact surfaces be reviewed without opening the settings window.
+    const previewMode = new URLSearchParams(location.search).get("mode");
+    if (previewMode) values = { ...values, "companion.mode": previewMode };
     notify();
     return;
   }
@@ -88,6 +92,8 @@ export const moduleEnabled = ({ id, title, enabledByDefault = true }: Pick<Islan
   default: enabledByDefault,
 });
 
+export type HoverAction = "expand" | "companion" | "none";
+
 export const generalSettings = {
   hideInFullscreen: {
     key: "island.hideInFullscreen",
@@ -101,7 +107,179 @@ export const generalSettings = {
     description: "settings.expandOnHover.desc",
     default: true,
   },
-} satisfies Record<string, SettingDef>;
+  hoverDelay: {
+    key: "island.hoverDelay",
+    label: "settings.hoverDelay.label",
+    description: "settings.hoverDelay.desc",
+    default: 110,
+  } satisfies SettingDef<number>,
+  hoverAction: {
+    key: "island.hoverAction",
+    label: "settings.hoverAction.label",
+    description: "settings.hoverAction.desc",
+    default: "expand",
+  } as SettingDef<HoverAction>,
+} satisfies Record<string, SettingDef<any>>;
+
+/** Global shortcuts, edited from Advanced. The instant prompt lives in Ask's own settings. */
+export const shortcutSettings = {
+  ask: {
+    key: "shortcuts.ask",
+    label: "shortcuts.ask.label",
+    description: "shortcuts.ask.desc",
+    default: "Ctrl+Alt+Space",
+  } satisfies SettingDef<string>,
+  find: {
+    key: "shortcuts.find",
+    label: "shortcuts.find.label",
+    description: "shortcuts.find.desc",
+    default: "Ctrl+Alt+F",
+  } satisfies SettingDef<string>,
+  companionSummon: {
+    key: "shortcuts.companionSummon",
+    label: "shortcuts.companionSummon.label",
+    description: "shortcuts.companionSummon.desc",
+    default: "Ctrl+Alt+R",
+  } satisfies SettingDef<string>,
+  companionToggle: {
+    key: "shortcuts.companionToggle",
+    label: "shortcuts.companionToggle.label",
+    description: "shortcuts.companionToggle.desc",
+    default: "Ctrl+Alt+Shift+R",
+  } satisfies SettingDef<string>,
+} satisfies Record<string, SettingDef<any>>;
+
+/** Restore a group of settings to the defaults declared next to their code. */
+export function resetSettings(defs: SettingDef<any>[]) {
+  for (const def of defs) setSetting(def, def.default);
+}
+
+/**
+ * How the companion shares the compact island with live activities.
+ *
+ * - `off`: no eyes or companion reactions; live activities keep their cards.
+ * - `eyes`: eyes lead the compact surfaces, with text and extra detail reduced.
+ * - `activities`: normal live-activity cards, no eyes.
+ * - `mixed`: eyes plus the full activity detail (the default).
+ */
+export type CompanionMode = "off" | "eyes" | "activities" | "mixed";
+export type CompanionIntensity = "calm" | "balanced" | "energetic";
+export type CompanionDance = "auto" | "groove" | "bounce" | "shimmy" | "wave" | "spin" | "hop";
+
+/** Old installs stored `auto` / `always`; both mean the full mixed presentation. */
+export function companionModeOf(value: unknown): CompanionMode {
+  if (value === "off" || value === "eyes" || value === "activities" || value === "mixed") return value;
+  return "mixed";
+}
+
+export const companionSettings = {
+  eyeColor: {
+    key: "companion.eyeColor",
+    label: "companion.eyeColor.label",
+    description: "companion.eyeColor.desc",
+    default: "",
+  } satisfies SettingDef<string>,
+  blinkRate: {
+    key: "companion.blinkRate",
+    label: "companion.blinkRate.label",
+    description: "companion.blinkRate.desc",
+    default: 7.2,
+  } satisfies SettingDef<number>,
+  gazeFollow: {
+    key: "companion.gazeFollow",
+    label: "companion.gaze.label",
+    description: "companion.gaze.desc",
+    default: true,
+  } satisfies SettingDef,
+  mode: {
+    key: "companion.mode",
+    label: "companion.mode.label",
+    description: "companion.mode.desc",
+    default: "mixed",
+  } as SettingDef<CompanionMode>,
+  resting: {
+    key: "companion.resting",
+    label: "companion.resting.label",
+    description: "companion.resting.desc",
+    default: true,
+  } satisfies SettingDef,
+  intensity: {
+    key: "companion.intensity",
+    label: "companion.intensity.label",
+    description: "companion.intensity.desc",
+    default: "balanced",
+  } as SettingDef<CompanionIntensity>,
+  speed: {
+    key: "companion.speed",
+    label: "companion.speed.label",
+    description: "companion.speed.desc",
+    default: 1,
+  } satisfies SettingDef<number>,
+  glow: {
+    key: "companion.glow",
+    label: "companion.glow.label",
+    description: "companion.glow.desc",
+    default: true,
+  } satisfies SettingDef,
+  reduceMotion: {
+    key: "companion.reduceMotion",
+    label: "companion.reduceMotion.label",
+    description: "companion.reduceMotion.desc",
+    default: false,
+  } satisfies SettingDef,
+  effectVolume: {
+    key: "companion.effect.volume",
+    label: "companion.effect.volume",
+    default: true,
+  } satisfies SettingDef,
+  effectBrightness: {
+    key: "companion.effect.brightness",
+    label: "companion.effect.brightness",
+    default: true,
+  } satisfies SettingDef,
+  effectCharging: {
+    key: "companion.effect.charging",
+    label: "companion.effect.charging",
+    default: true,
+  } satisfies SettingDef,
+  effectBattery: {
+    key: "companion.effect.battery",
+    label: "companion.effect.battery",
+    default: true,
+  } satisfies SettingDef,
+  effectBluetooth: {
+    key: "companion.effect.bluetooth",
+    label: "companion.effect.bluetooth",
+    default: true,
+  } satisfies SettingDef,
+  effectWifi: {
+    key: "companion.effect.wifi",
+    label: "companion.effect.wifi",
+    default: true,
+  } satisfies SettingDef,
+  effectNotifications: {
+    key: "companion.effect.notifications",
+    label: "companion.effect.notifications",
+    default: true,
+  } satisfies SettingDef,
+  musicEyes: {
+    key: "companion.music.eyes",
+    label: "companion.music.eyes.label",
+    description: "companion.music.eyes.desc",
+    default: true,
+  } satisfies SettingDef,
+  dance: {
+    key: "companion.music.dance",
+    label: "companion.music.dance.label",
+    description: "companion.music.dance.desc",
+    default: "auto",
+  } as SettingDef<CompanionDance>,
+};
+
+/** Normalized mode, including old `auto` / `always` values. */
+export function useCompanionMode(): CompanionMode {
+  return companionModeOf(useSetting(companionSettings.mode));
+}
 
 /**
  * Tabs of the open island: their order, and which ones sit in the tab bar.
@@ -203,8 +381,55 @@ export const ISLAND_HIDDEN_KEY = "island.hidden";
  *   a clock at rest and an optional gradient rim (Windows Island's look).
  */
 export type IslandStyle = "dynamic" | "windows";
+export type CompactDensity = "compact" | "cozy" | "roomy";
+export type IdleClockFormat = "time" | "date" | "both";
 
 export const appearanceSettings = {
+  /** Blur radius in px behind the island; 0 keeps it fully opaque. */
+  backgroundBlur: {
+    key: "appearance.backgroundBlur",
+    label: "appearance.blur.label",
+    description: "appearance.blur.desc",
+    default: 0,
+  } satisfies SettingDef<number>,
+  /** 0 keeps the radius that belongs to the selected style. */
+  cornerRadius: {
+    key: "appearance.cornerRadius",
+    label: "appearance.radius.label",
+    description: "appearance.radius.desc",
+    default: 0,
+  } satisfies SettingDef<number>,
+  scale: {
+    key: "appearance.scale",
+    label: "appearance.scale.label",
+    description: "appearance.scale.desc",
+    default: 1,
+  } satisfies SettingDef<number>,
+  density: {
+    key: "appearance.density",
+    label: "appearance.density.label",
+    description: "appearance.density.desc",
+    default: "cozy",
+  } as SettingDef<CompactDensity>,
+  animationSpeed: {
+    key: "appearance.animationSpeed",
+    label: "appearance.animationSpeed.label",
+    description: "appearance.animationSpeed.desc",
+    default: 1,
+  } satisfies SettingDef<number>,
+  /** Seconds for one lap of the animated rim. */
+  borderSpeed: {
+    key: "appearance.borderSpeed",
+    label: "appearance.borderSpeed.label",
+    description: "appearance.borderSpeed.desc",
+    default: 7,
+  } satisfies SettingDef<number>,
+  idleClockFormat: {
+    key: "appearance.idleClockFormat",
+    label: "appearance.clockFormat.label",
+    description: "appearance.clockFormat.desc",
+    default: "time",
+  } as SettingDef<IdleClockFormat>,
   style: {
     key: "appearance.style",
     label: "appearance.style.label",

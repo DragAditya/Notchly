@@ -18,9 +18,9 @@ Prerequisites:
 - [Rust](https://rustup.rs) with the MSVC toolchain
 - Visual Studio Build Tools with Desktop development with C++
 
+Clone this repository, then run:
+
 ```sh
-git clone https://github.com/DragAditya/Notchly.git
-cd Notchly
 bun install
 bun run app:dev
 ```

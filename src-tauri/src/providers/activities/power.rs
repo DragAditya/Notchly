@@ -101,7 +101,7 @@ fn show(activities: &Activities, mode: Mode) {
     alert.priority = 100;
     alert.style = Style::Signal;
     alert.tone = Some(mode.tone().into());
-    alert.expand = true;
+    alert.expand = false;
     activities.upsert(alert);
 }
 
