@@ -5,35 +5,63 @@
 <h1 align="center">Notchly</h1>
 
 <p align="center">
-  <b>A polished Dynamic Island for Windows.</b><br />
-  Music, Gemini, AI agents, notifications, live activities and utilities — one quiet strip at the top of your screen.
+  <b>The Dynamic Island for Windows — crafted like a product, not a widget.</b><br />
+  Music, Gemini, AI agents, notifications, live activities and utilities in one quiet strip at the top of your screen.
 </p>
 
 <p align="center">
   <img alt="Version 1.1.0" src="https://img.shields.io/badge/version-1.1.0-6366f1?style=flat-square" />
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-22c55e?style=flat-square" /></a>
   <img alt="Platform: Windows 10 / 11" src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0ea5e9?style=flat-square" />
-  <img alt="Built with Tauri, React and Rust" src="https://img.shields.io/badge/stack-Tauri%20%2B%20React%20%2B%20Rust-8b5cf6?style=flat-square" />
+  <img alt="Frontend: React 19 + TypeScript + Vite" src="https://img.shields.io/badge/frontend-React%2019%20%2B%20TypeScript%20%2B%20Vite-8b5cf6?style=flat-square" />
+  <a href="https://github.com/DragAditya"><img alt="Made by dragADI" src="https://img.shields.io/badge/made%20by-dragADI-ff69b4?style=flat-square" /></a>
 </p>
 
 <p align="center">
   <a href="../../releases/latest"><b>Download</b></a> ·
+  <a href="#frontend-engineering"><b>Frontend</b></a> ·
   <a href="#build-from-source"><b>Build from source</b></a> ·
   <a href="docs/API.md"><b>Local API</b></a> ·
   <a href="../../issues"><b>Report a bug</b></a>
 </p>
 
+<p align="center">
+  <sub>Designed &amp; built by <a href="https://github.com/DragAditya"><b>dragADI</b></a></sub>
+</p>
+
 ---
 
-## What is Notchly?
+## The interface
 
-Notchly is a native-feeling Windows desktop app that puts a compact, always-available island at the top of your screen. It gives you the information you need — and the controls you reach for most — without opening a dashboard or switching windows.
+Notchly is not a dashboard wearing a dark theme. It is a single, quiet surface that lives at the top of Windows and opens only when you need it.
 
-It is built with **Tauri 2**, **React 19**, **TypeScript** and **Rust**, and it talks to Windows APIs directly for media, notifications, audio, display and system monitoring.
+The UI is built around one idea: **the island should feel physical**. It has weight, depth, a rim that catches the light, and motion that follows the content instead of fighting it. Every module — music, AI, notifications, activities, screenshots — shares the same visual language and the same fast, keyboard-friendly rhythm.
 
 <p align="center">
   <img src="docs/screenshots/settings.png" width="860" alt="Notchly settings window" />
 </p>
+
+### The design language
+
+- **Two native-feeling styles.** A classic black notch or a floating Windows-style pill, with matching geometry and behavior.
+- **Materials, not flat cards.** Layered surfaces, hairline borders, subtle translucency, gradient rims and controlled glow.
+- **Motion with intent.** Expansion, content swaps and module transitions use spring-like movement and smooth layout changes.
+- **A real settings surface.** Appearance, modules, shortcuts, companion behavior and advanced controls live in a dedicated window, not a cramped popover.
+- **Small details everywhere.** Live progress lines, countdowns, hover states, iconography and status feedback that make the app feel finished.
+
+## Why the frontend feels different
+
+| Area | What makes it feel polished |
+|---|---|
+| **Island runtime** | A single React surface that changes shape and content without losing state or visual continuity. |
+| **Motion system** | Purposeful expansion, content swaps, card transitions and a motion speed control. |
+| **Visual controls** | Rim presets, custom gradients, thickness, glow, radius, scale, blur, density and idle clock formats. |
+| **Screenshot card** | A large focused preview with Keep/Delete actions, a deletion countdown and a separate auto-close progress line. |
+| **Shelf flow** | Pending screenshots become compact rows with thumbnails, live timers and direct actions. |
+| **Settings** | Module-owned settings, live updates across windows, and a clean two-column desktop layout. |
+| **Localization** | English and Portuguese (Brazil) with generated, type-safe translation keys. |
+| **Performance** | React 19, TypeScript, Vite, CSS custom properties and a Tauri IPC boundary that keeps native work off the UI thread. |
+| **Accessibility** | Keyboard-first flows, ARIA labels on status surfaces and reduced-motion handling for companion animations. |
 
 ## Highlights
 
@@ -45,11 +73,12 @@ It is built with **Tauri 2**, **React 19**, **TypeScript** and **Rust**, and it 
 | **Live activities** | Volume, brightness, Bluetooth, charging, battery and Windows power-mode changes, plus custom activities from the local API. |
 | **Companion eyes** | A small pair of eyes that peeks in for music, volume, battery and notifications, then disappears. Auto keeps it out of the way; `Ctrl+Alt+R` calls it and `Ctrl+Alt+Shift+R` turns Auto on or off. |
 | **Notifications** | Mirror Windows notifications from WhatsApp, Teams, Outlook, Discord and other apps, with app icons and quick open. |
-| **Utilities** | Clipboard history, a screenshot keep/delete flow, a pending screenshot shelf, find-on-screen OCR, GitHub issue counts, CPU/GPU/network monitor, clock and calendar. |
+| **Screenshot workflow** | Keep, delete or defer the newest screenshot from the notch. Older screenshots wait in the Shelf with a live countdown. |
+| **Utilities** | Clipboard history, screenshot shelf, find-on-screen OCR, GitHub issue counts, CPU/GPU/network monitor, clock and calendar. |
 | **Make it yours** | A black notch or a floating Windows-style pill, gradient rims, multiple positions, adjustable screenshot card size, multi-monitor support, English and Portuguese (Brazil). |
 | **Local-first** | No account, no analytics, no telemetry, no Notchly server. Data stays on your machine unless a feature you enable needs a service. |
 
-## Screenshots that stay out of your way
+## Screenshot flow
 
 When you take a screenshot, the newest one appears in the notch as a large, focused card:
 
@@ -63,7 +92,7 @@ When you take a screenshot, the newest one appears in the notch as a large, focu
 
 ## A closer look
 
-Notchly has two visual styles. Use **Settings → Appearance** to switch between the classic black notch and the floating Windows Island pill, then choose the rim, thickness, glow and placement.
+Use **Settings → Appearance** to switch between the classic black notch and the floating Windows Island pill, then choose the rim, thickness, glow and placement.
 
 - **Compact by default.** It stays out of the way at the top of the screen.
 - **Expands when you need it.** Hover or click to open the active module.
@@ -180,6 +209,8 @@ Without the integration, Notchly can still read local Claude Code transcripts, w
 | `Ctrl+Alt+Space` | Open Ask Gemini |
 | `Ctrl+Shift+Space` | Fallback if the first shortcut is taken |
 | `Ctrl+Alt+F` | Find text anywhere on screen |
+| `Ctrl+Alt+R` | Call the companion |
+| `Ctrl+Alt+Shift+R` | Toggle companion Auto mode |
 | `Esc` | Close the current panel or search |
 
 ## Local API
@@ -206,22 +237,37 @@ JSON fields: `id`, `title`, `subtitle`, `icon`, `color` (`#RRGGBB`), `progress` 
 
 See **[docs/API.md](docs/API.md)** for the full reference and icon list. Client examples are in [`examples/`](examples/): PowerShell, Python and Node.
 
-## Architecture
+## Frontend engineering
 
-Notchly is a small Tauri shell around a React UI and a registry of Rust providers.
+The frontend is intentionally small, fast and direct. It is not a web app wrapped in a window; it is a UI layer designed around desktop behavior.
+
+| Layer | Implementation |
+|---|---|
+| **Framework** | React 19 with strict TypeScript, rendered inside the Tauri WebView. |
+| **Build** | Vite 8 with a production bundle and a browser-only mock preview. |
+| **Motion** | `motion` springs, layout transitions and purpose-built CSS effects. |
+| **Styling** | CSS custom properties, layered surfaces, gradient rims and density-aware spacing. |
+| **State** | Typed settings, provider snapshots and live cross-window synchronization. |
+| **Windows** | One bundle for the island, settings and pinned video, selected by window label. |
+| **Native boundary** | Narrow Tauri commands and events keep Windows work out of the renderer. |
+| **Quality** | Locale key generation, type checking, Rust tests and a Windows CI build. |
+
+### Project shape
 
 ```
 src/
   core/          island state, provider bridge, settings, appearance, i18n
-  modules/       one folder per feature (music, ask, ai-agents, activities, ...)
-  settings/      settings window
+  modules/       one folder per feature (music, ask, agents, activities, ...)
+  settings/      dedicated settings window
+  companion/     the companion eyes and mood system
+  pip/           pinned video window
   locales/       English and Portuguese (Brazil)
 src-tauri/src/
   providers/     Windows-side data sources and feature backends
   window.rs      click-through overlay and hover hit-testing
   tray.rs        tray menu, hide/show and autostart
   display.rs     monitor placement and fullscreen handling
-  settings.rs    local settings store
+  settings.rs    local settings store and migration
 ```
 
 More detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
@@ -229,9 +275,9 @@ More detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.
 ### Tech stack
 
 - **Tauri 2** for the Windows shell and IPC
-- **React 19 + TypeScript** for the island and settings UI
-- **Rust** for media (SMTC), notifications (WinRT), audio sessions, display, OCR, PDH performance counters and the local API
+- **React 19 + TypeScript** for the island, settings and pinned video UI
 - **Vite** for the frontend build
+- **Rust** for media (SMTC), notifications (WinRT), audio sessions, display, OCR, PDH performance counters and the local API
 
 ## Privacy and security
 
@@ -258,3 +304,10 @@ Issues and pull requests are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.
 Notchly is licensed under the **GNU General Public License v3.0 or later**. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md).
 
 If you redistribute a modified build, keep the license and all copyright notices. The complete corresponding source is this repository.
+
+---
+
+<p align="center">
+  <b>Made with care by <a href="https://github.com/DragAditya">dragADI</a>.</b><br />
+  <sub>If Notchly makes Windows feel a little quieter, consider starring the repository.</sub>
+</p>
