@@ -1,111 +1,209 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8" />
+<title>Notchly banner</title>
 <style>
   * { box-sizing: border-box; }
-  html, body { width: 1600px; height: 640px; margin: 0; overflow: hidden; }
+  html, body { width: 1600px; height: 720px; margin: 0; overflow: hidden; }
   body {
-    background: #07070b;
+    background: #06070c;
     color: #f8fafc;
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
   .stage {
     position: relative;
     width: 1600px;
-    height: 640px;
+    height: 720px;
     overflow: hidden;
     background:
-      radial-gradient(900px 520px at 78% 18%, rgba(99,102,241,.30), transparent 62%),
-      radial-gradient(700px 460px at 20% 100%, rgba(20,184,166,.13), transparent 66%),
-      radial-gradient(700px 500px at 0% 0%, rgba(236,72,153,.10), transparent 60%),
-      linear-gradient(135deg, #08080d 0%, #0b0b14 58%, #09090f 100%);
+      radial-gradient(1000px 620px at 84% 4%, rgba(99, 102, 241, .34), transparent 62%),
+      radial-gradient(800px 520px at 68% 94%, rgba(236, 72, 153, .16), transparent 64%),
+      radial-gradient(760px 520px at 8% 100%, rgba(20, 184, 166, .12), transparent 66%),
+      linear-gradient(135deg, #06070c 0%, #090a12 48%, #06070c 100%);
   }
   .grid {
-    position: absolute; inset: 0;
+    position: absolute;
+    inset: 0;
     background-image:
-      linear-gradient(rgba(148,163,184,.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(148,163,184,.055) 1px, transparent 1px);
-    background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 40%, #000 15%, transparent 78%);
+      linear-gradient(rgba(148, 163, 184, .055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, .055) 1px, transparent 1px);
+    background-size: 54px 54px;
+    mask-image: radial-gradient(ellipse 84% 82% at 58% 38%, #000 10%, transparent 78%);
   }
   .glow {
-    position: absolute; border-radius: 999px; filter: blur(70px); opacity: .55;
+    position: absolute;
+    border-radius: 999px;
+    filter: blur(80px);
+    opacity: .55;
+    pointer-events: none;
   }
-  .glow.a { width: 300px; height: 300px; left: 1030px; top: -90px; background: #6366f1; }
-  .glow.b { width: 260px; height: 260px; left: 1250px; top: 380px; background: #ec4899; opacity: .28; }
-  .content { position: absolute; left: 92px; top: 102px; width: 760px; }
+  .glow.a { width: 340px; height: 340px; left: 1080px; top: -180px; background: #6366f1; }
+  .glow.b { width: 280px; height: 280px; left: 1400px; top: 440px; background: #ec4899; opacity: .28; }
+  .glow.c { width: 260px; height: 260px; left: 760px; top: 480px; background: #14b8a6; opacity: .16; }
+  .ring {
+    position: absolute;
+    width: 720px;
+    height: 720px;
+    left: 1020px;
+    top: -40px;
+    border-radius: 50%;
+    border: 1px solid rgba(148, 163, 184, .11);
+    background: radial-gradient(circle, rgba(99, 102, 241, .12), transparent 62%);
+    filter: blur(.4px);
+  }
+  .content {
+    position: absolute;
+    left: 88px;
+    top: 94px;
+    width: 700px;
+  }
   .eyebrow {
-    display: inline-flex; align-items: center; gap: 10px;
-    color: #a5b4fc; font-size: 18px; font-weight: 650; letter-spacing: .16em; text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    color: #a5b4fc;
+    font-size: 16px;
+    font-weight: 650;
+    letter-spacing: .18em;
+    text-transform: uppercase;
   }
-  .eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: #34d399; box-shadow: 0 0 18px #34d399; }
+  .eyebrow .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 20px #34d399;
+  }
   h1 {
-    margin: 24px 0 0; font-size: 116px; line-height: .95; letter-spacing: -.065em; font-weight: 760;
-    background: linear-gradient(100deg, #ffffff 18%, #c7d2fe 58%, #a5b4fc 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
+    margin: 25px 0 0;
+    font-size: 144px;
+    line-height: .86;
+    letter-spacing: -.07em;
+    font-weight: 760;
+    background: linear-gradient(102deg, #ffffff 12%, #dbe4ff 50%, #a5b4fc 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  .sub { margin: 28px 0 0; color: #cbd5e1; font-size: 27px; line-height: 1.42; max-width: 700px; font-weight: 430; }
-  .sub b { color: #fff; font-weight: 650; }
-  .pills { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 38px; }
+  .tagline {
+    margin: 27px 0 0;
+    color: #f8fafc;
+    font-size: 34px;
+    line-height: 1.1;
+    letter-spacing: -.035em;
+    font-weight: 620;
+  }
+  .sub {
+    margin: 18px 0 0;
+    max-width: 620px;
+    color: #b6c2d9;
+    font-size: 20px;
+    line-height: 1.5;
+    font-weight: 430;
+  }
+  .sub b { color: #eef2ff; font-weight: 620; }
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 28px;
+  }
   .pill {
-    padding: 11px 17px; border-radius: 999px; border: 1px solid rgba(148,163,184,.22);
-    background: rgba(15,23,42,.55); color: #dbeafe; font-size: 17px; font-weight: 550;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, .22);
+    background: rgba(15, 23, 42, .52);
+    color: #dbeafe;
+    font-size: 15px;
+    font-weight: 560;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06);
   }
-  .pill.hi { border-color: rgba(129,140,248,.45); background: rgba(79,70,229,.16); color: #e0e7ff; }
-  .island-wrap {
-    position: absolute; right: 72px; top: 88px; width: 690px; height: 470px;
-    display: grid; place-items: center; perspective: 1200px;
-  }
-  .island {
-    position: relative; width: 620px; height: 218px; border-radius: 118px;
-    background: #000; border: 8px solid transparent; background-clip: padding-box;
-    box-shadow: 0 40px 120px rgba(0,0,0,.72), 0 0 0 8px rgba(255,255,255,.05);
-    transform: rotate(-4deg);
-  }
-  .island::before {
-    content: ""; position: absolute; inset: -8px; border-radius: 126px; padding: 8px;
-    background: linear-gradient(112deg, #5eead4, #818cf8 38%, #c084fc 66%, #fb7185);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude;
-  }
-  .island .bar {
-    position: absolute; left: 42px; right: 42px; top: 50%; transform: translateY(-50%);
-    display: flex; align-items: center; justify-content: space-between;
-  }
-  .track { display: flex; align-items: center; gap: 24px; }
-  .art {
-    width: 118px; height: 118px; border-radius: 26px;
-    background:
-      radial-gradient(circle at 28% 24%, rgba(255,255,255,.4), transparent 24%),
-      conic-gradient(from 200deg, #1e1b4b, #7c3aed, #0ea5e9, #1e1b4b);
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.16), 0 14px 34px rgba(0,0,0,.5);
-  }
-  .meta .name { font-size: 30px; font-weight: 680; letter-spacing: -.02em; }
-  .meta .artist { margin-top: 6px; color: #94a3b8; font-size: 19px; }
-  .eq { display: flex; align-items: center; gap: 6px; height: 54px; }
-  .eq i { width: 7px; border-radius: 99px; background: linear-gradient(#a5b4fc, #818cf8); }
-  .eq i:nth-child(1) { height: 18px; opacity: .5; }
-  .eq i:nth-child(2) { height: 34px; opacity: .75; }
-  .eq i:nth-child(3) { height: 50px; }
-  .eq i:nth-child(4) { height: 28px; opacity: .7; }
-  .eq i:nth-child(5) { height: 14px; opacity: .45; }
-  .orb {
-    position: absolute; left: 1120px; top: 100px; width: 480px; height: 480px; border-radius: 50%;
-    border: 1px solid rgba(148,163,184,.12);
-    background: radial-gradient(circle, rgba(99,102,241,.13), transparent 64%);
-    filter: blur(1px);
+  .pill.hi {
+    border-color: rgba(129, 140, 248, .48);
+    background: rgba(79, 70, 229, .18);
+    color: #e0e7ff;
   }
   .brand {
-    position: absolute; left: 94px; bottom: 38px; display: flex; align-items: center; gap: 12px;
-    color: #64748b; font-size: 17px; letter-spacing: .04em;
+    position: absolute;
+    left: 90px;
+    bottom: 42px;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    color: #7c8aa5;
+    font-size: 16px;
+    letter-spacing: .035em;
   }
-  .brand b { color: #94a3b8; font-weight: 600; }
+  .brand b { color: #c7d2fe; font-weight: 650; letter-spacing: .02em; }
   .brand .mark {
-    width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
-    background: linear-gradient(145deg, #1e1b4b, #0b0b12); border: 1px solid rgba(148,163,184,.18);
-    color: #a5b4fc; font-size: 15px; font-weight: 800;
+    width: 31px;
+    height: 31px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(145deg, #20204f, #0b0b14);
+    border: 1px solid rgba(148, 163, 184, .2);
+    color: #a5b4fc;
+    font-size: 15px;
+    font-weight: 800;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+  }
+  .brand .sep { color: #3f4a61; }
+  .visual {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 1000px;
+    height: 720px;
+  }
+  .lift {
+    position: absolute;
+    filter: drop-shadow(0 42px 70px rgba(0, 0, 0, .72));
+    user-select: none;
+  }
+  .music {
+    right: -18px;
+    top: 64px;
+    width: 840px;
+    transform: rotate(-2.4deg);
+  }
+  .shot {
+    left: 13px;
+    bottom: 40px;
+    width: 688px;
+    transform: rotate(2.1deg);
+  }
+  .launcher {
+    right: 22px;
+    bottom: 34px;
+    width: 354px;
+    transform: rotate(-3.2deg);
+    opacity: .96;
+  }
+  .caption {
+    position: absolute;
+    right: 48px;
+    top: 26px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, .18);
+    background: rgba(8, 10, 18, .48);
+    color: #94a3b8;
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+  }
+  .caption .live {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 12px #34d399;
   }
 </style>
 </head>
@@ -114,33 +212,35 @@
     <div class="grid"></div>
     <div class="glow a"></div>
     <div class="glow b"></div>
-    <div class="orb"></div>
+    <div class="glow c"></div>
+    <div class="ring"></div>
+
     <div class="content">
-      <div class="eyebrow"><span class="dot"></span> Windows desktop, reimagined</div>
+      <div class="eyebrow"><span class="dot"></span> Windows 10 / 11 · Tauri + React + Rust</div>
       <h1>Notchly</h1>
-      <p class="sub">A polished Dynamic Island for Windows. <b>Music, Gemini, AI agents, notifications and live activities</b> — one quiet strip at the top of your screen.</p>
+      <p class="tagline">The Dynamic Island for Windows.</p>
+      <p class="sub">Music, Gemini, AI agents, screenshots and live activities — <b>one quiet strip</b> at the top of your screen.</p>
       <div class="pills">
-        <span class="pill hi">Tauri + Rust</span>
-        <span class="pill">Gemini</span>
-        <span class="pill">Live Activities</span>
-        <span class="pill">Windows 10/11</span>
+        <span class="pill hi">Screenshot flow</span>
+        <span class="pill">Music + lyrics</span>
+        <span class="pill">AI agents</span>
+        <span class="pill">Live activities</span>
       </div>
     </div>
-    <div class="island-wrap">
-      <div class="island">
-        <div class="bar">
-          <div class="track">
-            <div class="art"></div>
-            <div class="meta">
-              <div class="name">Midnight City</div>
-              <div class="artist">M83 · Hurry Up, We're Dreaming</div>
-            </div>
-          </div>
-          <div class="eq"><i></i><i></i><i></i><i></i><i></i></div>
-        </div>
-      </div>
+
+    <div class="visual">
+      <div class="caption"><span class="live"></span> Built for the notch</div>
+      <img class="lift music" src="music.png" alt="" draggable="false" />
+      <img class="lift shot" src="screenshot.png" alt="" draggable="false" />
+      <img class="lift launcher" src="launcher.png" alt="" draggable="false" />
     </div>
-    <div class="brand"><span class="mark">N</span> Notchly <b>· GPL-3.0</b></div>
+
+    <div class="brand">
+      <span class="mark">N</span>
+      Made by <b>dragADI</b>
+      <span class="sep">·</span>
+      GPL-3.0
+    </div>
   </div>
 </body>
 </html>

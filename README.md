@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version 1.1.0" src="https://img.shields.io/badge/version-1.1.0-6366f1?style=flat-square" />
+  <a href="../../releases/tag/v1.1.0"><img alt="Latest release: v1.1.0" src="https://img.shields.io/badge/release-v1.1.0-6366f1?style=flat-square" /></a>
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-22c55e?style=flat-square" /></a>
   <img alt="Platform: Windows 10 / 11" src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0ea5e9?style=flat-square" />
   <img alt="Frontend: React 19 + TypeScript + Vite" src="https://img.shields.io/badge/frontend-React%2019%20%2B%20TypeScript%20%2B%20Vite-8b5cf6?style=flat-square" />
@@ -31,6 +31,13 @@
 
 ---
 
+## New in 1.1.0
+
+- **Screenshot card with a real decision.** Keep it, delete it, or let it fold away — with a live deletion countdown and a separate auto-close progress line.
+- **Pending Shelf.** Screenshots that are not kept move into the Shelf as compact rows with thumbnails, live timers and Keep/Delete actions.
+- **A calmer, faster interface.** Refined island surfaces, motion, settings layout, iconography and status feedback across the app.
+- **New app identity.** `com.notchly.desktop`, with automatic migration from the previous Notchly data folders.
+
 ## The interface
 
 Notchly is not a dashboard wearing a dark theme. It is a single, quiet surface that lives at the top of Windows and opens only when you need it.
@@ -38,7 +45,7 @@ Notchly is not a dashboard wearing a dark theme. It is a single, quiet surface t
 The UI is built around one idea: **the island should feel physical**. It has weight, depth, a rim that catches the light, and motion that follows the content instead of fighting it. Every module — music, AI, notifications, activities, screenshots — shares the same visual language and the same fast, keyboard-friendly rhythm.
 
 <p align="center">
-  <img src="docs/screenshots/settings.png" width="860" alt="Notchly settings window" />
+  <img src="docs/screenshots/island-music.png" alt="Notchly music panel with artwork, lyrics, seek, playback controls and live visualizer" />
 </p>
 
 ### The design language
@@ -48,6 +55,14 @@ The UI is built around one idea: **the island should feel physical**. It has wei
 - **Motion with intent.** Expansion, content swaps and module transitions use spring-like movement and smooth layout changes.
 - **A real settings surface.** Appearance, modules, shortcuts, companion behavior and advanced controls live in a dedicated window, not a cramped popover.
 - **Small details everywhere.** Live progress lines, countdowns, hover states, iconography and status feedback that make the app feel finished.
+
+### AI agents, at a glance
+
+The AI Agents panel follows Claude Code and Codex sessions, context, limits and token use in the same island surface — no separate dashboard, no context switch.
+
+<p align="center">
+  <img src="docs/screenshots/island-agents.png" alt="Notchly AI Agents panel with Claude sessions, usage limits, tokens and live work" />
+</p>
 
 ## Why the frontend feels different
 
@@ -90,6 +105,16 @@ When you take a screenshot, the newest one appears in the notch as a large, focu
 - Pending rows show a thumbnail, a live countdown and Keep/Delete actions, and survive a restart.
 - Card width and height are configurable in Settings.
 
+<p align="center">
+  <img src="docs/screenshots/screenshot-flow.png" alt="Notchly screenshot card with Keep and Delete actions and a live auto-delete timer" />
+</p>
+
+The screenshot card is intentionally a decision surface, not another panel: it pins itself open, ignores hover, and gives you only the two actions that matter. The Shelf is where the rest of the flow lives.
+
+<p align="center">
+  <img src="docs/screenshots/shelf.png" alt="Notchly Shelf with pending screenshots, live countdowns and file tiles" />
+</p>
+
 ## A closer look
 
 Use **Settings → Appearance** to switch between the classic black notch and the floating Windows Island pill, then choose the rim, thickness, glow and placement.
@@ -100,9 +125,13 @@ Use **Settings → Appearance** to switch between the classic black notch and th
 - **Multi-monitor aware.** Choose a display, follow the primary monitor, or move away from fullscreen apps.
 - **Fullscreen friendly.** It hides while games and fullscreen videos are running, and the companion stays quiet there too.
 
+<p align="center">
+  <img src="docs/screenshots/settings.png" alt="Notchly Appearance settings with island style previews, blur, radius, scale, density and motion controls" />
+</p>
+
 ## Download and install
 
-Get the latest build from **Releases in this repository**.
+Get the latest build — **v1.1.0** — from [Releases](../../releases/tag/v1.1.0).
 
 Each release includes:
 
@@ -178,7 +207,7 @@ bun run app:build:signed
 bun run dev
 ```
 
-The UI runs at `http://localhost:1420` with mock data. Add `#settings` for the settings window or `#pip` for the pinned video window.
+The UI runs at `http://localhost:1420` with mock data. Add `#settings` for the settings window, `#settings/appearance` for Appearance, or `#pip` for the pinned video window.
 
 ## Configuration
 
@@ -292,8 +321,9 @@ Read the full [privacy policy](docs/privacy/index.md) and [security policy](SECU
 ## Project quality
 
 - CI runs the frontend build and Rust formatting/tests on Windows.
+- Current suite: 56 passing Rust tests, with one ignored system-dependent test.
 - Unit tests cover activity routing, API validation, music YouTube parsing, calendar recurrence, OCR tiling, clipboard images and more.
-- Release builds are produced from tagged commits by GitHub Actions.
+- Release builds are produced from tagged commits by GitHub Actions; **v1.1.0** is the current release.
 
 ## Contributing
 
