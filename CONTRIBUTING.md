@@ -20,7 +20,14 @@ Prerequisites:
 
 Clone this repository, then run:
 
+```powershell
+.\dev.ps1
+```
+
+The source lives in `code/`. You can also work there directly:
+
 ```sh
+cd code
 bun install
 bun run app:dev
 ```
@@ -28,6 +35,7 @@ bun run app:dev
 Frontend-only preview with mock data:
 
 ```sh
+cd code
 bun run dev
 ```
 
@@ -36,6 +44,7 @@ bun run dev
 Run these before opening a pull request:
 
 ```sh
+cd code
 bun run build
 cargo fmt --manifest-path src-tauri/Cargo.toml --check
 cargo test --manifest-path src-tauri/Cargo.toml --lib
@@ -48,9 +57,9 @@ If your change touches Windows integration code, also run the app and exercise t
 - Keep Rust providers independent: one provider failing must not take down the island.
 - Do not block the UI thread with network calls, OCR or filesystem scans.
 - Prefer existing provider and settings patterns over new global state.
-- Keep user-visible strings in `src/locales/en.json5` and add the same keys to other locales.
+- Keep user-visible strings in `code/src/locales/en.json5` and add the same keys to other locales.
 - Do not add telemetry, analytics or a Notchly-hosted service.
-- Do not commit API keys, tokens, signing keys, `node_modules`, `dist` or `src-tauri/target`.
+- Do not commit API keys, tokens, signing keys, `node_modules`, `dist`, `code/src-tauri/target` or built files in `release/`.
 
 ## Commit and PR style
 
@@ -62,7 +71,7 @@ If your change touches Windows integration code, also run the app and exercise t
 
 ## Adding a language
 
-Copy `src/locales/en.json5` to `src/locales/<code>.json5`, translate the values, and set the language name. The build regenerates the typed key list. Test the tray and settings window in that language.
+Copy `code/src/locales/en.json5` to `code/src/locales/<code>.json5`, translate the values, and set the language name. The build regenerates the typed key list. Test the tray and settings window in that language.
 
 ## Release changes
 

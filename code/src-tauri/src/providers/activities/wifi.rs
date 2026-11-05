@@ -79,7 +79,7 @@ fn read_interfaces(handle: HANDLE) -> Option<WifiState> {
         return None;
     }
 
-    let state = unsafe {
+    unsafe {
         let count = (*list).dwNumberOfItems as usize;
         let infos = std::slice::from_raw_parts((*list).InterfaceInfo.as_ptr(), count);
         let mut fallback: Option<WifiState> = None;
@@ -118,9 +118,7 @@ fn read_interfaces(handle: HANDLE) -> Option<WifiState> {
 
         WlanFreeMemory(list as *const c_void);
         fallback
-    };
-
-    state
+    }
 }
 
 fn query_connection(handle: HANDLE, guid: &windows::core::GUID) -> Option<WifiState> {

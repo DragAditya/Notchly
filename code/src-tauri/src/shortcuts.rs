@@ -161,12 +161,11 @@ pub fn register_saved(app: &AppHandle) {
         }
         if let Err(error) = apply(app, key, &combo) {
             // The default Ask key has a second chance; a user's choice does not.
-            if saved.is_none() {
-                if let Some(fallback) = fallback_for(key) {
-                    if apply(app, key, fallback).is_ok() {
-                        continue;
-                    }
-                }
+            if saved.is_none()
+                && let Some(fallback) = fallback_for(key)
+                && apply(app, key, fallback).is_ok()
+            {
+                continue;
             }
             log::warn!("shortcut {key} '{combo}': {error}");
             set_conflict(key, &combo, &error);

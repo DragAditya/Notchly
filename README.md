@@ -158,6 +158,13 @@ The installer is per-user and does not require an administrator prompt. The port
 
 Use **Settings → Apps → Installed apps → Notchly → Uninstall**. If you used the portable build, delete the extracted folder and `%APPDATA%\com.notchly.desktop` to remove local data.
 
+## Repository layout
+
+- `code/` — the application source, package configuration and Rust backend.
+- `release/` — built EXE, installers, portable ZIP and checksums. Build output is ignored by Git.
+- `docs/` — documentation, screenshots and branding.
+- `.github/` — CI and release workflows.
+
 ## Build from source
 
 ### Prerequisites
@@ -169,9 +176,16 @@ Use **Settings → Apps → Installed apps → Notchly → Uninstall**. If you u
 
 ### Run the app
 
-Clone this repository, then:
+Clone this repository, then from the repository root:
+
+```powershell
+.\dev.ps1
+```
+
+You can also work directly in `code/`:
 
 ```sh
+cd code
 bun install
 bun run app:dev
 ```
@@ -179,32 +193,34 @@ bun run app:dev
 With npm:
 
 ```sh
+cd code
 npm install
 npm run app:dev
 ```
 
 ### Build installers
 
-```sh
-bun run app:build
+From the repository root:
+
+```powershell
+.\build.ps1
 ```
 
-Installers are written to `src-tauri/target/release/bundle/`. The default local build is unsigned, which is the easiest way to try the app:
+`build.ps1` builds from `code/`, copies the EXE and installers into `release/`, creates the portable ZIP and regenerates `release/SHA256SUMS.txt`. The raw Tauri output is in `code/src-tauri/target/release/bundle/`.
 
-```sh
-bun run app:build
-```
-
-To produce signed updater artifacts, provide a Tauri signing key and run:
+The default local build is unsigned, which is the easiest way to try the app. To produce signed updater artifacts, provide a Tauri signing key and run:
 
 ```powershell
 $env:TAURI_SIGNING_PRIVATE_KEY = "$env:USERPROFILE\.tauri\notchly.key"
-bun run app:build:signed
+.\build.ps1 -Signed
 ```
+
+You can also build from `code/` directly with `bun run app:build` or `bun run app:build:signed`.
 
 ### Frontend-only preview
 
 ```sh
+cd code
 bun run dev
 ```
 
@@ -266,7 +282,7 @@ curl -X POST http://127.0.0.1:5199/notify ^
 
 JSON fields: `id`, `title`, `subtitle`, `icon`, `color` (`#RRGGBB`), `progress` (`0–1`), `duration` (seconds, max 86400), `priority` (`0–99`, default `50`), `action` (an `https` link opened on click), `style` (`"level"` for a level bar), `expand` and `source`.
 
-See **[docs/API.md](docs/API.md)** for the full reference and icon list. Client examples are in [`examples/`](examples/): PowerShell, Python and Node.
+See **[docs/API.md](docs/API.md)** for the full reference and icon list. Client examples are in [`code/examples/`](code/examples/): PowerShell, Python and Node.
 
 ## Frontend engineering
 
@@ -286,19 +302,21 @@ The frontend is intentionally small, fast and direct. It is not a web app wrappe
 ### Project shape
 
 ```
-src/
-  core/          island state, provider bridge, settings, appearance, i18n
-  modules/       one folder per feature (music, ask, agents, activities, ...)
-  settings/      dedicated settings window
-  companion/     the companion eyes and mood system
-  pip/           pinned video window
-  locales/       English and Portuguese (Brazil)
-src-tauri/src/
-  providers/     Windows-side data sources and feature backends
-  window.rs      click-through overlay and hover hit-testing
-  tray.rs        tray menu, hide/show and autostart
-  display.rs     monitor placement and fullscreen handling
-  settings.rs    local settings store and migration
+code/
+  src/
+    core/        island state, provider bridge, settings, appearance, i18n
+    modules/     one folder per feature (music, ask, agents, activities, ...)
+    settings/    dedicated settings window
+    companion/   the companion eyes and mood system
+    pip/         pinned video window
+    locales/     English and Portuguese (Brazil)
+  src-tauri/src/
+    providers/   Windows-side data sources and feature backends
+    window.rs    click-through overlay and hover hit-testing
+    tray.rs      tray menu, hide/show and autostart
+    display.rs   monitor placement and fullscreen handling
+    settings.rs  local settings store and migration
+release/          built EXE, installers, portable ZIP and checksums
 ```
 
 More detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**.

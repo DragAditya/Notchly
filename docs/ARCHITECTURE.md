@@ -28,7 +28,7 @@ Notchly is a Windows desktop app built with Tauri 2. The Rust process owns the n
 
 ## Provider registry
 
-Each Windows integration is a provider in `src-tauri/src/providers/`. A provider starts on its own thread, publishes snapshots through the `Hub`, and can receive actions from the UI.
+Each Windows integration is a provider in `code/src-tauri/src/providers/`. A provider starts on its own thread, publishes snapshots through the `Hub`, and can receive actions from the UI.
 
 Examples:
 
@@ -71,10 +71,10 @@ Providers must degrade gracefully when a Windows API is unavailable. A missing m
 
 ## Frontend structure
 
-- `src/core/bridge.ts` provides typed access to Tauri commands and event snapshots.
+- `code/src/core/bridge.ts` provides typed access to Tauri commands and event snapshots.
 - Each module owns its UI, settings definitions and state.
-- `src/locales` contains English and Portuguese (Brazil); the key list is generated at build time.
-- `src/settings` is a separate React entry point rendered in a normal window.
+- `code/src/locales` contains English and Portuguese (Brazil); the key list is generated at build time.
+- `code/src/settings` is a separate React entry point rendered in a normal window.
 
 ## Release pipeline
 

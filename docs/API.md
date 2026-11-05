@@ -165,7 +165,7 @@ await fetch("http://127.0.0.1:5199/notify", {
 });
 ```
 
-Client helpers are available in [`examples/`](../examples/).
+Client helpers are available in [`examples/`](../code/examples/).
 
 ## Error responses
 

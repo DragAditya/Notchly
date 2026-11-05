@@ -23,40 +23,42 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      # Installs the toolchain pinned in src-tauri/rust-toolchain.toml.
+      # Installs the toolchain pinned in code/src-tauri/rust-toolchain.toml.
       - name: Install Rust
-        working-directory: src-tauri
+        working-directory: code/src-tauri
         run: rustup show active-toolchain || rustup toolchain install
 
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri -> target
+          workspaces: code/src-tauri -> target
 
       - name: Install dependencies
+        working-directory: code
         run: bun install --frozen-lockfile
 
-      # Also produces `dist/`, which `tauri::generate_context!` embeds.
+      # Also produces `code/dist/`, which `tauri::generate_context!` embeds.
       - name: Build frontend
+        working-directory: code
         run: bun run build
 
       - name: Format
-        working-directory: src-tauri
+        working-directory: code/src-tauri
         run: cargo fmt --check
 
       - name: Clippy
-        working-directory: src-tauri
+        working-directory: code/src-tauri
         run: cargo clippy -- -D warnings
 
       - name: Test
-        working-directory: src-tauri
+        working-directory: code/src-tauri
         run: cargo test --lib
 
       # A dependency change shows up here before `Cargo.lock` is committed.
       - name: Lockfile up to date
-        run: git diff --exit-code -- src-tauri/Cargo.lock
+        run: git diff --exit-code -- code/src-tauri/Cargo.lock
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: Cargo.lock
-          path: src-tauri/Cargo.lock
+          path: code/src-tauri/Cargo.lock

@@ -8,6 +8,10 @@ All notable changes to Notchly are documented here. The format follows [Keep a C
 
 - Notch lock: `Ctrl+Alt+L` freezes hover, clicks, drags, peeks and global opens while keeping the island visible. A locked click shakes the notch and flashes it red; the lock can also be made click-through so clicks reach the app below. The companion's eyes and reactions stay hidden while locked, and the lock can be toggled from the tray. A brief "Locked"/"Unlocked" label confirms each change. The shortcut can be changed or cleared in Advanced, and startup conflicts are reported there.
 
+### Changed
+
+- Repository layout now keeps the application source in `code/` and built EXE/installer artifacts in `release/`. `build.ps1` builds from `code/` and fills `release/` with the portable ZIP and checksums.
+
 ## [1.1.0] — 2026-11-02
 
 ### Added

@@ -25,16 +25,17 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
 
-      # Installs the toolchain pinned in src-tauri/rust-toolchain.toml.
+      # Installs the toolchain pinned in code/src-tauri/rust-toolchain.toml.
       - name: Install Rust
-        working-directory: src-tauri
+        working-directory: code/src-tauri
         run: rustup show active-toolchain || rustup toolchain install
 
       - uses: Swatinem/rust-cache@v2
         with:
-          workspaces: src-tauri -> target
+          workspaces: code/src-tauri -> target
 
       - name: Install dependencies
+        working-directory: code
         run: bun install --frozen-lockfile
 
       # Release notes: commits pushed straight to main since the previous tag,
@@ -46,7 +47,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tag="v$(jq -r .version package.json)"
+          tag="v$(jq -r .version code/package.json)"
           if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
             prev=$(git describe --tags --abbrev=0 "$tag^" 2>/dev/null || true)
           else
@@ -91,6 +92,7 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         with:
+          projectPath: code
           tauriScript: bun tauri
           tagName: v__VERSION__
           releaseName: Notchly v__VERSION__
@@ -108,10 +110,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $version = (Get-Content code/package.json | ConvertFrom-Json).version
           $dir = "portable/Notchly"
           New-Item -ItemType Directory -Force $dir | Out-Null
-          Copy-Item src-tauri/target/release/notchly.exe $dir
+          Copy-Item code/src-tauri/target/release/notchly.exe $dir
           New-Item -ItemType File "$dir/.portable" | Out-Null
           $zip = "Notchly_${version}_x64-portable.zip"
           Compress-Archive -Path $dir -DestinationPath $zip
@@ -122,10 +124,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $version = (Get-Content code/package.json | ConvertFrom-Json).version
           $files = @()
-          $files += Get-ChildItem "src-tauri/target/release/bundle/nsis/*.exe"
-          $files += Get-ChildItem "src-tauri/target/release/bundle/msi/*.msi"
+          $files += Get-ChildItem "code/src-tauri/target/release/bundle/nsis/*.exe"
+          $files += Get-ChildItem "code/src-tauri/target/release/bundle/msi/*.msi"
           $files += Get-Item "Notchly_${version}_x64-portable.zip"
           $lines = $files | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()

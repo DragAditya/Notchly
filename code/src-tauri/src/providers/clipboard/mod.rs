@@ -562,13 +562,13 @@ impl Ctx {
             }
             path
         };
-        if let Some(original) = path {
-            if let Err(e) = std::fs::remove_file(&original) {
-                log::warn!(
-                    "clipboard: can't delete screenshot {}: {e}",
-                    original.display()
-                );
-            }
+        if let Some(original) = path
+            && let Err(e) = std::fs::remove_file(&original)
+        {
+            log::warn!(
+                "clipboard: can't delete screenshot {}: {e}",
+                original.display()
+            );
         }
 
         let removed = {
@@ -740,10 +740,10 @@ impl Ctx {
         }
 
         for shot in &expired {
-            if let Some(path) = &shot.path {
-                if let Err(e) = std::fs::remove_file(path) {
-                    log::warn!("clipboard: can't delete screenshot {}: {e}", path.display());
-                }
+            if let Some(path) = &shot.path
+                && let Err(e) = std::fs::remove_file(path)
+            {
+                log::warn!("clipboard: can't delete screenshot {}: {e}", path.display());
             }
         }
 

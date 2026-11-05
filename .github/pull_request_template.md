@@ -20,9 +20,9 @@ Closes #
 
 Describe what you ran and what you tested manually.
 
-- [ ] `bun run build`
-- [ ] `cargo fmt --manifest-path src-tauri/Cargo.toml --check`
-- [ ] `cargo test --manifest-path src-tauri/Cargo.toml --lib`
+- [ ] `cd code && bun run build`
+- [ ] `cargo fmt --manifest-path code/src-tauri/Cargo.toml --check`
+- [ ] `cargo test --manifest-path code/src-tauri/Cargo.toml --lib`
 - [ ] Tested the affected feature in the running app on Windows
 
 ## Screenshots
