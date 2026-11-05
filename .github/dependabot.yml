@@ -9,7 +9,7 @@ updates:
       rust:
         patterns: ["*"]
 
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/code"
     schedule:
       interval: "weekly"
