@@ -51,6 +51,11 @@ pub fn run() {
                         shortcuts::toggle_lock(app);
                         return;
                     }
+                    // A locked notch ignores every other global opening too,
+                    // including the companion keys and Ask/Find.
+                    if shortcuts::is_locked(app) {
+                        return;
+                    }
                     if matches(*shortcut, shortcuts::companion_summon()) {
                         let _ = app.emit(COMPANION_SUMMON_EVENT, ());
                         return;
@@ -125,6 +130,7 @@ pub fn run() {
             settings::set_autostart,
             shortcuts::set_shortcut,
             shortcuts::set_instant_shortcut,
+            shortcuts::get_shortcut_conflicts,
             settings::open_external,
             updater::check_update,
             updater::install_update,

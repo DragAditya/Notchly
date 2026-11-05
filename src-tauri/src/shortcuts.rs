@@ -7,6 +7,7 @@
 
 use std::sync::Mutex;
 
+use serde::Serialize;
 use serde_json::Value;
 use tauri::{AppHandle, Manager};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut};
@@ -36,6 +37,17 @@ static SUMMON: Mutex<Option<Shortcut>> = Mutex::new(None);
 static TOGGLE: Mutex<Option<Shortcut>> = Mutex::new(None);
 static LOCK: Mutex<Option<Shortcut>> = Mutex::new(None);
 
+/// A saved shortcut that could not be registered at startup. The settings
+/// window shows these so a conflict does not stay hidden in the log.
+#[derive(Clone, Serialize)]
+pub struct ShortcutConflict {
+    pub key: String,
+    pub combo: String,
+    pub reason: String,
+}
+
+static CONFLICTS: Mutex<Vec<ShortcutConflict>> = Mutex::new(Vec::new());
+
 /// The registered instant-prompt shortcut, if any.
 pub fn instant() -> Option<Shortcut> {
     *INSTANT.lock().unwrap()
@@ -59,6 +71,29 @@ pub fn companion_toggle() -> Option<Shortcut> {
 
 pub fn notch_lock() -> Option<Shortcut> {
     *LOCK.lock().unwrap()
+}
+
+fn clear_conflict(key: &str) {
+    CONFLICTS
+        .lock()
+        .unwrap()
+        .retain(|conflict| conflict.key != key);
+}
+
+fn set_conflict(key: &str, combo: &str, reason: &str) {
+    let mut conflicts = CONFLICTS.lock().unwrap();
+    conflicts.retain(|conflict| conflict.key != key);
+    conflicts.push(ShortcutConflict {
+        key: key.to_string(),
+        combo: combo.to_string(),
+        reason: reason.to_string(),
+    });
+}
+
+/// Startup shortcut failures for the Advanced page.
+#[tauri::command]
+pub fn get_shortcut_conflicts() -> Vec<ShortcutConflict> {
+    CONFLICTS.lock().unwrap().clone()
 }
 
 fn slot(key: &str) -> Option<&'static Mutex<Option<Shortcut>>> {
@@ -134,6 +169,7 @@ pub fn register_saved(app: &AppHandle) {
                 }
             }
             log::warn!("shortcut {key} '{combo}': {error}");
+            set_conflict(key, &combo, &error);
         }
     }
 }
@@ -153,6 +189,7 @@ pub fn apply(app: &AppHandle, key: &str, combo: &str) -> Result<(), String> {
             let _ = app.global_shortcut().unregister(old);
         }
         sync_hotkey_label(key, None);
+        clear_conflict(key);
         return Ok(());
     }
 
@@ -163,6 +200,7 @@ pub fn apply(app: &AppHandle, key: &str, combo: &str) -> Result<(), String> {
     }
     if *current == Some(hotkey) {
         sync_hotkey_label(key, Some(combo.to_string()));
+        clear_conflict(key);
         return Ok(());
     }
 
@@ -175,6 +213,7 @@ pub fn apply(app: &AppHandle, key: &str, combo: &str) -> Result<(), String> {
         Ok(()) => {
             *current = Some(hotkey);
             sync_hotkey_label(key, Some(combo.to_string()));
+            clear_conflict(key);
             Ok(())
         }
         Err(_) => {

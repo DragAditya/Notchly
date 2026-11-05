@@ -558,6 +558,24 @@ body:has(.settings) {
 .advanced-status.is-error {
   color: #ff6961;
 }
+.advanced-conflict {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 4px 0 8px;
+  padding: 9px 11px;
+  border-radius: 10px;
+  background: rgba(255, 105, 97, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(255, 105, 97, 0.16);
+}
+.advanced-conflict-title {
+  color: #ff8d86;
+  font-size: 12px;
+  font-weight: 650;
+}
+.advanced-conflict .advanced-status {
+  padding: 0;
+}
 .advanced-keys {
   min-width: 86px;
   padding: 5px 9px;

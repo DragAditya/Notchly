@@ -13,6 +13,8 @@ interface Options {
 	fullscreen: boolean;
 	/** The pointer is on the resting island and the hover action pops the companion. */
 	hovered?: boolean;
+	/** The notch is locked: keep every companion surface and reaction out of the way. */
+	locked?: boolean;
 }
 
 export interface CompanionController {
@@ -37,12 +39,21 @@ const SUMMON_MS = 20_000;
  * Live activities leave the island to the normal cards; Off also stops the
  * automatic reactions.
  */
-export function useCompanion({ islandMode, fullscreen, hovered = false }: Options): CompanionController {
+export function useCompanion({
+	islandMode,
+	fullscreen,
+	hovered = false,
+	locked = false,
+}: Options): CompanionController {
 	const mode = useCompanionMode();
 	const resting = useSetting(companionSettings.resting);
 	const engineRef = useRef<MoodEngine | null>(null);
 	if (!engineRef.current) engineRef.current = new MoodEngine();
 	const engine = engineRef.current;
+	// Callbacks are also used by provider effects; a ref keeps those effects
+	// from being rebuilt every time the lock changes.
+	const lockedRef = useRef(locked);
+	lockedRef.current = locked;
 
 	const [reaction, setReaction] = useState<ReactionState | null>(null);
 	const [summonUntil, setSummonUntil] = useState(0);
@@ -54,8 +65,8 @@ export function useCompanion({ islandMode, fullscreen, hovered = false }: Option
 
 	const react = useCallback(
 		(event: CompanionEvent) => {
-			// Off and Live activities keep the companion out of the way entirely.
-			if (mode === "off" || mode === "activities") return;
+			// The lock silences the companion completely, including automatic reactions.
+			if (lockedRef.current || mode === "off" || mode === "activities") return;
 			const next = engine.react(event);
 			if (next) setReaction(next);
 		},
@@ -64,6 +75,7 @@ export function useCompanion({ islandMode, fullscreen, hovered = false }: Option
 
 	const summon = useCallback(
 		(ms = SUMMON_MS) => {
+			if (lockedRef.current) return;
 			const now = Date.now();
 			setSuppressUntil(0);
 			setSummonUntil(now + ms);
@@ -82,6 +94,7 @@ export function useCompanion({ islandMode, fullscreen, hovered = false }: Option
 	}, [engine]);
 
 	const toggleMode = useCallback(() => {
+		if (lockedRef.current) return;
 		const next: CompanionMode = mode === "off" ? "mixed" : "off";
 		setSetting(companionSettings.mode, next);
 		if (next === "mixed") {
@@ -94,6 +107,16 @@ export function useCompanion({ islandMode, fullscreen, hovered = false }: Option
 			setSuppressUntil(0);
 		}
 	}, [mode, summon, engine]);
+
+	// Locking removes the current expression and any summon immediately. The
+	// saved Companion mode is untouched, so unlocking simply lets the eyes
+	// return the next time they would naturally appear.
+	useEffect(() => {
+		if (!locked) return;
+		engine.dismiss();
+		setReaction(null);
+		setSummonUntil(0);
+	}, [engine, locked]);
 
 	// A reaction fades back to the ambient mood (or away, in Auto).
 	useEffect(() => {
@@ -200,6 +223,7 @@ export function useCompanion({ islandMode, fullscreen, hovered = false }: Option
 	const summonActive = summonUntil > now;
 	const suppressed = suppressUntil > now;
 	const visible =
+		!locked &&
 		!fullscreen &&
 		islandMode === "idle" &&
 		!suppressed &&
@@ -208,6 +232,7 @@ export function useCompanion({ islandMode, fullscreen, hovered = false }: Option
 	const mood: Mood = summonActive ? "love" : reactionActive ? reaction.mood : engine.ambient(idleSecs, !!music?.playing);
 
 	const toggleVisible = useCallback(() => {
+		if (lockedRef.current) return;
 		if (visible) dismiss();
 		else summon();
 	}, [visible, dismiss, summon]);

@@ -87,7 +87,7 @@ The AI Agents panel follows Claude Code and Codex sessions, context, limits and 
 | **AI agents** | Follow Claude Code sessions, permission prompts, plan usage and daily token activity without leaving the island. |
 | **Live activities** | Volume, brightness, Bluetooth, charging, battery and Windows power-mode changes, plus custom activities from the local API. |
 | **Companion eyes** | A small pair of eyes that peeks in for music, volume, battery and notifications, then disappears. Auto keeps it out of the way; `Ctrl+Alt+R` calls it and `Ctrl+Alt+Shift+R` turns Auto on or off. |
-| **Notch lock** | `Ctrl+Alt+L` freezes hover, clicks, drags and other openings. A locked click shakes the notch and flashes it red. |
+| **Notch lock** | `Ctrl+Alt+L` freezes hover, clicks, drags, companion eyes and other openings. A locked click shakes the notch and flashes it red, or can pass through to the app below. Unlock from the shortcut, Settings or the tray. |
 | **Notifications** | Mirror Windows notifications from WhatsApp, Teams, Outlook, Discord and other apps, with app icons and quick open. |
 | **Screenshot workflow** | Keep, delete or defer the newest screenshot from the notch. Older screenshots wait in the Shelf with a live countdown. |
 | **Utilities** | Clipboard history, screenshot shelf, find-on-screen OCR, GitHub issue counts, CPU/GPU/network monitor, clock and calendar. |

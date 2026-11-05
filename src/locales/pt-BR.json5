@@ -41,6 +41,10 @@
       label: "Bloquear a ilha",
       desc: "Mantém a ilha visível, mas ignora hover, cliques, arrastos e aberturas globais. Use o atalho para desbloquear.",
     },
+    lockClickThrough: {
+      label: "Cliques atravessam enquanto bloqueada",
+      desc: "Deixa os cliques chegarem ao app por baixo em vez de balançar a ilha. Desbloqueie pelo atalho ou pela bandeja.",
+    },
     hoverDelay: {
       label: "Atraso do hover",
       desc: "Quanto tempo o ponteiro descansa na ilha antes da ação de hover.",
@@ -134,6 +138,9 @@
       off: "Desligado",
       invalid: "Use Ctrl, Alt ou Shift com uma letra, número ou tecla F.",
       taken: "Outro app já usa essa combinação.",
+      conflictTitle: "Estes atalhos não puderam ser registrados:",
+      // {name}: nome do atalho, {combo}: a combinação
+      conflict: "{name} ({combo}) não pôde ser registrado. Outro app pode já usá-lo. Escolha outro atalho ou use a bandeja.",
     },
     value: {
       on: "Ligado",
@@ -296,6 +303,8 @@
     hide: "Ocultar ilha",
     show: "Mostrar ilha",
     hiddenTooltip: "Notchly (oculta): clique para mostrar",
+    lock: "Bloquear ilha",
+    unlock: "Desbloquear ilha",
   },
   window: {
     settings: "Notchly — Configurações",
@@ -303,6 +312,10 @@
 
   island: {
     settings: "Configurações",
+    lock: {
+      locked: "Bloqueada",
+      unlocked: "Desbloqueada",
+    },
   },
 
   modules: {

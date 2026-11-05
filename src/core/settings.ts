@@ -113,6 +113,12 @@ export const generalSettings = {
     description: "settings.locked.desc",
     default: false,
   },
+  lockClickThrough: {
+    key: "island.lockClickThrough",
+    label: "settings.lockClickThrough.label",
+    description: "settings.lockClickThrough.desc",
+    default: false,
+  },
   hoverDelay: {
     key: "island.hoverDelay",
     label: "settings.hoverDelay.label",
@@ -290,7 +296,11 @@ export const companionSettings = {
 
 /** Normalized mode, including old `auto` / `always` values. */
 export function useCompanionMode(): CompanionMode {
-  return companionModeOf(useSetting(companionSettings.mode));
+  const mode = companionModeOf(useSetting(companionSettings.mode));
+  const locked = useSetting(generalSettings.locked);
+  // The lock temporarily hides the companion from every compact surface
+  // without changing the saved presentation. Unlocking restores it.
+  return locked && (mode === "eyes" || mode === "mixed") ? "activities" : mode;
 }
 
 /**

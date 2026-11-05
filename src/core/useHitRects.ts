@@ -18,15 +18,20 @@ export function useHitRects() {
     const tick = () => {
       raf = requestAnimationFrame(tick);
       if (frame++ % 3 !== 0) return;
-      const rects = Array.from(document.querySelectorAll<HTMLElement>("[data-hit]")).map((el) => {
-        const r = el.getBoundingClientRect();
-        return {
-          x: Math.round(r.left - PAD),
-          y: Math.round(Math.max(0, r.top - PAD)),
-          width: Math.round(r.width + PAD * 2),
-          height: Math.round(r.height + PAD * 2),
-        };
-      });
+      // Click-through lock: report no hit areas at all, including the pieces
+      // inside the shell, so the window stays transparent to the pointer.
+      const passThrough = document.querySelector('[data-lock-clickthrough="true"]') !== null;
+      const rects = passThrough
+        ? []
+        : Array.from(document.querySelectorAll<HTMLElement>("[data-hit]")).map((el) => {
+            const r = el.getBoundingClientRect();
+            return {
+              x: Math.round(r.left - PAD),
+              y: Math.round(Math.max(0, r.top - PAD)),
+              width: Math.round(r.width + PAD * 2),
+              height: Math.round(r.height + PAD * 2),
+            };
+          });
       const key = JSON.stringify(rects);
       if (key !== last) {
         last = key;

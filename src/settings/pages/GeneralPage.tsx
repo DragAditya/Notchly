@@ -22,6 +22,10 @@ export function GeneralPage({ values }: { values: Record<string, unknown> }) {
         <ToggleRow def={generalSettings.hideInFullscreen} value={readSetting(values, generalSettings.hideInFullscreen)} />
         <ToggleRow def={generalSettings.expandOnHover} value={readSetting(values, generalSettings.expandOnHover)} />
         <ToggleRow def={generalSettings.locked} value={readSetting(values, generalSettings.locked)} />
+        <ToggleRow
+          def={generalSettings.lockClickThrough}
+          value={readSetting(values, generalSettings.lockClickThrough)}
+        />
       </section>
       <section className="settings-card">
         <HoverDelayRow value={readSetting(values, generalSettings.hoverDelay)} />

@@ -25,6 +25,9 @@ pub const RECENTER_EVENT: &str = "island://recenter";
 /// Strip height in logical pixels (fits the tallest expanded panel + shadow).
 pub const STRIP_HEIGHT: f64 = 480.0;
 
+/// When locked and this setting is on, the whole overlay becomes click-through.
+const LOCK_CLICK_THROUGH_KEY: &str = "island.lockClickThrough";
+
 /// The last window in front that wasn't one of ours: what "ask about the
 /// screen" captures, and where focus goes back to after typing in the island.
 static LAST_FOREGROUND: AtomicIsize = AtomicIsize::new(0);
@@ -178,6 +181,18 @@ pub fn is_interacting(app: &AppHandle) -> bool {
     HOVERING.load(Ordering::Relaxed) || app.state::<DragState>().0.load(Ordering::Relaxed)
 }
 
+/// The notch is locked and the user opted into letting the pointer fall
+/// through to whatever is underneath it.
+fn lock_click_through(app: &AppHandle) -> bool {
+    if !crate::shortcuts::is_locked(app) {
+        return false;
+    }
+    app.try_state::<crate::settings::Settings>()
+        .and_then(|settings| settings.get(LOCK_CLICK_THROUGH_KEY))
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false)
+}
+
 pub fn spawn_hit_test(app: AppHandle) {
     std::thread::spawn(move || {
         let mut ignoring: Option<bool> = None;
@@ -217,8 +232,9 @@ pub fn spawn_hit_test(app: AppHandle) {
             }
 
             let dragging = app.state::<DragState>().0.load(Ordering::Relaxed);
+            let click_through = lock_click_through(&app);
             let over_island = cursor_inside(&app, &win, 0.0);
-            let inside = !fullscreen && (dragging || over_island);
+            let inside = !fullscreen && !click_through && (dragging || over_island);
 
             // A drag that started in another app (files from Explorer…). The
             // island is a thin target and the drop target must be under the
@@ -228,24 +244,32 @@ pub fn spawn_hit_test(app: AppHandle) {
             let down = left_button_down();
             let fresh_press = down && !button_down;
             if fresh_press {
-                pressed_inside = over_island;
+                pressed_inside = !click_through && over_island;
             }
             button_down = down;
-            let drop_zone =
-                !fullscreen && down && !pressed_inside && cursor_inside(&app, &win, DROP_MARGIN);
-            let dragging_in = down && !pressed_inside && (file_drag || drop_zone);
-            if dragging_in != file_drag {
+            let drop_zone = !fullscreen
+                && !click_through
+                && down
+                && !pressed_inside
+                && cursor_inside(&app, &win, DROP_MARGIN);
+            let dragging_in = !click_through && down && !pressed_inside && (file_drag || drop_zone);
+            if click_through {
+                if file_drag {
+                    file_drag = false;
+                    set_file_drag(&win, false);
+                }
+            } else if dragging_in != file_drag {
                 file_drag = dragging_in;
                 set_file_drag(&win, file_drag);
             }
 
             // A click that starts outside folds any open panel back, even when
             // the pointer was never over the island (shortcut-opened answers).
-            if fresh_press && !pressed_inside && !dragging_in {
+            if fresh_press && !click_through && !pressed_inside && !dragging_in {
                 let _ = app.emit(OUTSIDE_EVENT, ());
             }
 
-            let ignore = !inside && !drop_zone;
+            let ignore = click_through || (!inside && !drop_zone);
             if ignoring != Some(ignore) && win.set_ignore_cursor_events(ignore).is_ok() {
                 ignoring = Some(ignore);
             }

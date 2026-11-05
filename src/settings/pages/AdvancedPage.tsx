@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router";
-import { command, isTauri } from "../../core/bridge";
+import { command, isTauri, useTauriEvent } from "../../core/bridge";
 import { useT, type MessageKey } from "../../core/i18n";
 import {
   appearanceSettings,
@@ -36,6 +36,12 @@ interface Section {
   label: MessageKey;
   path: string;
   defs: AnyDef[];
+}
+
+interface ShortcutConflict {
+  key: string;
+  combo: string;
+  reason: string;
 }
 
 const EXTRA: Record<string, AnyDef[]> = {
@@ -303,6 +309,17 @@ function ShortcutEditor({ values }: { values: Values }) {
   const t = useT();
   const [recording, setRecording] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [conflicts, setConflicts] = useState<ShortcutConflict[]>([]);
+
+  const refreshConflicts = useCallback(() => {
+    if (!isTauri) return;
+    command<ShortcutConflict[]>("get_shortcut_conflicts")
+      .then((list) => setConflicts(list ?? []))
+      .catch(() => setConflicts([]));
+  }, []);
+
+  useEffect(refreshConflicts, [refreshConflicts]);
+  useTauriEvent("settings://changed", refreshConflicts);
 
   useEffect(() => {
     if (!recording) return;
@@ -331,6 +348,7 @@ function ShortcutEditor({ values }: { values: Values }) {
     try {
       if (isTauri) await command("set_shortcut", { key: def.key, combo });
       setSetting(def, combo);
+      setConflicts((current) => current.filter((conflict) => conflict.key !== def.key));
       setRecording(null);
     } catch (reason) {
       const message = String(reason);
@@ -346,6 +364,22 @@ function ShortcutEditor({ values }: { values: Values }) {
           <span className="settings-desc">{t("advanced.shortcuts.desc")}</span>
         </div>
       </div>
+      {conflicts.length > 0 && (
+        <div className="advanced-conflict" role="alert">
+          <span className="advanced-conflict-title">{t("advanced.shortcuts.conflictTitle")}</span>
+          {conflicts.map((conflict) => {
+            const def = SHORTCUTS.find((item) => item.key === conflict.key);
+            return (
+              <span className="advanced-status is-error" key={conflict.key}>
+                {t("advanced.shortcuts.conflict", {
+                  name: def ? t(def.label) : conflict.key,
+                  combo: conflict.combo,
+                })}
+              </span>
+            );
+          })}
+        </div>
+      )}
       {SHORTCUTS.map((def) => {
         const value = readSetting(values, def);
         return (

@@ -135,6 +135,7 @@ pub fn reset_settings(app: AppHandle, keys: Vec<String>) {
     };
     let _ = app.emit(CHANGED_EVENT, snapshot);
     crate::tray::sync_hidden(&app);
+    crate::tray::sync_lock(&app);
     crate::shortcuts::register_saved(&app);
 }
 
@@ -148,6 +149,7 @@ fn replace(app: &AppHandle, data: Map<String, Value>) {
     };
     let _ = app.emit(CHANGED_EVENT, snapshot);
     crate::tray::sync_hidden(app);
+    crate::tray::sync_lock(app);
 }
 
 /// Store and broadcast a setting (backend side of `setSetting`).
@@ -162,6 +164,9 @@ pub fn set(app: &AppHandle, key: &str, value: Value) {
     let _ = app.emit(CHANGED_EVENT, snapshot);
     if key == crate::tray::HIDDEN_KEY {
         crate::tray::sync_hidden(app);
+    }
+    if key == crate::shortcuts::LOCK_KEY {
+        crate::tray::sync_lock(app);
     }
 }
 

@@ -48,6 +48,10 @@
       label: "Lock the notch",
       desc: "Keeps the island visible but ignores hover, clicks, drags and global opens. Use the shortcut to unlock.",
     },
+    lockClickThrough: {
+      label: "Click-through while locked",
+      desc: "Lets clicks reach the app underneath instead of shaking the notch. Unlock with the shortcut or the tray.",
+    },
     hoverDelay: {
       label: "Hover delay",
       desc: "How long the pointer rests on the island before the hover action happens.",
@@ -145,6 +149,9 @@
       off: "Off",
       invalid: "Add Ctrl, Alt or Shift to a letter, number or F-key.",
       taken: "Another app already uses that combination.",
+      conflictTitle: "These shortcuts could not be registered:",
+      // {name}: shortcut name, {combo}: its key combination
+      conflict: "{name} ({combo}) could not be registered. Another app may already use it. Choose another shortcut, or use the tray.",
     },
     value: {
       on: "On",
@@ -308,6 +315,8 @@
     hide: "Hide island",
     show: "Show island",
     hiddenTooltip: "Notchly (hidden): click to show",
+    lock: "Lock notch",
+    unlock: "Unlock notch",
   },
   window: {
     settings: "Notchly — Settings",
@@ -316,6 +325,10 @@
   // Island chrome
   island: {
     settings: "Settings",
+    lock: {
+      locked: "Locked",
+      unlocked: "Unlocked",
+    },
   },
 
   // Modules page of the settings: every module, its tab order and on/off

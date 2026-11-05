@@ -7,8 +7,8 @@ import { useIslandDrag } from "../core/useIslandDrag";
 import { IslandContext, type IslandApi } from "../core/island";
 import { useAppearance } from "../core/appearance";
 import { useTauriEvent } from "../core/bridge";
-import { useSyncLocale } from "../core/i18n";
-import { companionSettings, useSetting } from "../core/settings";
+import { useSyncLocale, useT } from "../core/i18n";
+import { companionSettings, generalSettings, useSetting } from "../core/settings";
 import { useCompanion } from "../companion/useCompanion";
 import {
 	chatRequest,
@@ -29,6 +29,7 @@ import { useIslandFileDrop } from "./island/useIslandFileDrop";
 
 export function Island() {
 	const ctl = useIslandController(modules);
+	const t = useT();
 	const { mode, primary, secondary, focused } = ctl;
 	const look = useAppearance();
 	const windows = look.style === "windows";
@@ -37,6 +38,8 @@ export function Island() {
 	const speed = useSetting(companionSettings.speed);
 	const glow = useSetting(companionSettings.glow);
 	const reduceMotion = useSetting(companionSettings.reduceMotion);
+	const clickThrough = useSetting(generalSettings.lockClickThrough);
+	const lockClickThrough = ctl.locked && clickThrough;
 	const motionIntensity = intensity === "energetic" ? 1.45 : intensity === "calm" ? 0.68 : 1;
 	const motionScale = 1 / Math.max(0.5, speed * look.animationSpeed);
 	const stageStyle = {
@@ -58,6 +61,7 @@ export function Island() {
 		islandMode: mode,
 		fullscreen: ctl.fullscreen,
 		hovered: ctl.hoverAction === "companion" && ctl.hovering,
+		locked: ctl.locked,
 	});
 	const showCompanion = companion.visible && mode === "idle";
 	const g = showCompanion
@@ -169,6 +173,7 @@ export function Island() {
 				style={stageStyle}
 				data-density={look.density}
 				data-reduce-motion={reduceMotion ? "always" : undefined}
+				data-lock-clickthrough={lockClickThrough ? "true" : undefined}
 			>
 				{/* The tray's black hole: the island spins into its own center and comes back out. */}
 				<motion.div
@@ -184,10 +189,10 @@ export function Island() {
 					<motion.div
 						className={`shell ${windows ? "is-windows" : "is-dynamic"} ${drag.dragging ? "is-dragging" : ""} ${
 							ctl.locked ? "is-locked" : ""
-						} ${lockFeedback === "locked" ? "is-lock-hit" : ""} ${
-							lockFeedback === "unlocked" ? "is-unlock-hit" : ""
-						}`}
-						{...(hidden || swallowed ? {} : { "data-hit": true })}
+						} ${lockClickThrough ? "is-lock-clickthrough" : ""} ${
+							lockFeedback === "locked" ? "is-lock-hit" : ""
+						} ${lockFeedback === "unlocked" ? "is-unlock-hit" : ""}`}
+						{...(hidden || swallowed || lockClickThrough ? {} : { "data-hit": true })}
 						{...ctl.domHover}
 						style={{ ...drag.style, marginTop: v.top }}
 						onPointerDown={drag.onPointerDown}
@@ -225,6 +230,12 @@ export function Island() {
 						>
 							{content.node}
 						</Surface>
+
+						{lockFeedback && (
+							<span className={`lock-toast ${lockFeedback}`} role="status" aria-live="polite">
+								{lockFeedback === "locked" ? t("island.lock.locked") : t("island.lock.unlocked")}
+							</span>
+						)}
 
 						<AmbientBubbles entries={ctl.entries} visible={resting} shrunk={mode === "idle" && !windows} {...bubble} />
 						<SecondaryBubble entry={showSecondary ? secondary : undefined} {...bubble} />

@@ -19,6 +19,7 @@ struct TrayItems {
     /// Added once an update is downloaded, with its version.
     update: Mutex<Option<(MenuItem<Wry>, String)>>,
     toggle: MenuItem<Wry>,
+    lock: CheckMenuItem<Wry>,
     settings: MenuItem<Wry>,
     autostart: CheckMenuItem<Wry>,
     recenter: MenuItem<Wry>,
@@ -43,6 +44,9 @@ pub fn setup(app: &AppHandle) -> tauri::Result<()> {
         true,
         None::<&str>,
     )?;
+    let locked = crate::shortcuts::is_locked(app);
+    let lock =
+        CheckMenuItem::with_id(app, "lock", t(lock_key(locked)), true, locked, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", t("tray.settings"), true, None::<&str>)?;
     let recenter = MenuItem::with_id(app, "recenter", t("tray.recenter"), true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", t("tray.quit"), true, None::<&str>)?;
@@ -51,6 +55,7 @@ pub fn setup(app: &AppHandle) -> tauri::Result<()> {
         &[
             &toggle,
             &settings,
+            &lock,
             &autostart,
             &recenter,
             &PredefinedMenuItem::separator(app)?,
@@ -61,6 +66,7 @@ pub fn setup(app: &AppHandle) -> tauri::Result<()> {
         menu: menu.clone(),
         update: Mutex::default(),
         toggle: toggle.clone(),
+        lock: lock.clone(),
         settings: settings.clone(),
         autostart: autostart.clone(),
         recenter: recenter.clone(),
@@ -84,6 +90,7 @@ pub fn setup(app: &AppHandle) -> tauri::Result<()> {
         })
         .on_menu_event(move |app, event| match event.id().as_ref() {
             "toggle" => toggle_hidden(app),
+            "lock" => crate::shortcuts::toggle_lock(app),
             "autostart" => {
                 let launcher = app.autolaunch();
                 let enabled = launcher.is_enabled().unwrap_or(false);
@@ -112,6 +119,7 @@ pub fn setup(app: &AppHandle) -> tauri::Result<()> {
     }
     builder.build(app)?;
     sync_hidden(app);
+    sync_lock(app);
     Ok(())
 }
 
@@ -142,6 +150,20 @@ fn toggle_key(hidden: bool) -> &'static str {
     if hidden { "tray.show" } else { "tray.hide" }
 }
 
+fn lock_key(locked: bool) -> &'static str {
+    if locked { "tray.unlock" } else { "tray.lock" }
+}
+
+/// The check mark and label follow the lock state, whether it changed from
+/// the shortcut, the tray or the settings window.
+pub fn sync_lock(app: &AppHandle) {
+    let locked = crate::shortcuts::is_locked(app);
+    if let Some(items) = app.try_state::<TrayItems>() {
+        let _ = items.lock.set_checked(locked);
+        let _ = items.lock.set_text(i18n::t(app, lock_key(locked)));
+    }
+}
+
 /// Menu label, icon and tooltip follow the hidden state.
 pub fn sync_hidden(app: &AppHandle) {
     let hidden = is_hidden(app);
@@ -170,6 +192,9 @@ pub fn relabel(app: &AppHandle) {
     };
     let t = |key| i18n::t(app, key);
     let _ = items.toggle.set_text(t(toggle_key(is_hidden(app))));
+    let _ = items
+        .lock
+        .set_text(t(lock_key(crate::shortcuts::is_locked(app))));
     let _ = items.settings.set_text(t("tray.settings"));
     let _ = items.autostart.set_text(t("tray.autostart"));
     let _ = items.recenter.set_text(t("tray.recenter"));
