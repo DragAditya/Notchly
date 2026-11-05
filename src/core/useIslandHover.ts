@@ -13,6 +13,8 @@ interface Options {
   expandOnHover: boolean;
   /** How long the pointer rests before entering reacts. */
   hoverDelay: number;
+  /** Locked: the notch ignores pointer input until unlocked. */
+  locked: boolean;
   onOpen: () => void;
   onClose: () => void;
 }
@@ -26,17 +28,17 @@ interface Options {
  * keep it open wherever the pointer goes; the pointer's last state applies
  * once every reason to stay open has ended.
  */
-export function useIslandHover({ expandOnHover, hoverDelay, onOpen, onClose }: Options) {
+export function useIslandHover({ expandOnHover, hoverDelay, locked, onOpen, onClose }: Options) {
   const [open, setOpen] = useState(false);
   const [hovering, setHovering] = useState(false);
   const openRef = useRef(false);
   const timer = useRef<number | undefined>(undefined);
   const hoverTimer = useRef<number | undefined>(undefined);
-  const latest = useRef({ expandOnHover, hoverDelay, onOpen, onClose });
-  latest.current = { expandOnHover, hoverDelay, onOpen, onClose };
+  const latest = useRef({ expandOnHover, hoverDelay, locked, onOpen, onClose });
+  latest.current = { expandOnHover, hoverDelay, locked, onOpen, onClose };
 
   const pointerInside = useRef(false);
-  const locked = useRef(false);
+  const dragLocked = useRef(false);
   const holds = useRef(new Set<string>());
   const resizedAt = useRef(0);
 
@@ -48,8 +50,15 @@ export function useIslandHover({ expandOnHover, hoverDelay, onOpen, onClose }: O
     [],
   );
 
+  useEffect(() => {
+    if (!locked) return;
+    window.clearTimeout(hoverTimer.current);
+    setHovering(false);
+  }, [locked]);
+
   const transition = useCallback((inside: boolean, immediate = false) => {
     window.clearTimeout(timer.current);
+    if (inside && latest.current.locked) return;
     // Back in before the island closed (or out before it opened): nothing to do.
     if (inside === openRef.current) return;
     const apply = () => {
@@ -74,13 +83,13 @@ export function useIslandHover({ expandOnHover, hoverDelay, onOpen, onClose }: O
       // The companion waits for the same rest period as expansion. Leaving is
       // immediate so it never lingers over whatever is underneath.
       window.clearTimeout(hoverTimer.current);
-      if (!inside) {
+      if (!inside || latest.current.locked) {
         setHovering(false);
       } else {
         const delay = Math.min(2000, Math.max(0, Number(latest.current.hoverDelay) || 0));
         hoverTimer.current = window.setTimeout(() => setHovering(true), delay);
       }
-      if (locked.current || holds.current.size > 0) return;
+      if (latest.current.locked || dragLocked.current || holds.current.size > 0) return;
       if (!inside || latest.current.expandOnHover) transition(inside);
       else window.clearTimeout(timer.current);
     },
@@ -88,7 +97,7 @@ export function useIslandHover({ expandOnHover, hoverDelay, onOpen, onClose }: O
   );
 
   const lockHover = useCallback((on: boolean) => {
-    locked.current = on;
+    dragLocked.current = on;
     if (on) window.clearTimeout(timer.current);
   }, []);
 
@@ -107,7 +116,10 @@ export function useIslandHover({ expandOnHover, hoverDelay, onOpen, onClose }: O
     resizedAt.current = Date.now();
   }, []);
 
-  const expand = useCallback(() => transition(true, true), [transition]);
+  const expand = useCallback(() => {
+    if (latest.current.locked) return;
+    transition(true, true);
+  }, [transition]);
   const collapse = useCallback(() => {
     holds.current.clear();
     transition(false, true);

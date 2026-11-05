@@ -39,12 +39,14 @@ export function useIslandController(modules: IslandModule[]) {
   const forcedId = entries.find((e) => e.view.forceExpanded)?.module.id ?? null;
   const attentionId = forcedId ?? entries.find((e) => e.view.attention)?.module.id ?? null;
   const tabMemory = useTabMemory(attentionId);
-  const { peekId, peek, endPeek } = usePeek(entries);
+  const locked = readSetting(settings, generalSettings.locked);
+  const { peekId, peek, endPeek } = usePeek(entries, locked);
   const hoverAction = readSetting(settings, generalSettings.hoverAction);
   const hover = useIslandHover({
     // "Pop companion" and "Do nothing" keep the island resting on hover.
     expandOnHover: hoverAction === "expand" && readSetting(settings, generalSettings.expandOnHover),
     hoverDelay: readSetting(settings, generalSettings.hoverDelay),
+    locked,
     onOpen: tabMemory.onIslandOpen,
     onClose: tabMemory.onIslandClose,
   });
@@ -54,6 +56,7 @@ export function useIslandController(modules: IslandModule[]) {
   const mode = islandMode({
     swallowed: settings[ISLAND_HIDDEN_KEY] === true,
     hidden: fullscreen && readSetting(settings, generalSettings.hideInFullscreen),
+    locked,
     expanded: hover.open,
     forceExpanded,
     peeking: peekId !== null,
@@ -71,25 +74,34 @@ export function useIslandController(modules: IslandModule[]) {
   /** A tab picked by the user: the island may shrink away from the pointer. */
   const selectTab = useCallback(
     (id: string | null) => {
+      if (locked) return;
       hover.expectResize();
       tabMemory.setTab(id);
     },
-    [hover.expectResize, tabMemory.setTab],
+    [locked, hover.expectResize, tabMemory.setTab],
   );
 
   const expand = useCallback(
     (moduleId?: string) => {
+      if (locked) return;
       if (moduleId) tabMemory.openOn(moduleId);
       endPeek();
       hover.expand();
     },
-    [tabMemory.openOn, endPeek, hover.expand],
+    [locked, tabMemory.openOn, endPeek, hover.expand],
   );
 
   const collapse = useCallback(() => {
     endPeek();
     hover.collapse();
   }, [endPeek, hover.collapse]);
+
+  // Locking folds whatever is open and cancels a peek; the notch stays visible.
+  useEffect(() => {
+    if (!locked) return;
+    endPeek();
+    hover.collapse();
+  }, [locked, endPeek, hover.collapse]);
 
   // The pinned video went back to the island: show the player for a moment.
   useTauriEvent("pip://return", () => peek("music"));
@@ -114,6 +126,7 @@ export function useIslandController(modules: IslandModule[]) {
     tabs,
     launcher: mode === "expanded" && focusedId === LAUNCHER,
     mode,
+    locked,
     fullscreen,
     hoverAction,
     hovering: hover.hovering,
@@ -175,6 +188,7 @@ function useFullscreen() {
 function islandMode(s: {
   swallowed: boolean;
   hidden: boolean;
+  locked: boolean;
   expanded: boolean;
   forceExpanded: boolean;
   peeking: boolean;
@@ -182,6 +196,7 @@ function islandMode(s: {
 }): IslandMode {
   if (s.swallowed) return "swallowed";
   if (s.hidden) return "hidden";
+  if (s.locked) return s.busy ? "compact" : "idle";
   if (s.expanded || s.forceExpanded) return "expanded";
   if (s.peeking) return "peek";
   if (s.busy) return "compact";

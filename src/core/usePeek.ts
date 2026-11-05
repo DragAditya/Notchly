@@ -7,13 +7,16 @@ const PEEK_DURATION = 3800;
  * Briefly shows a module when it reports new activity (its `activityKey`
  * changes), or on demand with `peek`.
  */
-export function usePeek(entries: ModuleEntry[]) {
+export function usePeek(entries: ModuleEntry[], locked = false) {
   const [peekId, setPeekId] = useState<string | null>(null);
   const timer = useRef<number | undefined>(undefined);
   /** Set only when the peek came from an activity key, so manual peeks keep working. */
   const autoPeek = useRef<string | null>(null);
+  const lockedRef = useRef(locked);
+  lockedRef.current = locked;
 
   const peek = useCallback((moduleId: string, auto = false, duration = PEEK_DURATION) => {
+    if (lockedRef.current) return;
     autoPeek.current = auto ? moduleId : null;
     setPeekId(moduleId);
     window.clearTimeout(timer.current);
@@ -30,6 +33,10 @@ export function usePeek(entries: ModuleEntry[]) {
     setPeekId(null);
   }, []);
 
+  useEffect(() => {
+    if (locked) endPeek();
+  }, [locked, endPeek]);
+
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
   const lastKeys = useRef(new Map<string, string | undefined>());
@@ -39,7 +46,9 @@ export function usePeek(entries: ModuleEntry[]) {
       const seen = lastKeys.current.has(module.id);
       const prev = lastKeys.current.get(module.id);
       lastKeys.current.set(module.id, view.activityKey);
-      if (seen && view.activityKey && view.activityKey !== prev) peek(module.id, true, view.peekMs);
+      if (seen && view.activityKey && view.activityKey !== prev && !lockedRef.current) {
+        peek(module.id, true, view.peekMs);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [keySignature]);

@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useEffect, useMemo, useRef, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { modules } from "../modules";
 import { useHitRects } from "../core/useHitRects";
 import { useIslandController } from "../core/useIslandController";
@@ -77,11 +77,40 @@ export function Island() {
 	});
 	const transition = speedUp(big ? v.expandSpring : v.shellSpring);
 
+	// Short red shake when a locked notch is clicked; a green pulse confirms an
+	// unlock (and a red one confirms a lock) when the shortcut toggles it.
+	const [lockFeedback, setLockFeedback] = useState<"locked" | "unlocked" | null>(null);
+	const lockFeedbackTimer = useRef<number | undefined>(undefined);
+	const lockFeedbackFrame = useRef<number | undefined>(undefined);
+	const pulseLock = useCallback((kind: "locked" | "unlocked") => {
+		window.clearTimeout(lockFeedbackTimer.current);
+		if (lockFeedbackFrame.current !== undefined) window.cancelAnimationFrame(lockFeedbackFrame.current);
+		setLockFeedback(null);
+		lockFeedbackFrame.current = window.requestAnimationFrame(() => {
+			setLockFeedback(kind);
+			lockFeedbackTimer.current = window.setTimeout(() => setLockFeedback(null), 700);
+		});
+	}, []);
+	const wasLocked = useRef(ctl.locked);
+	useEffect(() => {
+		if (wasLocked.current === ctl.locked) return;
+		wasLocked.current = ctl.locked;
+		pulseLock(ctl.locked ? "locked" : "unlocked");
+	}, [ctl.locked, pulseLock]);
+	useEffect(
+		() => () => {
+			window.clearTimeout(lockFeedbackTimer.current);
+			if (lockFeedbackFrame.current !== undefined) window.cancelAnimationFrame(lockFeedbackFrame.current);
+		},
+		[],
+	);
+
 	const drag = useIslandDrag({
 		width: g.width,
 		leftExtra: g.ear + (resting ? ambientWidth(ctl.entries.filter((e) => e.view.ambient).length) : 0),
 		rightExtra: g.ear + (showSecondary ? BUBBLE_GAP + BUBBLE : 0),
 		canReturn: !big,
+		disabled: ctl.locked,
 		onDragChange: ctl.lockHover,
 	});
 
@@ -153,12 +182,24 @@ export function Island() {
 					}
 				>
 					<motion.div
-						className={`shell ${windows ? "is-windows" : "is-dynamic"} ${drag.dragging ? "is-dragging" : ""}`}
+						className={`shell ${windows ? "is-windows" : "is-dynamic"} ${drag.dragging ? "is-dragging" : ""} ${
+							ctl.locked ? "is-locked" : ""
+						} ${lockFeedback === "locked" ? "is-lock-hit" : ""} ${
+							lockFeedback === "unlocked" ? "is-unlock-hit" : ""
+						}`}
 						{...(hidden || swallowed ? {} : { "data-hit": true })}
 						{...ctl.domHover}
 						style={{ ...drag.style, marginTop: v.top }}
 						onPointerDown={drag.onPointerDown}
-						onClickCapture={drag.onClickCapture}
+						onClickCapture={(e) => {
+							if (ctl.locked) {
+								e.preventDefault();
+								e.stopPropagation();
+								pulseLock("locked");
+								return;
+							}
+							drag.onClickCapture(e);
+						}}
 						onUpdate={drag.onShellUpdate}
 						onWheel={ctl.onWheel}
 						initial={false}
@@ -169,7 +210,7 @@ export function Island() {
 							y: hidden ? -g.height - 12 - v.top : 0,
 						}}
 						transition={transition}
-						onClick={() => resting && ctl.expand()}
+						onClick={() => resting && !ctl.locked && ctl.expand()}
 					>
 						<motion.span className="ear left" initial={false} animate={{ width: g.ear, height: g.ear }} transition={transition} />
 						<motion.span className="ear right" initial={false} animate={{ width: g.ear, height: g.ear }} transition={transition} />

@@ -19,18 +19,22 @@ pub const ASK_SETTING: &str = "shortcuts.ask";
 pub const FIND_SETTING: &str = "shortcuts.find";
 pub const SUMMON_SETTING: &str = "shortcuts.companionSummon";
 pub const TOGGLE_SETTING: &str = "shortcuts.companionToggle";
+pub const LOCK_SETTING: &str = "shortcuts.notchLock";
+pub const LOCK_KEY: &str = "island.locked";
 
 const ASK_DEFAULT: &str = "Ctrl+Alt+Space";
 const ASK_FALLBACK: &str = "Ctrl+Shift+Space";
 const FIND_DEFAULT: &str = "Ctrl+Alt+F";
 const SUMMON_DEFAULT: &str = "Ctrl+Alt+R";
 const TOGGLE_DEFAULT: &str = "Ctrl+Alt+Shift+R";
+const LOCK_DEFAULT: &str = "Ctrl+Alt+L";
 
 static INSTANT: Mutex<Option<Shortcut>> = Mutex::new(None);
 static ASK: Mutex<Option<Shortcut>> = Mutex::new(None);
 static FIND: Mutex<Option<Shortcut>> = Mutex::new(None);
 static SUMMON: Mutex<Option<Shortcut>> = Mutex::new(None);
 static TOGGLE: Mutex<Option<Shortcut>> = Mutex::new(None);
+static LOCK: Mutex<Option<Shortcut>> = Mutex::new(None);
 
 /// The registered instant-prompt shortcut, if any.
 pub fn instant() -> Option<Shortcut> {
@@ -53,6 +57,10 @@ pub fn companion_toggle() -> Option<Shortcut> {
     *TOGGLE.lock().unwrap()
 }
 
+pub fn notch_lock() -> Option<Shortcut> {
+    *LOCK.lock().unwrap()
+}
+
 fn slot(key: &str) -> Option<&'static Mutex<Option<Shortcut>>> {
     match key {
         INSTANT_SETTING => Some(&INSTANT),
@@ -60,6 +68,7 @@ fn slot(key: &str) -> Option<&'static Mutex<Option<Shortcut>>> {
         FIND_SETTING => Some(&FIND),
         SUMMON_SETTING => Some(&SUMMON),
         TOGGLE_SETTING => Some(&TOGGLE),
+        LOCK_SETTING => Some(&LOCK),
         _ => None,
     }
 }
@@ -70,12 +79,26 @@ fn default_for(key: &str) -> &'static str {
         FIND_SETTING => FIND_DEFAULT,
         SUMMON_SETTING => SUMMON_DEFAULT,
         TOGGLE_SETTING => TOGGLE_DEFAULT,
+        LOCK_SETTING => LOCK_DEFAULT,
         _ => "",
     }
 }
 
 fn fallback_for(key: &str) -> Option<&'static str> {
     (key == ASK_SETTING).then_some(ASK_FALLBACK)
+}
+
+/// True when the notch is locked: visible, but ignoring all interaction.
+pub fn is_locked(app: &AppHandle) -> bool {
+    app.try_state::<Settings>()
+        .and_then(|settings| settings.get(LOCK_KEY))
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false)
+}
+
+/// Flips `island.locked`; every window hears about it through `settings://changed`.
+pub fn toggle_lock(app: &AppHandle) {
+    crate::settings::set(app, LOCK_KEY, Value::Bool(!is_locked(app)));
 }
 
 /// Registers every shortcut saved in the settings (once, during setup).
@@ -85,6 +108,7 @@ pub fn register_saved(app: &AppHandle) {
         FIND_SETTING,
         SUMMON_SETTING,
         TOGGLE_SETTING,
+        LOCK_SETTING,
         INSTANT_SETTING,
     ] {
         let saved = app

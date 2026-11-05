@@ -107,6 +107,12 @@ export const generalSettings = {
     description: "settings.expandOnHover.desc",
     default: true,
   },
+  locked: {
+    key: "island.locked",
+    label: "settings.locked.label",
+    description: "settings.locked.desc",
+    default: false,
+  },
   hoverDelay: {
     key: "island.hoverDelay",
     label: "settings.hoverDelay.label",
@@ -146,6 +152,12 @@ export const shortcutSettings = {
     label: "shortcuts.companionToggle.label",
     description: "shortcuts.companionToggle.desc",
     default: "Ctrl+Alt+Shift+R",
+  } satisfies SettingDef<string>,
+  notchLock: {
+    key: "shortcuts.notchLock",
+    label: "shortcuts.notchLock.label",
+    description: "shortcuts.notchLock.desc",
+    default: "Ctrl+Alt+L",
   } satisfies SettingDef<string>,
 } satisfies Record<string, SettingDef<any>>;
 

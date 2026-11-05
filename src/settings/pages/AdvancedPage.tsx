@@ -111,6 +111,7 @@ const SHORTCUTS: AnyDef[] = [
   shortcutSettings.find,
   shortcutSettings.companionSummon,
   shortcutSettings.companionToggle,
+  shortcutSettings.notchLock,
   askInstantShortcut,
 ];
 

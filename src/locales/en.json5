@@ -44,6 +44,10 @@
       label: "Expand on hover",
       desc: "When off, the island only expands on click.",
     },
+    locked: {
+      label: "Lock the notch",
+      desc: "Keeps the island visible but ignores hover, clicks, drags and global opens. Use the shortcut to unlock.",
+    },
     hoverDelay: {
       label: "Hover delay",
       desc: "How long the pointer rests on the island before the hover action happens.",
@@ -165,6 +169,10 @@
     companionToggle: {
       label: "Toggle the companion",
       desc: "Flips the companion between its active mode and Off.",
+    },
+    notchLock: {
+      label: "Lock / unlock the notch",
+      desc: "Freezes hover, clicks, drags and opens until you press it again.",
     },
   },
 

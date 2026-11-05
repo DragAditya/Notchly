@@ -2,6 +2,12 @@
 
 All notable changes to Notchly are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- Notch lock: `Ctrl+Alt+L` freezes hover, clicks, drags, peeks and global opens while keeping the island visible. A locked click shakes the notch and flashes it red. The shortcut can be changed or cleared in Advanced.
+
 ## [1.1.0] — 2026-11-02
 
 ### Added

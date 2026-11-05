@@ -37,6 +37,10 @@
       label: "Expandir ao passar o mouse",
       desc: "Desligado: expande só com clique.",
     },
+    locked: {
+      label: "Bloquear a ilha",
+      desc: "Mantém a ilha visível, mas ignora hover, cliques, arrastos e aberturas globais. Use o atalho para desbloquear.",
+    },
     hoverDelay: {
       label: "Atraso do hover",
       desc: "Quanto tempo o ponteiro descansa na ilha antes da ação de hover.",
@@ -154,6 +158,10 @@
     companionToggle: {
       label: "Alternar o companheiro",
       desc: "Alterna o companheiro entre o modo ativo e Desligado.",
+    },
+    notchLock: {
+      label: "Bloquear / desbloquear a ilha",
+      desc: "Congela hover, cliques, arrastos e aberturas até você pressionar de novo.",
     },
   },
 

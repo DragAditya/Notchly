@@ -17,6 +17,7 @@ export function useIslandFileDrop(ctl: IslandController) {
 
 	useFileDrop({
 		onEnter: () => {
+			if (live.current.locked) return;
 			draggingFiles.set(true);
 			ctl.keepOpen(true, "files");
 			if (asking()) ctl.expand();
@@ -24,10 +25,12 @@ export function useIslandFileDrop(ctl: IslandController) {
 		},
 		onLeave: () => {
 			draggingFiles.set(false);
+			if (live.current.locked) return;
 			ctl.keepOpen(false, "files");
 		},
 		onDrop: (paths) => {
 			draggingFiles.set(false);
+			if (live.current.locked) return;
 			const toAsk = asking();
 			ctl.keepOpen(false, "files");
 			if (toAsk) {

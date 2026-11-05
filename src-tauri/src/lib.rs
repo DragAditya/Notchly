@@ -47,6 +47,10 @@ pub fn run() {
                     if event.state() != ShortcutState::Pressed {
                         return;
                     }
+                    if matches(*shortcut, shortcuts::notch_lock()) {
+                        shortcuts::toggle_lock(app);
+                        return;
+                    }
                     if matches(*shortcut, shortcuts::companion_summon()) {
                         let _ = app.emit(COMPANION_SUMMON_EVENT, ());
                         return;

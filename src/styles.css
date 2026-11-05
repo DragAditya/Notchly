@@ -91,6 +91,81 @@ button {
     inset 0 -1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* Locked: the notch stays visible, but nothing responds to the pointer. */
+.shell.is-locked,
+.shell.is-locked * {
+  cursor: not-allowed;
+}
+
+/* Red flash and a short shake when a locked notch is clicked or the lock
+   shortcut fires. The overlay sits above the content but never eats clicks. */
+.surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  background: rgba(255, 69, 58, 0.72);
+  opacity: 0;
+  pointer-events: none;
+}
+.shell.is-lock-hit {
+  animation: notch-lock-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+.shell.is-lock-hit .surface::after {
+  animation: notch-red-flash 0.65s ease-out;
+}
+.shell.is-unlock-hit .surface::after {
+  background: rgba(48, 209, 88, 0.58);
+  animation: notch-green-flash 0.55s ease-out;
+}
+.stage[data-reduce-motion="always"] .shell.is-lock-hit {
+  animation: none;
+}
+@keyframes notch-lock-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  15% {
+    translate: -4px 0;
+  }
+  30% {
+    translate: 4px 0;
+  }
+  45% {
+    translate: -3px 0;
+  }
+  60% {
+    translate: 3px 0;
+  }
+  75% {
+    translate: -1.5px 0;
+  }
+}
+@keyframes notch-red-flash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes notch-green-flash {
+  0% {
+    opacity: 0;
+  }
+  16% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .content {
   position: absolute;
   top: 0;

@@ -87,6 +87,7 @@ The AI Agents panel follows Claude Code and Codex sessions, context, limits and 
 | **AI agents** | Follow Claude Code sessions, permission prompts, plan usage and daily token activity without leaving the island. |
 | **Live activities** | Volume, brightness, Bluetooth, charging, battery and Windows power-mode changes, plus custom activities from the local API. |
 | **Companion eyes** | A small pair of eyes that peeks in for music, volume, battery and notifications, then disappears. Auto keeps it out of the way; `Ctrl+Alt+R` calls it and `Ctrl+Alt+Shift+R` turns Auto on or off. |
+| **Notch lock** | `Ctrl+Alt+L` freezes hover, clicks, drags and other openings. A locked click shakes the notch and flashes it red. |
 | **Notifications** | Mirror Windows notifications from WhatsApp, Teams, Outlook, Discord and other apps, with app icons and quick open. |
 | **Screenshot workflow** | Keep, delete or defer the newest screenshot from the notch. Older screenshots wait in the Shelf with a live countdown. |
 | **Utilities** | Clipboard history, screenshot shelf, find-on-screen OCR, GitHub issue counts, CPU/GPU/network monitor, clock and calendar. |
@@ -121,7 +122,7 @@ Use **Settings → Appearance** to switch between the classic black notch and th
 
 - **Compact by default.** It stays out of the way at the top of the screen.
 - **Expands when you need it.** Hover or click to open the active module.
-- **Keyboard-first.** `Ctrl+Alt+Space` opens Ask Gemini; `Ctrl+Alt+F` finds text anywhere on screen; `Ctrl+Alt+R` calls the companion.
+- **Keyboard-first.** `Ctrl+Alt+Space` opens Ask Gemini; `Ctrl+Alt+F` finds text anywhere on screen; `Ctrl+Alt+R` calls the companion; `Ctrl+Alt+L` locks the notch.
 - **Multi-monitor aware.** Choose a display, follow the primary monitor, or move away from fullscreen apps.
 - **Fullscreen friendly.** It hides while games and fullscreen videos are running, and the companion stays quiet there too.
 
@@ -240,6 +241,7 @@ Without the integration, Notchly can still read local Claude Code transcripts, w
 | `Ctrl+Alt+F` | Find text anywhere on screen |
 | `Ctrl+Alt+R` | Call the companion |
 | `Ctrl+Alt+Shift+R` | Toggle companion Auto mode |
+| `Ctrl+Alt+L` | Lock / unlock the notch |
 | `Esc` | Close the current panel or search |
 
 ## Local API

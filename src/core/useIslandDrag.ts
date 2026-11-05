@@ -31,6 +31,8 @@ interface Options {
   rightExtra: number;
   /** False while the island is open: it only drifts back to the center once collapsed. */
   canReturn: boolean;
+  /** Locked: pressing the island does nothing (the click still gets feedback). */
+  disabled?: boolean;
   onDragChange?: (dragging: boolean) => void;
 }
 
@@ -43,7 +45,7 @@ interface Options {
  * offset clamped to the screen for the island's current (animated) width, so
  * expanding next to an edge grows inward instead of off-screen.
  */
-export function useIslandDrag({ width, leftExtra, rightExtra, canReturn, onDragChange }: Options) {
+export function useIslandDrag({ width, leftExtra, rightExtra, canReturn, disabled = false, onDragChange }: Options) {
   const settings = useSettings();
   const returnToCenter = readSetting(settings, positionSettings.returnToCenter);
   const returnDelay = readSetting(settings, positionSettings.returnDelay);
@@ -142,6 +144,7 @@ export function useIslandDrag({ width, leftExtra, rightExtra, canReturn, onDragC
 
   const onPointerDown = useCallback(
     (e: PointerEvent<HTMLElement>) => {
+      if (disabled) return;
       if (e.button !== 0) return;
       if ((e.target as Element).closest("input, textarea, select, [data-no-drag]")) return;
 
@@ -217,7 +220,7 @@ export function useIslandDrag({ width, leftExtra, rightExtra, canReturn, onDragC
       window.addEventListener("pointerup", end);
       window.addEventListener("pointercancel", end);
     },
-    [limits, liveWidth, moving, offset, target, x],
+    [disabled, limits, liveWidth, moving, offset, target, x],
   );
 
   const onClickCapture = useCallback((e: MouseEvent) => {
