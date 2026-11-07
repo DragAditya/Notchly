@@ -11,6 +11,9 @@ code/src-tauri/gen
 
 .astro
 
+# Package manager build output
+*.nupkg
+
 # Local release artifacts
 portable/
 *.zip

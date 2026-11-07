@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>notchly</id>
+    <version>1.2.1</version>
+    <title>Notchly</title>
+    <authors>DragAditya</authors>
+    <projectUrl>https://github.com/DragAditya/Notchly</projectUrl>
+    <licenseUrl>https://github.com/DragAditya/Notchly/blob/main/LICENSE</licenseUrl>
+    <projectSourceUrl>https://github.com/DragAditya/Notchly</projectSourceUrl>
+    <docsUrl>https://github.com/DragAditya/Notchly#readme</docsUrl>
+    <bugTrackerUrl>https://github.com/DragAditya/Notchly/issues</bugTrackerUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <tags>notchly dynamic-island windows notch tauri</tags>
+    <summary>A polished Dynamic Island for Windows.</summary>
+    <description>Notchly is a Dynamic Island for Windows. It puts music, notifications, AI agents, live activities, screenshots and utilities in one quiet strip at the top of the screen. It supports synced and plain lyrics, a global notch lock, multiple monitors and English and Portuguese (Brazil).</description>
+    <releaseNotes>https://github.com/DragAditya/Notchly/releases/tag/v1.2.1</releaseNotes>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>

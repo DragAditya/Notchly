@@ -18,6 +18,10 @@
 </p>
 
 <p align="center">
+  <a href="../../releases/latest"><img alt="Download Notchly for Windows" src="https://img.shields.io/badge/Download-Windows-6366f1?style=for-the-badge&logo=windows" /></a>
+</p>
+
+<p align="center">
   <a href="../../releases/latest"><b>Download</b></a> ·
   <a href="#frontend-engineering"><b>Frontend</b></a> ·
   <a href="#build-from-source"><b>Build from source</b></a> ·
@@ -141,6 +145,26 @@ Each release includes:
 - `SHA256SUMS.txt` — checksums for the published binaries.
 - Source code archives, generated automatically by GitHub.
 
+### Install with a package manager
+
+Scoop (available now):
+
+```powershell
+scoop bucket add notchly https://github.com/DragAditya/scoop-notchly
+scoop install notchly/notchly
+```
+
+winget: the manifest is submitted in
+[microsoft/winget-pkgs#474260](https://github.com/microsoft/winget-pkgs/pull/474260)
+and is waiting for the Microsoft CLA. Once merged, install with:
+
+```powershell
+winget install DragAditya.Notchly
+```
+
+Chocolatey: the package definition is in `packaging/chocolatey/notchly`; it still
+needs a Chocolatey API key before it can be published.
+
 ### Requirements
 
 - **Windows 10 version 2004 (build 19041) or newer**, or Windows 11.
@@ -149,7 +173,7 @@ Each release includes:
 
 ### Installer notes
 
-The current builds are not code-signed, so Windows SmartScreen may show a warning. If you downloaded the file from this repository and the checksum matches, choose **More info → Run anyway**.
+The current builds are not code-signed, so Windows SmartScreen may show a warning. If you downloaded the file from this repository and the checksum matches, choose **More info → Run anyway**. Notchly is applying for free open-source code signing; see [docs/code-signing.md](docs/code-signing.md).
 
 The installer is per-user and does not require an administrator prompt. The portable build writes its data to your user profile and does not self-update.
 
@@ -160,6 +184,7 @@ Use **Settings → Apps → Installed apps → Notchly → Uninstall**. If you u
 ## Repository layout
 
 - `code/` — the application source, package configuration and Rust backend.
+- `packaging/` — winget, Scoop and Chocolatey package definitions.
 - `release/` — built EXE, installers, portable ZIP and checksums. Build output is ignored by Git.
 - `docs/` — documentation, screenshots and branding.
 - `.github/` — CI and release workflows.

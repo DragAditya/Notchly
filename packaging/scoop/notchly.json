@@ -1,0 +1,30 @@
+{
+  "version": "1.2.1",
+  "description": "A polished Dynamic Island for Windows.",
+  "homepage": "https://github.com/DragAditya/Notchly",
+  "license": "GPL-3.0-or-later",
+  "architecture": {
+    "64bit": {
+      "url": "https://github.com/DragAditya/Notchly/releases/download/v1.2.1/Notchly_1.2.1_x64-portable.zip",
+      "hash": "22b572e3bd8b7dd318e29cb1e7c97bc6c3b4bf0023b575f1c66b1b3baa011bc2"
+    }
+  },
+  "extract_dir": "Notchly",
+  "bin": "notchly.exe",
+  "shortcuts": [
+    [
+      "notchly.exe",
+      "Notchly"
+    ]
+  ],
+  "checkver": {
+    "github": "https://github.com/DragAditya/Notchly"
+  },
+  "autoupdate": {
+    "architecture": {
+      "64bit": {
+        "url": "https://github.com/DragAditya/Notchly/releases/download/v$version/Notchly_$version_x64-portable.zip"
+      }
+    }
+  }
+}
