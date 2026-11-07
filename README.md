@@ -182,7 +182,9 @@ choco install notchly
 
 ### Installer notes
 
-The current builds are not code-signed, so Windows SmartScreen may show a warning. If you downloaded the file from this repository and the checksum matches, choose **More info → Run anyway**. Notchly plans to apply for free open-source code signing; see [CODE_SIGNING.md](CODE_SIGNING.md).
+The current builds are not code-signed, so Windows SmartScreen may show a warning. If you downloaded the file from this repository and the checksum matches, choose **More info → Run anyway**.
+
+Notchly is applying to the [SignPath Foundation](https://signpath.org/) for free open-source code signing. Once approved, releases will be signed with a certificate from **SignPath Foundation**. See [CODE_SIGNING.md](CODE_SIGNING.md).
 
 The installer is per-user and does not require an administrator prompt. The portable build writes its data to your user profile and does not self-update.
 
