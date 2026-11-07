@@ -167,8 +167,12 @@ and is waiting for the Microsoft CLA. Once merged, install with:
 winget install DragAditya.Notchly
 ```
 
-Chocolatey: the package definition is in `packaging/chocolatey/notchly`; it still
-needs a Chocolatey API key before it can be published.
+Chocolatey: the package is submitted to the community repository and is awaiting
+moderation. Once approved, install with:
+
+```powershell
+choco install notchly
+```
 
 ### Requirements
 
