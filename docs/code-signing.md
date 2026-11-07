@@ -4,6 +4,12 @@ Notchly's Windows installers are currently **unsigned**. Windows SmartScreen may
 show a warning on first launch, and some users stop there. This is the highest
 friction point in the install flow.
 
+## Status
+
+The SignPath Foundation application was submitted on 2026-11-07. SignPath
+reviews applications manually; until it is approved, release builds remain
+unsigned.
+
 ## Recommended: SignPath Foundation
 
 [SignPath Foundation](https://signpath.org/) provides free code signing for
