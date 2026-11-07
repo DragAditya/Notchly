@@ -39,7 +39,7 @@
     },
     locked: {
       label: "Bloquear a ilha",
-      desc: "Mantém a ilha visível, mas ignora hover, cliques, arrastos e aberturas globais. Use o atalho para desbloquear.",
+      desc: "Congela a ilha no estado ocioso. Hover, cliques, arrastos, música, notificações e aberturas globais são ignorados até você desbloquear pelo atalho.",
     },
     lockClickThrough: {
       label: "Cliques atravessam enquanto bloqueada",
@@ -168,7 +168,7 @@
     },
     notchLock: {
       label: "Bloquear / desbloquear a ilha",
-      desc: "Congela hover, cliques, arrastos e aberturas até você pressionar de novo.",
+      desc: "Congela a ilha no estado ocioso: sem hover, cliques, arrastos, música ou notificações até você pressionar de novo.",
     },
   },
 
@@ -371,8 +371,8 @@
       browser: "Navegador primeiro",
     },
     lyrics: {
-      label: "Letras sincronizadas",
-      desc: "Mostra a linha atual na ilha, acompanhando a música. As letras vêm do LRCLIB.",
+      label: "Letras",
+      desc: "Mostra a linha atual na ilha, acompanhando a música, e a letra completa no painel expandido. As letras vêm do LRCLIB e do lyrics.ovh.",
       modeLabel: "Estilo compacto",
       line: "Linha",
       word: "Palavra",

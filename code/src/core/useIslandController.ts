@@ -196,7 +196,9 @@ function islandMode(s: {
 }): IslandMode {
   if (s.swallowed) return "swallowed";
   if (s.hidden) return "hidden";
-  if (s.locked) return s.busy ? "compact" : "idle";
+  // Locked is absolute: even a busy player (music, notifications, a required
+  // action) must not grow the notch out of idle.
+  if (s.locked) return "idle";
   if (s.expanded || s.forceExpanded) return "expanded";
   if (s.peeking) return "peek";
   if (s.busy) return "compact";

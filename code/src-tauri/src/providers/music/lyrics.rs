@@ -1,9 +1,13 @@
-//! Synced lyrics from [LRCLIB](https://lrclib.net), fetched on demand by the
-//! frontend and cached on disk so a song only costs one request.
+//! Lyrics from several free providers, ranked toward the English original.
 //!
-//! LRCLIB is free and needs no account. Its timestamps are per line; the UI
-//! spreads each line's words by character count so the karaoke still follows
-//! the voice closely.
+//! LRCLIB is the primary source (synced and plain). lyrics.ovh is the plain
+//! fallback. Providers are queried concurrently, then a single candidate is
+//! chosen and cached on disk so a song only costs one round of requests.
+
+mod lang;
+mod lrc;
+mod providers;
+mod rank;
 
 use std::collections::HashMap;
 use std::fs;
@@ -15,7 +19,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use tauri::{AppHandle, Manager};
 
-const API: &str = "https://lrclib.net/api";
+pub use lang::Language;
+
 const USER_AGENT: &str = concat!("notchly/", env!("CARGO_PKG_VERSION"), " (Windows)");
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -30,14 +35,59 @@ pub struct Line {
 #[serde(rename_all = "camelCase")]
 pub struct Lyrics {
     pub lines: Vec<Line>,
-    /// False when LRCLIB only had plain text (no timestamps).
+    /// False when the provider only had plain text (no timestamps).
     pub synced: bool,
+    #[serde(default)]
+    pub provider: Option<String>,
+    #[serde(default)]
+    pub language: Option<String>,
 }
 
 impl Lyrics {
     fn is_empty(&self) -> bool {
         self.lines.is_empty()
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct TrackQuery {
+    pub artist: String,
+    pub title: String,
+    pub album: String,
+    pub duration_ms: u64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Provider {
+    Lrclib,
+    LyricsOvh,
+}
+
+impl Provider {
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::Lrclib => "lrclib",
+            Self::LyricsOvh => "lyrics.ovh",
+        }
+    }
+
+    pub fn priority(self) -> u8 {
+        match self {
+            Self::Lrclib => 0,
+            Self::LyricsOvh => 1,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Candidate {
+    pub lyrics: Lyrics,
+    pub provider: Provider,
+    pub language: Language,
+    pub synced: bool,
+    pub duration_delta_ms: u64,
+    pub title: String,
+    pub artist: String,
 }
 
 /// Session cache: keyed by track, including misses so a song without lyrics
@@ -53,7 +103,7 @@ fn lock<T>(m: &Mutex<T>) -> std::sync::MutexGuard<'_, T> {
 
 fn track_key(artist: &str, title: &str, album: &str, duration_ms: u64) -> String {
     format!(
-        "{}|{}|{}|{}",
+        "v2|{}|{}|{}|{}",
         artist.trim().to_lowercase(),
         title.trim().to_lowercase(),
         album.trim().to_lowercase(),
@@ -62,7 +112,7 @@ fn track_key(artist: &str, title: &str, album: &str, duration_ms: u64) -> String
 }
 
 fn cache_dir(app: &AppHandle) -> Option<PathBuf> {
-    let dir = app.path().app_config_dir().ok()?.join("lyrics");
+    let dir = app.path().app_config_dir().ok()?.join("lyrics").join("v2");
     fs::create_dir_all(&dir).ok()?;
     Some(dir)
 }
@@ -113,188 +163,40 @@ fn agent() -> ureq::Agent {
     ureq::Agent::new_with_config(
         ureq::Agent::config_builder()
             .user_agent(USER_AGENT)
-            .timeout_global(Some(Duration::from_secs(12)))
+            .timeout_global(Some(Duration::from_secs(5)))
             .build(),
     )
 }
 
-#[derive(Debug, Deserialize)]
-struct Record {
-    #[serde(rename = "syncedLyrics")]
-    synced: Option<String>,
-    #[serde(rename = "plainLyrics")]
-    plain: Option<String>,
-    duration: Option<f64>,
-}
-
 fn query(artist: &str, title: &str, album: &str, duration_ms: u64) -> Lyrics {
-    let agent = agent();
-    let duration = duration_ms / 1000;
-    // Exact matches sometimes only carry plain text; keep it as a last resort
-    // and search for a synced version below.
-    let mut fallback = None;
+    let query = TrackQuery {
+        artist: artist.to_string(),
+        title: title.to_string(),
+        album: album.to_string(),
+        duration_ms,
+    };
 
-    // Exact match first (LRCLIB wants artist + title + album + duration).
-    let exact = agent
-        .get(format!("{API}/get"))
-        .query("artist_name", artist)
-        .query("track_name", title)
-        .query("album_name", album)
-        .query("duration", duration.to_string())
-        .call();
+    let candidates = std::thread::scope(|scope| {
+        let lrclib = scope.spawn(|| providers::lrclib::fetch(&agent(), &query));
+        let lyrics_ovh = scope.spawn(|| providers::lyrics_ovh::fetch(&agent(), &query));
 
-    if let Ok(mut res) = exact
-        && let Ok(body) = res.body_mut().read_to_string()
-        && let Ok(record) = serde_json::from_str::<Record>(&body)
-        && let Some(lyrics) = from_record(record)
-    {
-        if lyrics.synced {
-            return lyrics;
+        let mut all = Vec::new();
+        if let Ok(mut found) = lrclib.join() {
+            all.append(&mut found);
         }
-        fallback = Some(lyrics);
-    }
-
-    // Otherwise search: synced results first, then the closest length.
-    let search = agent
-        .get(format!("{API}/search"))
-        .query("track_name", title)
-        .query("artist_name", artist)
-        .call();
-
-    let Ok(mut res) = search else {
-        return fallback.unwrap_or_default();
-    };
-    let Ok(body) = res.body_mut().read_to_string() else {
-        return fallback.unwrap_or_default();
-    };
-    let Ok(mut records) = serde_json::from_str::<Vec<Record>>(&body) else {
-        return fallback.unwrap_or_default();
-    };
-
-    let target = duration_ms as f64;
-    records.sort_by_key(|r| {
-        let synced = r.synced.as_deref().is_some_and(|s| !s.trim().is_empty());
-        let delta = (r.duration.unwrap_or(target) - target).abs();
-        (!synced, delta.round() as u64)
+        if let Ok(mut found) = lyrics_ovh.join() {
+            all.append(&mut found);
+        }
+        all
     });
-    records
-        .into_iter()
-        .find_map(from_record)
-        .or(fallback)
+
+    rank::choose(candidates, &query)
+        .map(|candidate| candidate.lyrics)
         .unwrap_or_default()
 }
 
-fn from_record(record: Record) -> Option<Lyrics> {
-    if let Some(synced) = record.synced.as_deref() {
-        let lines = parse_lrc(synced);
-        if !lines.is_empty() {
-            return Some(Lyrics {
-                lines,
-                synced: true,
-            });
-        }
-    }
-    let plain = record.plain?;
-    let lines: Vec<Line> = plain
-        .lines()
-        .map(str::trim)
-        .filter(|l| !l.is_empty())
-        .map(|text| Line {
-            time_ms: 0,
-            text: text.to_string(),
-        })
-        .collect();
-    (!lines.is_empty()).then_some(Lyrics {
-        lines,
-        synced: false,
-    })
-}
-
-/// `[mm:ss.xx]` (and `[hh:mm:ss.xx]`) timestamps, one line per stamp.
-fn parse_lrc(text: &str) -> Vec<Line> {
-    let mut lines = Vec::new();
-    for raw in text.lines() {
-        let raw = raw.trim();
-        if raw.is_empty() {
-            continue;
-        }
-        let mut rest = raw;
-        let mut stamps = Vec::new();
-        let mut metadata = false;
-        while let Some(after) = rest.strip_prefix('[') {
-            let Some(end) = after.find(']') else { break };
-            let tag = &after[..end];
-            if let Some(ms) = parse_stamp(tag) {
-                stamps.push(ms);
-                rest = &after[end + 1..];
-            } else {
-                // `[ar:...]`, `[ti:...]`…: not a lyric line.
-                metadata = stamps.is_empty();
-                break;
-            }
-        }
-        if metadata || stamps.is_empty() {
-            continue;
-        }
-        let text = strip_word_tags(rest).trim().to_string();
-        if text.is_empty() {
-            continue;
-        }
-        for ms in stamps {
-            lines.push(Line {
-                time_ms: ms,
-                text: text.clone(),
-            });
-        }
-    }
-    lines.sort_by_key(|l| l.time_ms);
-    lines.dedup_by(|a, b| a.time_ms == b.time_ms && a.text == b.text);
-    lines
-}
-
-fn parse_stamp(tag: &str) -> Option<u64> {
-    let parts: Vec<&str> = tag.split(':').collect();
-    if !(2..=3).contains(&parts.len()) {
-        return None;
-    }
-    let mut secs = 0f64;
-    for (i, part) in parts.iter().enumerate() {
-        let value: f64 = part.trim().parse().ok()?;
-        if value < 0.0 {
-            return None;
-        }
-        // Last part is `ss.xxx`, the ones before are whole minutes/hours.
-        secs = if i + 1 == parts.len() {
-            secs * 60.0 + value
-        } else {
-            secs * 60.0 + value.floor()
-        };
-    }
-    Some((secs * 1000.0).round() as u64)
-}
-
-/// Enhanced LRC carries `<mm:ss.xx>` word tags inside the text.
-fn strip_word_tags(text: &str) -> String {
-    let mut out = String::with_capacity(text.len());
-    let mut rest = text;
-    while let Some(start) = rest.find('<') {
-        let Some(end) = rest[start..].find('>') else {
-            break;
-        };
-        let tag = &rest[start + 1..start + end];
-        if parse_stamp(tag).is_some() {
-            out.push_str(&rest[..start]);
-        } else {
-            out.push_str(&rest[..start + end + 1]);
-        }
-        rest = &rest[start + end + 1..];
-    }
-    out.push_str(rest);
-    out
-}
-
 /// Called by the frontend whenever the track changes. Runs off the main
-/// thread so a slow LRCLIB response never freezes the island.
+/// thread so a slow provider never freezes the island.
 #[tauri::command]
 pub async fn get_lyrics(
     app: AppHandle,
@@ -313,36 +215,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parses_timestamps_and_metadata() {
-        let lrc = "[ar:Test]\n[00:12.50] Hello world\n[00:20.00][00:30.00] Again";
-        let lines = parse_lrc(lrc);
+    fn cache_key_is_stable_and_versioned() {
         assert_eq!(
-            lines,
-            vec![
-                Line {
-                    time_ms: 12_500,
-                    text: "Hello world".into()
-                },
-                Line {
-                    time_ms: 20_000,
-                    text: "Again".into()
-                },
-                Line {
-                    time_ms: 30_000,
-                    text: "Again".into()
-                },
-            ]
+            track_key(" Artist ", "Song", " Album ", 200_999),
+            "v2|artist|song|album|200"
         );
     }
 
     #[test]
-    fn strips_word_tags() {
-        assert_eq!(strip_word_tags("<00:01.00>Hi <00:02.00>there"), "Hi there");
-        assert_eq!(strip_word_tags("a < b"), "a < b");
-    }
-
-    #[test]
-    #[ignore = "hits LRCLIB"]
+    #[ignore = "hits lyrics providers"]
     fn fetches_a_known_song() {
         let lyrics = query("The Weeknd", "Blinding Lights", "After Hours", 200_000);
         assert!(lyrics.synced, "expected synced lyrics");

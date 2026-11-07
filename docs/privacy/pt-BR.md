@@ -1,6 +1,6 @@
 # Política de Privacidade — Notchly
 
-*Última atualização: 2 de novembro de 2026*
+*Última atualização: 5 de novembro de 2026*
 
 Notchly ("o app") é um app de desktop gratuito e de código aberto. Esta política explica quais dados o app acessa, para onde eles vão e como removê-los. Notchly é licenciado sob GPL-3.0-or-later; consulte `LICENSE` e `NOTICE.md` para os avisos aplicáveis.
 
@@ -10,7 +10,7 @@ Esta é uma tradução da [versão em inglês](index.md). Se houver qualquer dif
 
 - O app roda inteiramente no seu computador. **Não existe servidor nosso**: sem conta, sem analytics, sem telemetria, sem anúncios, sem relatórios de falha.
 - Nós (os desenvolvedores) **nunca recebemos nenhum dado seu**.
-- Quando um recurso precisa de um serviço online (Google Agenda, Google Gemini, Spotify, GitHub, Anthropic, YouTube, verificação de atualizações), o app fala com esse serviço direto do seu computador, e só depois que você liga esse recurso.
+- Quando um recurso precisa de um serviço online (Google Agenda, Google Gemini, Spotify, GitHub, Anthropic, YouTube, LRCLIB, lyrics.ovh, verificação de atualizações), o app fala com esse serviço direto do seu computador, e só depois que você liga esse recurso.
 - Não vendemos, alugamos nem compartilhamos seus dados com ninguém.
 
 ## O que fica no seu computador
@@ -22,6 +22,7 @@ Esta é uma tradução da [versão em inglês](index.md). Se houver qualquer dif
 | Itens da prateleira (caminhos dos arquivos que você soltou, não os arquivos) | `%APPDATA%\com.notchly.desktop\shelf.json` | Manter a prateleira entre reinícios |
 | Prints e anexos do Pergunte ao Gemini, imagens da área de transferência | `%APPDATA%\com.notchly.desktop\` e, quando você escolhe guardar uma imagem, *Imagens\Capturas de Tela* | Anexar a uma pergunta ou deixar você arrastar para fora |
 | Eventos da agenda, texto da área de transferência, notificações espelhadas, o que está tocando, estatísticas do sistema, o texto lido da tela pelo Procurar na tela | Só na memória | Mostrar na ilha; somem quando o app fecha |
+| Cache de letras | `%APPDATA%\com.notchly.desktop\lyrics\v2` | Evitar procurar a mesma música de novo |
 
 O app lê, sem enviar para lugar nenhum, informações que o Windows e outros apps já guardam no seu computador: dados de reprodução de mídia, notificações do Windows (só depois que você ativa o módulo Notificações), a área de transferência (o que é copiado por gerenciadores de senha é ignorado), bateria, volume, dispositivos Bluetooth, contadores de desempenho e as transcrições e configurações locais do Claude Code em `~/.claude`.
 
@@ -29,7 +30,7 @@ O app lê, sem enviar para lugar nenhum, informações que o Windows e outros ap
 
 Como o app não tem servidor, nenhum dado seu chega até nós, então não existe banco de dados nosso que possa vazar. No seu computador e no caminho até os serviços que você conecta, o app protege seus dados assim:
 
-- **Criptografia em trânsito.** Toda requisição para Google, Google Gemini, GitHub, Anthropic e YouTube usa HTTPS (TLS). Dados de usuário do Google nunca trafegam por conexão sem criptografia.
+- **Criptografia em trânsito.** Toda requisição para Google, Google Gemini, GitHub, Anthropic, YouTube, LRCLIB e lyrics.ovh usa HTTPS (TLS). Dados de usuário do Google nunca trafegam por conexão sem criptografia.
 - **Criptografia em repouso.** Segredos (o refresh token do Google, o token do GitHub e as URLs de feeds de agenda privados) ficam só no Gerenciador de Credenciais do Windows, que os criptografa com a Proteção de Dados do Windows (DPAPI), vinculada à sua conta de usuário do Windows. Eles nunca são gravados em arquivos de configuração, logs ou qualquer outro arquivo de texto, e outros usuários do Windows no mesmo computador não conseguem lê-los.
 - **Login seguro.** O login do Google acontece na própria página do Google; o app nunca vê sua senha. Ele usa OAuth com PKCE (S256) e um valor `state` aleatório, e o navegador volta para um servidor de uso único em `127.0.0.1` (porta aleatória, acessível só do seu computador), que é fechado assim que o login termina ou após três minutos.
 - **Privilégio mínimo.** O app pede só o escopo somente leitura `calendar.readonly`, então não consegue alterar nem apagar nada na sua conta Google.
@@ -87,6 +88,16 @@ Para contar as issues abertas dos repositórios que você acompanha, o app chama
 
 Para tocar uma cópia sem som de um vídeo do YouTube que você está vendo no navegador, o app pesquisa no `youtube.com` o título e o artista da faixa atual. A política de privacidade do YouTube se aplica a essa requisição.
 
+### Letras
+
+Quando as letras estão ativadas, o app envia o título, o artista, o álbum e a duração da faixa atual para `lrclib.net` e `api.lyrics.ovh` para procurar a letra. O LRCLIB pode devolver texto sincronizado ou simples; o lyrics.ovh devolve texto simples.
+
+- **O que é enviado:** título, artista, álbum e duração da faixa. Sem conta, chave de API ou histórico de reprodução.
+- **Como é usado:** só para encontrar e mostrar a letra da música atual dentro da ilha. Nada é enviado para nós.
+- **Para onde vai:** as requisições vão direto do seu computador para o LRCLIB e o lyrics.ovh por HTTPS.
+- **Armazenamento:** a letra escolhida é guardada em cache local para não consultar os provedores de novo na mesma música.
+- **Desativar:** desligue **Letras** nas configurações de Música.
+
 ### Atualizações
 
 O app verifica no GitHub Releases se há versões novas. O GitHub vê uma requisição de download comum (como o seu endereço IP), como em qualquer site.
@@ -97,7 +108,7 @@ O app escuta em `127.0.0.1:5199`, acessível só do seu próprio computador, par
 
 ## Serviços de terceiros
 
-Quando o app fala com Google, Google Gemini, Spotify, GitHub, Anthropic ou YouTube, essas empresas processam a requisição sob suas próprias políticas de privacidade. Nós não temos acesso a esses dados.
+Quando o app fala com Google, Google Gemini, Spotify, GitHub, Anthropic, YouTube, LRCLIB ou lyrics.ovh, esses serviços processam a requisição sob suas próprias políticas de privacidade. Nós não temos acesso a esses dados.
 
 ## Apagando seus dados
 

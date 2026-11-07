@@ -55,8 +55,8 @@ export const musicSourceSettings = {
 export type LyricsMode = "line" | "word";
 
 /**
- * Live lyrics (LRCLIB). Kept out of `musicSettings` because these are not all
- * boolean toggles: the module page draws them with `LyricsSettings`.
+ * Live lyrics (LRCLIB + lyrics.ovh). Kept out of `musicSettings` because these
+ * are not all boolean toggles: the module page draws them with `LyricsSettings`.
  */
 export const lyricsSettings = {
   enabled: {

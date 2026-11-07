@@ -39,10 +39,11 @@ export const musicModule: IslandModule = {
     const lyrics = useLyrics(music, lyricsEnabled);
     const offsetMs = Math.round(lyricsOffset * 1000);
     const lineIndex = useLyricLine(music, lyrics, offsetMs);
-    const showLyrics = lyricsEnabled && lyrics.synced && lyrics.lines.length > 0;
-    const lineText = showLyrics ? (lyrics.lines[Math.max(0, lineIndex)]?.text ?? "") : "";
+    const hasLyrics = lyricsEnabled && lyrics.lines.length > 0;
+    const hasSynced = hasLyrics && lyrics.synced;
+    const lineText = hasSynced ? (lyrics.lines[Math.max(0, lineIndex)]?.text ?? "") : "";
     const eyesOnly = companionMode === "eyes" && musicEyes;
-    const width = eyesOnly ? 250 : showLyrics ? compactWidth(lineText, lyricsMode) : 340;
+    const width = eyesOnly ? 250 : hasSynced ? compactWidth(lineText, lyricsMode) : 340;
     // Stable per track: pause/resume must not look like a new track and peek.
     // Browser YouTube videos never auto-expand (they are not music).
     const trackKey = music ? `${music.title}|${music.artist}|${music.album}` : undefined;
@@ -56,7 +57,7 @@ export const musicModule: IslandModule = {
           <MusicCompactLeft
             music={music}
             lyric={
-              showLyrics ? (
+              hasSynced ? (
                 <CompactLyrics
                   mode={lyricsMode}
                   music={music}
@@ -76,13 +77,13 @@ export const musicModule: IslandModule = {
           music={music}
           accent={accent}
           showVisualizer={showVisualizer}
-          lyrics={showLyrics ? lyrics : undefined}
+          lyrics={hasLyrics ? lyrics : undefined}
           lineIndex={lineIndex}
           offsetMs={offsetMs}
         />
       ),
       // Wider only when the lyric column is there; the rest of the panel is untouched.
-      expandedSize: { width: showLyrics ? 700 : 560, height: 176 },
+      expandedSize: { width: hasLyrics ? 700 : 560, height: 176 },
       activityKey: autoExpand && music?.available && !music.youtube ? trackKey : undefined,
     };
   },

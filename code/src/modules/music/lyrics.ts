@@ -1,9 +1,10 @@
 /**
  * Lyrics: fetch + timing.
  *
- * LRCLIB is line-synced, so word timing is spread across each line by
- * character count. Both cursors run on their own clock (not the 250ms player
- * tick) so karaoke stays on the beat without re-rendering the whole island.
+ * The backend ranks results from LRCLIB and lyrics.ovh, preferring English
+ * originals. Synced lines spread word timing by character count. Both cursors
+ * run on their own clock (not the 250ms player tick) so karaoke stays on the
+ * beat without re-rendering the whole island.
  */
 import { useEffect, useState } from "react";
 import { command, isTauri } from "../../core/bridge";
@@ -18,6 +19,8 @@ export interface LyricLine {
 export interface Lyrics {
   lines: LyricLine[];
   synced: boolean;
+  provider?: string;
+  language?: string;
 }
 
 export interface LyricWord {
@@ -39,7 +42,7 @@ export const COMPACT_MAX = 560;
 const trackKey = (music: MusicState) =>
   `${music.title}|${music.artist}|${music.album}|${Math.round(music.durationMs / 1000)}`;
 
-/** Lyrics for the current track, from memory or LRCLIB. */
+/** Lyrics for the current track, from memory or the provider backend. */
 export function useLyrics(music: MusicState | undefined, enabled: boolean): Lyrics {
   const key = enabled && music?.title && music.durationMs > 0 ? trackKey(music) : "";
   const [state, setState] = useState<{ key: string; lyrics: Lyrics }>({ key: "", lyrics: EMPTY });
@@ -239,5 +242,5 @@ function demoLyrics(): Lyrics {
       lines.push({ timeMs: cycle * 48_000 + i * 4_800, text });
     });
   }
-  return { lines, synced: true };
+  return { lines, synced: true, provider: "demo", language: "en" };
 }

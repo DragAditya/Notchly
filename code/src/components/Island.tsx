@@ -63,7 +63,7 @@ export function Island() {
 		hovered: ctl.hoverAction === "companion" && ctl.hovering,
 		locked: ctl.locked,
 	});
-	const showCompanion = companion.visible && mode === "idle";
+	const showCompanion = companion.visible && mode === "idle" && !ctl.locked;
 	const g = showCompanion
 		? companionGeometry(v, look)
 		: geometry(v, look, mode, bigSize, primary, hideTabs);
@@ -237,7 +237,7 @@ export function Island() {
 							</span>
 						)}
 
-						<AmbientBubbles entries={ctl.entries} visible={resting} shrunk={mode === "idle" && !windows} {...bubble} />
+						<AmbientBubbles entries={ctl.entries} visible={resting && !ctl.locked} shrunk={mode === "idle" && !windows} {...bubble} />
 						<SecondaryBubble entry={showSecondary ? secondary : undefined} {...bubble} />
 					</motion.div>
 				</motion.div>

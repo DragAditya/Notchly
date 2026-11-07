@@ -6,10 +6,12 @@ All notable changes to Notchly are documented here. The format follows [Keep a C
 
 ### Added
 
-- Notch lock: `Ctrl+Alt+L` freezes hover, clicks, drags, peeks and global opens while keeping the island visible. A locked click shakes the notch and flashes it red; the lock can also be made click-through so clicks reach the app below. The companion's eyes and reactions stay hidden while locked, and the lock can be toggled from the tray. A brief "Locked"/"Unlocked" label confirms each change. The shortcut can be changed or cleared in Advanced, and startup conflicts are reported there.
+- Notch lock: `Ctrl+Alt+L` freezes the island in its idle state and ignores hover, clicks, drags, peeks and global opens while keeping the notch visible. A locked click shakes the notch and flashes it red; the lock can also be made click-through so clicks reach the app below. The companion's eyes and reactions stay hidden while locked, and the lock can be toggled from the tray. A brief "Locked"/"Unlocked" label confirms each change. The shortcut can be changed or cleared in Advanced, and startup conflicts are reported there.
+- Multi-provider lyrics: LRCLIB and lyrics.ovh are queried concurrently, English originals are preferred over other languages, and plain lyrics appear in the expanded music panel when no synced version exists. Lyrics are cached under `lyrics/v2`.
 
 ### Changed
 
+- The notch lock is now absolute: music, notifications, required actions, peeks and global opens cannot expand the island while locked. Ambient module bubbles and the companion are hidden too.
 - Repository layout now keeps the application source in `code/` and built EXE/installer artifacts in `release/`. `build.ps1` builds from `code/` and fills `release/` with the portable ZIP and checksums.
 
 ## [1.1.0] — 2026-11-02

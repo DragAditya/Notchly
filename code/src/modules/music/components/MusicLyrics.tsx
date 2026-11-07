@@ -101,7 +101,34 @@ function CompactWord({
   );
 }
 
-export function MusicLyricsColumn({
+export function MusicLyricsColumn(props: {
+  music: MusicState;
+  lyrics: Lyrics;
+  index: number;
+  offsetMs: number;
+}) {
+  return props.lyrics.synced ? (
+    <SyncedLyricsColumn {...props} />
+  ) : (
+    <PlainLyricsColumn lyrics={props.lyrics} />
+  );
+}
+
+function PlainLyricsColumn({ lyrics }: { lyrics: Lyrics }) {
+  return (
+    <div className="music-lyrics is-plain" data-no-drag>
+      <div className="music-lyrics-track">
+        {lyrics.lines.map((line, i) => (
+          <div key={`${line.timeMs}:${i}`} className="music-lyric-row is-plain">
+            {line.text}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SyncedLyricsColumn({
   music,
   lyrics,
   index,

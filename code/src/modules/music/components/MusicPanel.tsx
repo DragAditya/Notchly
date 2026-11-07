@@ -51,7 +51,7 @@ export function MusicPanel({
 
   const progress = music.durationMs ? position / music.durationMs : 0;
   const subtitle = [music.artist, music.album].filter(Boolean).join(" — ") || music.appName;
-  const showLyrics = !!lyrics?.synced && lyrics.lines.length > 0 && !video;
+  const showLyrics = !!lyrics && lyrics.lines.length > 0 && !video;
   const openPlayer = (e: React.MouseEvent) => {
     e.stopPropagation();
     musicAction("focus");

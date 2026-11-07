@@ -481,7 +481,7 @@
   will-change: transform, opacity;
 }
 
-/* Expanded panel: a third column, only when there is a synced lyric. */
+/* Expanded panel: a third column whenever lyrics are available. */
 .music-panel.has-lyrics {
   display: grid;
   grid-template-columns: 112px minmax(0, 1fr) 186px;
@@ -501,6 +501,26 @@
   flex-direction: column;
   padding: 44px 0;
   will-change: transform;
+}
+/* Plain lyrics have no active line, so they scroll instead of tracking one. */
+.music-lyrics.is-plain {
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-mask-image: none;
+  mask-image: none;
+}
+.music-lyrics.is-plain::-webkit-scrollbar {
+  display: none;
+}
+.music-lyrics.is-plain .music-lyrics-track {
+  padding: 6px 0;
+  will-change: auto;
+}
+.music-lyrics.is-plain .music-lyric-row,
+.music-lyrics.is-plain .music-lyric-row:hover {
+  color: var(--text);
+  opacity: 0.78;
+  cursor: default;
 }
 .music-lyric-row {
   display: block;

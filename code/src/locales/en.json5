@@ -46,7 +46,7 @@
     },
     locked: {
       label: "Lock the notch",
-      desc: "Keeps the island visible but ignores hover, clicks, drags and global opens. Use the shortcut to unlock.",
+      desc: "Freezes the island in its idle state. Hover, clicks, drags, music, notifications and global opens are ignored until you unlock with the shortcut.",
     },
     lockClickThrough: {
       label: "Click-through while locked",
@@ -179,7 +179,7 @@
     },
     notchLock: {
       label: "Lock / unlock the notch",
-      desc: "Freezes hover, clicks, drags and opens until you press it again.",
+      desc: "Freezes the notch in idle: no hover, clicks, drags, music or notifications until you press it again.",
     },
   },
 
@@ -386,8 +386,8 @@
       browser: "Browser first",
     },
     lyrics: {
-      label: "Synced lyrics",
-      desc: "Shows the current line in the island, in time with the music. Lyrics come from LRCLIB.",
+      label: "Lyrics",
+      desc: "Shows the current line in the island, in time with the music, and the full lyrics in the expanded panel. Lyrics come from LRCLIB and lyrics.ovh.",
       modeLabel: "Compact style",
       line: "Line",
       word: "Single word",

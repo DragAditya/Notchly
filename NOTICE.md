@@ -21,4 +21,4 @@ These notices are retained for license compliance. See `LICENSE` for the full GN
 
 ## Third-party services
 
-Notchly can connect to services you choose to enable, including Google Calendar, Google Gemini, Spotify, GitHub, Anthropic (Claude Code) and YouTube. Each service is governed by its own terms and privacy policy. See `docs/privacy/index.md`.
+Notchly can connect to services you choose to enable, including Google Calendar, Google Gemini, Spotify, GitHub, Anthropic (Claude Code), YouTube, LRCLIB and lyrics.ovh. Each service is governed by its own terms and privacy policy. See `docs/privacy/index.md`.

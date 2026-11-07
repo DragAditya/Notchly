@@ -1,6 +1,6 @@
 # Privacy Policy — Notchly
 
-*Last updated: November 2, 2026*
+*Last updated: November 5, 2026*
 
 Notchly ("the app") is a free, open-source desktop app. This policy explains what data the app touches, where it goes and how to remove it. Notchly is licensed under GPL-3.0-or-later; see `LICENSE` and `NOTICE.md` for the applicable notices.
 
@@ -8,7 +8,7 @@ Notchly ("the app") is a free, open-source desktop app. This policy explains wha
 
 - The app runs entirely on your computer. **There is no server of ours**: no account, no analytics, no telemetry, no ads, no crash reporting.
 - We (the developers) **never receive any of your data**.
-- When a feature needs an online service (Google Calendar, Google Gemini, Spotify, GitHub, Anthropic, YouTube, update checks), the app talks to that service directly from your computer, and only after you turn that feature on.
+- When a feature needs an online service (Google Calendar, Google Gemini, Spotify, GitHub, Anthropic, YouTube, LRCLIB, lyrics.ovh, update checks), the app talks to that service directly from your computer, and only after you turn that feature on.
 - We do not sell, rent or share your data with anyone.
 
 ## What stays on your computer
@@ -20,6 +20,7 @@ Notchly ("the app") is a free, open-source desktop app. This policy explains wha
 | Shelf items (paths to files you dropped, not the files) | `%APPDATA%\com.notchly.desktop\shelf.json` | Keep the shelf between restarts |
 | Screenshots and attachments for Ask Gemini, clipboard pictures | `%APPDATA%\com.notchly.desktop\` and, when you choose to keep a picture, *Pictures\Screenshots* | Attach them to a question or let you drag them out |
 | Calendar events, clipboard text, mirrored notifications, now-playing info, system stats, the text read off the screen by Find on screen | Memory only | Show them in the island; gone when the app closes |
+| Lyrics cache | `%APPDATA%\com.notchly.desktop\lyrics\v2` | Avoid looking up the same song again |
 
 The app reads, without uploading anywhere, information Windows and other apps already keep on your computer: media playback info, Windows notifications (only after you enable the Notifications module), the clipboard (anything copied by password managers is ignored), battery, volume, Bluetooth devices, performance counters, and Claude Code's local transcripts and settings in `~/.claude`.
 
@@ -27,7 +28,7 @@ The app reads, without uploading anywhere, information Windows and other apps al
 
 Because the app has no server, none of your data ever reaches us, so there is no database of ours that could leak. On your computer and on the way to the services you connect, the app protects it like this:
 
-- **Encrypted in transit.** Every request to Google, Google Gemini, GitHub, Anthropic and YouTube uses HTTPS (TLS). Google user data is never sent over an unencrypted connection.
+- **Encrypted in transit.** Every request to Google, Google Gemini, GitHub, Anthropic, YouTube, LRCLIB and lyrics.ovh uses HTTPS (TLS). Google user data is never sent over an unencrypted connection.
 - **Encrypted at rest.** Secrets (the Google refresh token, the GitHub token and private calendar feed URLs) are kept only in the Windows Credential Manager, which encrypts them with Windows Data Protection (DPAPI) tied to your Windows user account. They are never written to settings files, logs or any other plain-text file, and other Windows users on the same computer cannot read them.
 - **Secure sign-in.** Google sign-in happens on Google's own page; the app never sees your password. It uses OAuth with PKCE (S256) and a random `state` value, and the browser returns to a one-time server on `127.0.0.1` (a random port, reachable only from your computer) that closes as soon as sign-in finishes or after three minutes.
 - **Least privilege.** The app requests only the read-only scope `calendar.readonly`, so it cannot change or delete anything in your Google account.
@@ -85,6 +86,16 @@ To count open issues for the repositories you follow, the app calls `api.github.
 
 To play a muted copy of a YouTube video you are watching in your browser, the app searches `youtube.com` for the current track's title and artist. YouTube's privacy policy applies to that request.
 
+### Lyrics
+
+When lyrics are enabled, the app sends the current track's title, artist, album and duration to `lrclib.net` and `api.lyrics.ovh` to look up lyrics. LRCLIB can return synced or plain text; lyrics.ovh returns plain text.
+
+- **What is sent:** the track title, artist, album and duration. No account, API key or listening history.
+- **How it is used:** only to find and show the current song's lyrics inside the island. Nothing is sent to us.
+- **Where it goes:** requests go directly from your computer to LRCLIB and lyrics.ovh over HTTPS.
+- **Storage:** the selected lyrics are cached locally so the same song does not hit the providers again.
+- **Disabling:** turn off **Lyrics** in Music settings.
+
 ### Updates
 
 The app checks GitHub Releases for new versions. GitHub sees a normal download request (such as your IP address), as with any website.
@@ -95,7 +106,7 @@ The app listens on `127.0.0.1:5199`, reachable only from your own computer, so y
 
 ## Third-party services
 
-When the app talks to Google, Google Gemini, Spotify, GitHub, Anthropic or YouTube, those companies process the request under their own privacy policies. We have no access to that data.
+When the app talks to Google, Google Gemini, Spotify, GitHub, Anthropic, YouTube, LRCLIB or lyrics.ovh, those services process the request under their own privacy policies. We have no access to that data.
 
 ## Deleting your data
 

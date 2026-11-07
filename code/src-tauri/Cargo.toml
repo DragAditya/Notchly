@@ -37,6 +37,8 @@ chrono-tz = "0.10"
 sha2 = "0.10"
 getrandom = "0.3"
 url = "2"
+# Lyrics: prefer English versions when a provider returns several.
+whatlang = "0.16"
 
 [target.'cfg(windows)'.dependencies]
 # Drags shelf items out of the island into other apps (OLE drag & drop).
