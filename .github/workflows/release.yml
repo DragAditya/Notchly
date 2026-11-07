@@ -70,6 +70,7 @@ jobs:
             echo 'Download **`Notchly_*_x64-setup.exe`** and run it (installs for the current user, no admin needed).'
             echo 'The `.msi` is there for managed installs.'
             echo 'No install at all? Grab **`Notchly_*_x64-portable.zip`**, extract it anywhere and run `notchly.exe` (it does not update itself).'
+            echo 'Stable direct links: **`Notchly_x64-setup.exe`**, **`Notchly_x64-portable.zip`**, **`Notchly_x64.msi`**.'
             echo 'Verify downloads with **`SHA256SUMS.txt`**.'
             if [ -n "$commits" ]; then
               echo
