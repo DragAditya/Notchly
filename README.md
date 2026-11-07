@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="../../releases/tag/v1.1.0"><img alt="Latest release: v1.1.0" src="https://img.shields.io/badge/release-v1.1.0-6366f1?style=flat-square" /></a>
+  <a href="../../releases/tag/v1.2.1"><img alt="Latest release: v1.2.1" src="https://img.shields.io/badge/release-v1.2.1-6366f1?style=flat-square" /></a>
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-22c55e?style=flat-square" /></a>
   <img alt="Platform: Windows 10 / 11" src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0ea5e9?style=flat-square" />
   <img alt="Frontend: React 19 + TypeScript + Vite" src="https://img.shields.io/badge/frontend-React%2019%20%2B%20TypeScript%20%2B%20Vite-8b5cf6?style=flat-square" />
@@ -31,12 +31,11 @@
 
 ---
 
-## New in 1.1.0
+## New in 1.2.1
 
-- **Screenshot card with a real decision.** Keep it, delete it, or let it fold away — with a live deletion countdown and a separate auto-close progress line.
-- **Pending Shelf.** Screenshots that are not kept move into the Shelf as compact rows with thumbnails, live timers and Keep/Delete actions.
-- **A calmer, faster interface.** Refined island surfaces, motion, settings layout, iconography and status feedback across the app.
-- **New app identity.** `com.notchly.desktop`, with automatic migration from the previous Notchly data folders.
+- **Multi-provider lyrics.** LRCLIB and lyrics.ovh are queried together, English originals win when both exist, and plain lyrics fill the expanded music panel when no synced version is available.
+- **Absolute notch lock.** `Ctrl+Alt+L` keeps the notch idle — music, notifications, required actions, peeks and global opens cannot expand it. Ambient bubbles and the companion stay hidden while locked.
+- **The 1.1.0 workflow stays.** Screenshot keep/delete cards, the pending Shelf, refined surfaces and the `com.notchly.desktop` identity are all still here.
 
 ## The interface
 
@@ -82,12 +81,12 @@ The AI Agents panel follows Claude Code and Codex sessions, context, limits and 
 
 | | |
 |---|---|
-| **Music & YouTube** | Now-playing artwork, track details, seek, play/pause, next/previous, a live visualizer and synced lyrics. Recognises browser YouTube videos, with a pin-out video window. |
+| **Music & YouTube** | Now-playing artwork, track details, seek, play/pause, next/previous, a live visualizer and synced lyrics. LRCLIB and lyrics.ovh supply English-first lyrics, with plain lyrics in the expanded panel. Recognises browser YouTube videos, with a pin-out video window. |
 | **Ask Gemini** | Ask a short question with `Ctrl+Alt+Space` and read the answer in the island. Bring your own Google AI API key and choose the model. |
 | **AI agents** | Follow Claude Code sessions, permission prompts, plan usage and daily token activity without leaving the island. |
 | **Live activities** | Volume, brightness, Bluetooth, charging, battery and Windows power-mode changes, plus custom activities from the local API. |
 | **Companion eyes** | A small pair of eyes that peeks in for music, volume, battery and notifications, then disappears. Auto keeps it out of the way; `Ctrl+Alt+R` calls it and `Ctrl+Alt+Shift+R` turns Auto on or off. |
-| **Notch lock** | `Ctrl+Alt+L` freezes hover, clicks, drags, companion eyes and other openings. A locked click shakes the notch and flashes it red, or can pass through to the app below. Unlock from the shortcut, Settings or the tray. |
+| **Notch lock** | `Ctrl+Alt+L` freezes the notch in idle: music, notifications, required actions, peeks and global opens cannot expand it, and ambient bubbles and the companion stay hidden. A locked click shakes the notch and flashes it red, or can pass through to the app below. Unlock from the shortcut, Settings or the tray. |
 | **Notifications** | Mirror Windows notifications from WhatsApp, Teams, Outlook, Discord and other apps, with app icons and quick open. |
 | **Screenshot workflow** | Keep, delete or defer the newest screenshot from the notch. Older screenshots wait in the Shelf with a live countdown. |
 | **Utilities** | Clipboard history, screenshot shelf, find-on-screen OCR, GitHub issue counts, CPU/GPU/network monitor, clock and calendar. |
@@ -132,7 +131,7 @@ Use **Settings → Appearance** to switch between the classic black notch and th
 
 ## Download and install
 
-Get the latest build — **v1.1.0** — from [Releases](../../releases/tag/v1.1.0).
+Get the latest build — **v1.2.1** — from [Releases](../../releases/tag/v1.2.1).
 
 Each release includes:
 
@@ -341,9 +340,9 @@ Read the full [privacy policy](docs/privacy/index.md) and [security policy](SECU
 ## Project quality
 
 - CI runs the frontend build and Rust formatting/tests on Windows.
-- Current suite: 56 passing Rust tests, with one ignored system-dependent test.
+- Current suite: 70 passing Rust tests, with one ignored live lyrics test.
 - Unit tests cover activity routing, API validation, music YouTube parsing, calendar recurrence, OCR tiling, clipboard images and more.
-- Release builds are produced from tagged commits by GitHub Actions; **v1.1.0** is the current release.
+- Release builds are produced from tagged commits by GitHub Actions; **v1.2.1** is the current release.
 
 ## Contributing
 

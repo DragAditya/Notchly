@@ -14,7 +14,7 @@ body:
     attributes:
       label: Notchly version
       description: Shown in Settings → About, or the release asset name.
-      placeholder: "1.1.0"
+      placeholder: "1.2.1"
     validations:
       required: true
 

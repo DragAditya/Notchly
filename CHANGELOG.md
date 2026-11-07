@@ -4,6 +4,8 @@ All notable changes to Notchly are documented here. The format follows [Keep a C
 
 ## [Unreleased]
 
+## [1.2.1] — 2026-11-07
+
 ### Added
 
 - Notch lock: `Ctrl+Alt+L` freezes the island in its idle state and ignores hover, clicks, drags, peeks and global opens while keeping the notch visible. A locked click shakes the notch and flashes it red; the lock can also be made click-through so clicks reach the app below. The companion's eyes and reactions stay hidden while locked, and the lock can be toggled from the tray. A brief "Locked"/"Unlocked" label confirms each change. The shortcut can be changed or cleared in Advanced, and startup conflicts are reported there.

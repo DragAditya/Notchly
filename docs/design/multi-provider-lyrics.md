@@ -20,7 +20,7 @@ visible in the expanded music panel instead of being discarded.
 - Local `.lrc` sidecar files.
 - User-editable provider order.
 - Chinese lyrics providers.
-- A version bump. Notchly stays at `1.1.0`.
+- A major version bump; this work ships in the `1.2.1` release.
 
 ## Provider set
 
