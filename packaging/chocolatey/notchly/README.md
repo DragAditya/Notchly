@@ -14,4 +14,7 @@ Publish it with a Chocolatey community repository API key:
 choco push notchly.1.2.1.nupkg --source https://push.chocolatey.org/ --api-key <key>
 ```
 
-The package downloads the signed NSIS installer from the GitHub release and installs it per user.
+Or add `CHOCOLATEY_API_KEY` as a repository secret and run the **Publish
+Chocolatey** workflow from the Actions tab.
+
+The package downloads the NSIS installer from the GitHub release and installs it per user.

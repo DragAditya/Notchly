@@ -1,0 +1,29 @@
+name: Publish Chocolatey
+
+# Manual only: Chocolatey moderation is not instant, and publishing a package
+# should be a deliberate step after a GitHub release is verified.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Pack
+        working-directory: packaging/chocolatey/notchly
+        run: choco pack --limit-output
+
+      - name: Push
+        working-directory: packaging/chocolatey/notchly
+        env:
+          CHOCO_API_KEY: ${{ secrets.CHOCOLATEY_API_KEY }}
+        run: |
+          $package = Get-ChildItem *.nupkg | Select-Object -First 1
+          if (-not $package) { throw 'No .nupkg found' }
+          if (-not $env:CHOCO_API_KEY) { throw 'CHOCOLATEY_API_KEY secret is not set' }
+          choco push $package.FullName --source https://push.chocolatey.org/ --api-key $env:CHOCO_API_KEY --no-progress
