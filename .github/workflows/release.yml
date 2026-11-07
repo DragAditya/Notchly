@@ -119,6 +119,21 @@ jobs:
           Compress-Archive -Path $dir -DestinationPath $zip
           gh release upload "v$version" $zip --clobber
 
+      # Stable asset names for the README's "latest download" links. These are
+      # copies of the versioned assets, so the hashes stay identical.
+      - name: Stable download aliases
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = (Get-Content code/package.json | ConvertFrom-Json).version
+          $setup = Get-ChildItem "code/src-tauri/target/release/bundle/nsis/*.exe" | Select-Object -First 1
+          $msi = Get-ChildItem "code/src-tauri/target/release/bundle/msi/*.msi" | Select-Object -First 1
+          Copy-Item $setup.FullName "Notchly_x64-setup.exe"
+          Copy-Item $msi.FullName "Notchly_x64.msi"
+          Copy-Item "Notchly_${version}_x64-portable.zip" "Notchly_x64-portable.zip"
+          gh release upload "v$version" "Notchly_x64-setup.exe" "Notchly_x64.msi" "Notchly_x64-portable.zip" --clobber
+
       - name: Checksums
         shell: pwsh
         env:
@@ -129,6 +144,9 @@ jobs:
           $files += Get-ChildItem "code/src-tauri/target/release/bundle/nsis/*.exe"
           $files += Get-ChildItem "code/src-tauri/target/release/bundle/msi/*.msi"
           $files += Get-Item "Notchly_${version}_x64-portable.zip"
+          $files += Get-Item "Notchly_x64-setup.exe"
+          $files += Get-Item "Notchly_x64.msi"
+          $files += Get-Item "Notchly_x64-portable.zip"
           $lines = $files | ForEach-Object {
             $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
             "$hash  $($_.Name)"

@@ -137,6 +137,11 @@ Use **Settings → Appearance** to switch between the classic black notch and th
 
 Get the latest build — **v1.2.1** — from [Releases](../../releases/tag/v1.2.1).
 
+Direct downloads from the latest release:
+[Setup EXE](../../releases/latest/download/Notchly_x64-setup.exe) ·
+[Portable ZIP](../../releases/latest/download/Notchly_x64-portable.zip) ·
+[MSI](../../releases/latest/download/Notchly_x64.msi)
+
 Each release includes:
 
 - `Notchly_<version>_x64-setup.exe` — per-user NSIS installer.
