@@ -14,4 +14,6 @@ Package-manager definitions for Notchly.
   been pushed to the community repository and is awaiting moderation.
 
 Keep the version, installer URL, and SHA-256 hashes in sync with each GitHub
-release.
+release. The release's `SHA256SUMS.txt` is the source of truth. Do not re-run
+the release workflow after generating these manifests: a re-run rebuilds the
+installers and changes their hashes.

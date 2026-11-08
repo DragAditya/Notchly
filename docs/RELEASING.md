@@ -30,6 +30,20 @@ The private key must never be committed or pasted into an issue.
    ```
 5. The release workflow builds NSIS, MSI, updater artifacts, the portable ZIP and `SHA256SUMS.txt`, then publishes the GitHub Release.
 
+## Package-manager manifests
+
+After the release workflow finishes, update the package manifests from the
+published assets or `SHA256SUMS.txt`:
+
+- winget: `packaging/winget/DragAditya.Notchly/<version>/DragAditya.Notchly.installer.yaml`
+- Scoop: `packaging/scoop/notchly.json` and the `scoop-notchly` bucket
+- Chocolatey: `packaging/chocolatey/notchly/tools/chocolateyinstall.ps1`
+
+Do **not** re-run the release workflow after generating these manifests. A
+re-run rebuilds the installers and changes their SHA-256 hashes, which
+invalidates every package manifest. If a re-run is unavoidable, update the
+manifests again from the new `SHA256SUMS.txt` before republishing packages.
+
 ## Manual local build
 
 From the repository root:
