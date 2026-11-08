@@ -6,7 +6,7 @@
   "architecture": {
     "64bit": {
       "url": "https://github.com/DragAditya/Notchly/releases/download/v1.2.1/Notchly_1.2.1_x64-portable.zip",
-      "hash": "22b572e3bd8b7dd318e29cb1e7c97bc6c3b4bf0023b575f1c66b1b3baa011bc2"
+      "hash": "61e364935591d48007bbef5be9ede8c3ca85282a906538961f449c981edabcf5"
     }
   },
   "extract_dir": "Notchly",
