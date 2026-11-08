@@ -4,6 +4,8 @@ Package-manager definitions for Notchly.
 
 - `winget/` — manifest for `DragAditya.Notchly`. The current submission is
   [microsoft/winget-pkgs#474260](https://github.com/microsoft/winget-pkgs/pull/474260).
+  The Microsoft CLA is signed and all validation checks pass; it is waiting for
+  a moderator to merge.
 - `scoop/notchly.json` — manifest mirrored in the
   [DragAditya/scoop-notchly](https://github.com/DragAditya/scoop-notchly) bucket.
   The official Extras bucket has a popularity threshold, so the self-hosted

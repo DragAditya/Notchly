@@ -160,8 +160,9 @@ scoop install notchly/notchly
 ```
 
 winget: the manifest is submitted in
-[microsoft/winget-pkgs#474260](https://github.com/microsoft/winget-pkgs/pull/474260)
-and is waiting for the Microsoft CLA. Once merged, install with:
+[microsoft/winget-pkgs#474260](https://github.com/microsoft/winget-pkgs/pull/474260).
+The Microsoft CLA is signed and all validation checks pass; the PR is waiting
+for a moderator to merge. Once merged, install with:
 
 ```powershell
 winget install DragAditya.Notchly
@@ -184,7 +185,10 @@ choco install notchly
 
 The current builds are not code-signed, so Windows SmartScreen may show a warning. If you downloaded the file from this repository and the checksum matches, choose **More info → Run anyway**.
 
-Notchly is applying to the [SignPath Foundation](https://signpath.org/) for free open-source code signing. Once approved, releases will be signed with a certificate from **SignPath Foundation**. See [CODE_SIGNING.md](CODE_SIGNING.md).
+Notchly has applied to the [SignPath Foundation](https://signpath.org/) for free
+open-source code signing. The application is awaiting review. Once approved,
+releases will be signed with a certificate from **SignPath Foundation**. See
+[CODE_SIGNING.md](CODE_SIGNING.md).
 
 The installer is per-user and does not require an administrator prompt. The portable build writes its data to your user profile and does not self-update.
 
