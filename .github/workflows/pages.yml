@@ -47,8 +47,9 @@ jobs:
         run: npm run build
 
       # The Vite site becomes the site root; docs stay available under /docs/.
+      # Jekyll writes _site as root inside its container, so copy with sudo.
       - name: Overlay website at site root
-        run: cp -R website/dist/. _site/
+        run: sudo cp -R website/dist/. _site/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
