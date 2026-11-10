@@ -23,6 +23,7 @@
 
 <p align="center">
   <a href="../../releases/latest"><b>Download</b></a> ·
+  <a href="https://dragaditya.github.io/Notchly/"><b>Website</b></a> ·
   <a href="#frontend-engineering"><b>Frontend</b></a> ·
   <a href="#build-from-source"><b>Build from source</b></a> ·
   <a href="docs/API.md"><b>Local API</b></a> ·
