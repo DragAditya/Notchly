@@ -1,5 +1,6 @@
 node_modules
 dist
+website/shots
 code/src-tauri/target
 code/src-tauri/gen
 *.log

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Notchly">
+  <rect width="64" height="64" fill="#050507"/>
+  <g transform="rotate(-33 32 32)">
+    <ellipse cx="32" cy="32" rx="15.6" ry="20.6" fill="#f4f2ee"/>
+    <ellipse cx="30.2" cy="29.4" rx="10" ry="14.9" fill="#050507"/>
+    <ellipse cx="29.6" cy="25.2" rx="2.1" ry="4.7" transform="rotate(52 29.6 25.2)" fill="#f4f2ee"/>
+    <ellipse cx="31.4" cy="35.3" rx="2.1" ry="4.7" transform="rotate(52 31.4 35.3)" fill="#f4f2ee"/>
+  </g>
+</svg>
