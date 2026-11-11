@@ -21,3 +21,6 @@ portable/
 SHA256SUMS.txt
 /release/*
 !/release/README.md
+
+# Local-only marketing material (kept on disk, not published)
+media/
