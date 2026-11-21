@@ -8,12 +8,22 @@
  */
 import { useEffect, useState } from "react";
 import { command, isTauri } from "../../core/bridge";
+import { useSetting } from "../../core/settings";
 import type { LyricsMode } from "./settings";
+import { lyricsSettings } from "./settings";
 import type { MusicState } from "./hooks/useMusic";
+
+export interface LyricWordSpan {
+  /** Absolute start in the song, in ms. */
+  timeMs: number;
+  text: string;
+}
 
 export interface LyricLine {
   timeMs: number;
   text: string;
+  /** Word timings from enhanced LRC; absent for ordinary synced sheets. */
+  words?: LyricWordSpan[];
 }
 
 export interface Lyrics {
@@ -21,6 +31,8 @@ export interface Lyrics {
   synced: boolean;
   provider?: string;
   language?: string;
+  /** The board is still waiting for the providers (not part of the payload). */
+  pending?: boolean;
 }
 
 export interface LyricWord {
@@ -44,7 +56,10 @@ const trackKey = (music: MusicState) =>
 
 /** Lyrics for the current track, from memory or the provider backend. */
 export function useLyrics(music: MusicState | undefined, enabled: boolean): Lyrics {
-  const key = enabled && music?.title && music.durationMs > 0 ? trackKey(music) : "";
+  const preferHinglish = useSetting(lyricsSettings.preferHinglish);
+  const track = enabled && music?.title ? trackKey(music) : "";
+  // A different preference changes which sheet the backend should return.
+  const key = track ? `${track}${preferHinglish ? "|hi" : ""}` : "";
   const [state, setState] = useState<{ key: string; lyrics: Lyrics }>({ key: "", lyrics: EMPTY });
 
   useEffect(() => {
@@ -59,7 +74,7 @@ export function useLyrics(music: MusicState | undefined, enabled: boolean): Lyri
     }
 
     let live = true;
-    setState({ key: "", lyrics: EMPTY });
+    setState({ key, lyrics: { ...EMPTY, pending: true } });
     (async () => {
       let lyrics = EMPTY;
       if (isTauri) {
@@ -69,6 +84,7 @@ export function useLyrics(music: MusicState | undefined, enabled: boolean): Lyri
             title: music.title,
             album: music.album,
             durationMs: Math.round(music.durationMs),
+            preferHinglish,
           });
           if (res) lyrics = res;
         } catch {
@@ -85,7 +101,7 @@ export function useLyrics(music: MusicState | undefined, enabled: boolean): Lyri
     return () => {
       live = false;
     };
-    // `key` already encodes artist/title/album/duration.
+    // `key` already encodes artist/title/album/duration and the preference.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
 
@@ -106,6 +122,23 @@ export function lineAt(lines: LyricLine[], positionMs: number): number {
   while (lo <= hi) {
     const mid = (lo + hi) >> 1;
     if (lines[mid].timeMs <= positionMs) {
+      found = mid;
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  return found;
+}
+
+/** Index of the word being sung in `words` (-1 before the first one). */
+export function wordAt(words: LyricWord[], positionMs: number): number {
+  let lo = 0;
+  let hi = words.length - 1;
+  let found = -1;
+  while (lo <= hi) {
+    const mid = (lo + hi) >> 1;
+    if (words[mid].start <= positionMs) {
       found = mid;
       lo = mid + 1;
     } else {
@@ -144,9 +177,23 @@ export function useLyricLine(music: MusicState | undefined, lyrics: Lyrics, offs
 export function lineWords(lines: LyricLine[], index: number): LyricWord[] {
   const line = lines[index];
   if (!line) return [];
+  const next = lines[index + 1];
+  const lineEnd = next ? next.timeMs : line.timeMs + Math.max(4000, line.text.length * 120);
+
+  // Enhanced LRC has real word times; use them when the provider sent any.
+  if (line.words?.length) {
+    return line.words.map((word, i) => {
+      const end = line.words![i + 1]?.timeMs ?? lineEnd;
+      return {
+        text: word.text,
+        start: word.timeMs,
+        end: Math.max(word.timeMs + 120, end),
+      };
+    });
+  }
+
   const parts = line.text.split(/\s+/).filter(Boolean);
   if (!parts.length) return [];
-  const next = lines[index + 1];
   const start = line.timeMs;
   // Leave the last line some room instead of stretching it to the song's end.
   const end = next ? next.timeMs : start + Math.max(4000, parts.length * 420);

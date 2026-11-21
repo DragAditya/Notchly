@@ -118,6 +118,11 @@ const SHORTCUTS: AnyDef[] = [
   shortcutSettings.companionSummon,
   shortcutSettings.companionToggle,
   shortcutSettings.notchLock,
+  shortcutSettings.mediaPrevious,
+  shortcutSettings.mediaNext,
+  shortcutSettings.mediaPlayPause,
+  shortcutSettings.volumeUp,
+  shortcutSettings.volumeDown,
   askInstantShortcut,
 ];
 

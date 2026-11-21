@@ -23,6 +23,12 @@ export const PauseIcon = (p: P) => (
 	</svg>
 );
 
+export const StopIcon = (p: P) => (
+	<svg {...base(p)}>
+		<rect x="6" y="6" width="12" height="12" rx="2.2" />
+	</svg>
+);
+
 export const NextIcon = (p: P) => (
 	<svg {...base(p)}>
 		<path d="M3 6.2v11.6a1 1 0 0 0 1.53.85L12 14v3.8a1 1 0 0 0 1.53.85l8.3-5.8a1 1 0 0 0 0-1.7l-8.3-5.8A1 1 0 0 0 12 6.2V10L4.53 5.35A1 1 0 0 0 3 6.2Z" />

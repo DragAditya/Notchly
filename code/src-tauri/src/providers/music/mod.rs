@@ -5,6 +5,7 @@
 //! Works with any app that integrates with the Windows media overlay:
 //! Spotify, browsers (YouTube, SoundCloud…), Apple Music, VLC, etc.
 
+mod artwork;
 mod focus;
 mod level;
 pub mod lyrics;
@@ -79,6 +80,27 @@ impl Provider for MusicProvider {
     }
 
     fn action(&self, action: &str, payload: Value) -> Result<Value, String> {
+        if action == "volumeUp" || action == "volumeDown" {
+            // 5% a press, on the default output device. Raising the volume also
+            // clears the mute; lowering it leaves the mute state alone.
+            let step = 0.05f32;
+            let current = volume::system().unwrap_or(volume::Volume {
+                level: 0.5,
+                muted: false,
+            });
+            let level = if action == "volumeUp" {
+                (current.level + step).min(1.0)
+            } else {
+                (current.level - step).max(0.0)
+            };
+            let change = serde_json::json!({
+                "target": "system",
+                "level": level,
+                "muted": if action == "volumeUp" { false } else { current.muted },
+            });
+            volume::set(&change).map_err(|e| e.to_string())?;
+            return Ok(Value::Null);
+        }
         if action == "volume" {
             let app_id = payload["appId"].as_str().unwrap_or_default();
             // Spotify with no mixer entry here plays on another device.

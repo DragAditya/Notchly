@@ -4,10 +4,11 @@ use std::cmp::Reverse;
 
 use super::{Candidate, TrackQuery};
 
-const STRICT_TOLERANCE_MS: u64 = 10_000;
-const LOOSE_TOLERANCE_MS: u64 = 20_000;
+const STRICT_TOLERANCE_MS: u64 = 12_000;
+const LOOSE_TOLERANCE_MS: u64 = 30_000;
 
-/// Picks the best candidate, preferring English, then synced lyrics.
+/// Picks the best candidate, preferring Latin-script (English/Hinglish)
+/// lyrics, then synced sheets, then the closest duration.
 pub fn choose(candidates: Vec<Candidate>, query: &TrackQuery) -> Option<Candidate> {
     let mut pool = filter(&candidates, query, STRICT_TOLERANCE_MS, true);
     if pool.is_empty() {
@@ -37,12 +38,12 @@ fn filter(
     candidates
         .iter()
         .filter(|candidate| {
-            if !title_matches(&title, &normalize(&candidate.title)) {
+            if !text_matches(&title, &normalize(&candidate.title)) {
                 return false;
             }
             if require_artist
                 && !artist.is_empty()
-                && !title_matches(&artist, &normalize(&candidate.artist))
+                && !text_matches(&artist, &normalize(&candidate.artist))
             {
                 return false;
             }
@@ -52,14 +53,55 @@ fn filter(
         .collect()
 }
 
-fn title_matches(query: &str, candidate: &str) -> bool {
+/// Lenient match that tolerates typing/spelling variants (`Pyar`/`Pyaar`,
+/// `Kesariya`/`Kesariya (From "Brahmastra")`) without accepting unrelated
+/// tracks. One side must contain the other or the strings must be very close.
+fn text_matches(query: &str, candidate: &str) -> bool {
     if query.is_empty() || candidate.is_empty() {
         return false;
     }
     if query.len() <= 2 || candidate.len() <= 2 {
         return query == candidate;
     }
-    query == candidate || query.contains(candidate) || candidate.contains(query)
+    if query == candidate || query.contains(candidate) || candidate.contains(query) {
+        return true;
+    }
+
+    // Token overlap helps when a provider credits extra artists.
+    let query_words: Vec<&str> = query.split_whitespace().collect();
+    let candidate_words: Vec<&str> = candidate.split_whitespace().collect();
+    let shared = query_words
+        .iter()
+        .filter(|word| candidate_words.contains(word))
+        .count();
+    if !query_words.is_empty() && shared * 100 / query_words.len() >= 70 {
+        return true;
+    }
+
+    similarity(query, candidate) >= 0.84
+}
+
+/// Normalized Levenshtein similarity in `0.0..=1.0`.
+fn similarity(a: &str, b: &str) -> f32 {
+    let a: Vec<char> = a.chars().collect();
+    let b: Vec<char> = b.chars().collect();
+    if a.is_empty() || b.is_empty() {
+        return 0.0;
+    }
+    let mut prev: Vec<usize> = (0..=b.len()).collect();
+    let mut current = vec![0usize; b.len() + 1];
+    for (i, ca) in a.iter().enumerate() {
+        current[0] = i + 1;
+        for (j, cb) in b.iter().enumerate() {
+            let cost = usize::from(ca != cb);
+            current[j + 1] = (prev[j + 1] + 1)
+                .min(current[j] + 1)
+                .min(prev[j] + cost);
+        }
+        std::mem::swap(&mut prev, &mut current);
+    }
+    let distance = prev[b.len()];
+    1.0 - (distance as f32 / a.len().max(b.len()) as f32)
 }
 
 /// Lowercase, drop bracketed suffixes, featured artists and common edition
@@ -123,6 +165,7 @@ mod tests {
                     .map(|i| Line {
                         time_ms: i as u64,
                         text: "x".into(),
+                        words: Vec::new(),
                     })
                     .collect(),
                 synced,
@@ -136,6 +179,13 @@ mod tests {
             title: "Song".into(),
             artist: "Artist".into(),
         }
+    }
+
+    #[test]
+    fn tolerates_spelling_variants() {
+        assert!(text_matches("temporary pyar", "temporary pyaar"));
+        assert!(text_matches("kesariya", "kesariya from brahmastra"));
+        assert!(!text_matches("kesariya", "deva deva"));
     }
 
     #[test]

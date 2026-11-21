@@ -165,6 +165,36 @@ export const shortcutSettings = {
     description: "shortcuts.notchLock.desc",
     default: "Ctrl+Alt+L",
   } satisfies SettingDef<string>,
+  mediaPrevious: {
+    key: "shortcuts.mediaPrevious",
+    label: "shortcuts.mediaPrevious.label",
+    description: "shortcuts.mediaPrevious.desc",
+    default: "Ctrl+Alt+Left",
+  } satisfies SettingDef<string>,
+  mediaNext: {
+    key: "shortcuts.mediaNext",
+    label: "shortcuts.mediaNext.label",
+    description: "shortcuts.mediaNext.desc",
+    default: "Ctrl+Alt+Right",
+  } satisfies SettingDef<string>,
+  mediaPlayPause: {
+    key: "shortcuts.mediaPlayPause",
+    label: "shortcuts.mediaPlayPause.label",
+    description: "shortcuts.mediaPlayPause.desc",
+    default: "Ctrl+Alt+0",
+  } satisfies SettingDef<string>,
+  volumeUp: {
+    key: "shortcuts.volumeUp",
+    label: "shortcuts.volumeUp.label",
+    description: "shortcuts.volumeUp.desc",
+    default: "Ctrl+Alt+Up",
+  } satisfies SettingDef<string>,
+  volumeDown: {
+    key: "shortcuts.volumeDown",
+    label: "shortcuts.volumeDown.label",
+    description: "shortcuts.volumeDown.desc",
+    default: "Ctrl+Alt+Down",
+  } satisfies SettingDef<string>,
 } satisfies Record<string, SettingDef<any>>;
 
 /** Restore a group of settings to the defaults declared next to their code. */

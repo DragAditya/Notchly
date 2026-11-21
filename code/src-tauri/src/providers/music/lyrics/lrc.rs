@@ -1,6 +1,6 @@
 //! LRC and plain-text lyric parsing.
 
-use super::Line;
+use super::{Line, Word};
 
 /// `[mm:ss.xx]` (and `[hh:mm:ss.xx]`) timestamps, one line per stamp.
 pub(crate) fn parse_lrc(text: &str) -> Vec<Line> {
@@ -28,20 +28,93 @@ pub(crate) fn parse_lrc(text: &str) -> Vec<Line> {
         if metadata || stamps.is_empty() {
             continue;
         }
-        let text = strip_word_tags(rest).trim().to_string();
+        let (text, words) = parse_words(rest, stamps[0]);
         if text.is_empty() {
             continue;
         }
         for ms in stamps {
+            // Word tags carry absolute times; anchor them to the line stamp
+            // when providers only tag the first word or omit the tag entirely.
+            let words = words
+                .iter()
+                .map(|word| Word {
+                    time_ms: ms + word.time_ms,
+                    text: word.text.clone(),
+                })
+                .collect();
             lines.push(Line {
                 time_ms: ms,
                 text: text.clone(),
+                words,
             });
         }
     }
     lines.sort_by_key(|l| l.time_ms);
     lines.dedup_by(|a, b| a.time_ms == b.time_ms && a.text == b.text);
     lines
+}
+
+/// Splits enhanced-LRC word tags (`<mm:ss.xx>word`) from a line.
+///
+/// Returns the plain line text and word timings *relative* to the line start.
+fn parse_words(text: &str, line_start: u64) -> (String, Vec<Word>) {
+    if !text.contains('<') {
+        return (text.trim().to_string(), Vec::new());
+    }
+
+    // Text chunks paired with the timestamp that introduced them.
+    let mut chunks: Vec<(Option<u64>, String)> = Vec::new();
+    let mut rest = text;
+    let mut current: Option<u64> = None;
+    let mut buffer = String::new();
+
+    loop {
+        let Some(start) = rest.find('<') else {
+            buffer.push_str(rest);
+            break;
+        };
+        let Some(relative_end) = rest[start..].find('>') else {
+            buffer.push_str(rest);
+            break;
+        };
+        let tag = &rest[start + 1..start + relative_end];
+        let Some(ms) = parse_stamp(tag) else {
+            // A literal `<` that isn't a timestamp.
+            buffer.push_str(&rest[..start + relative_end + 1]);
+            rest = &rest[start + relative_end + 1..];
+            continue;
+        };
+        buffer.push_str(&rest[..start]);
+        if !buffer.is_empty() {
+            chunks.push((current, std::mem::take(&mut buffer)));
+        }
+        current = Some(ms);
+        rest = &rest[start + relative_end + 1..];
+    }
+    if !buffer.is_empty() {
+        chunks.push((current, buffer));
+    }
+
+    let mut plain = String::new();
+    let mut words = Vec::new();
+    for (time, chunk) in chunks {
+        let clean = strip_word_tags(chunk.trim());
+        if clean.is_empty() {
+            continue;
+        }
+        if !plain.is_empty() {
+            plain.push(' ');
+        }
+        plain.push_str(&clean);
+        if let Some(time_ms) = time {
+            words.push(Word {
+                time_ms: time_ms.saturating_sub(line_start),
+                text: clean,
+            });
+        }
+    }
+
+    (plain, words)
 }
 
 /// Plain text has no timestamps; every line starts at zero.
@@ -52,6 +125,7 @@ pub(crate) fn parse_plain(text: &str) -> Vec<Line> {
         .map(|text| Line {
             time_ms: 0,
             text: text.to_string(),
+            words: Vec::new(),
         })
         .collect()
 }
@@ -118,15 +192,43 @@ mod tests {
             vec![
                 Line {
                     time_ms: 12_500,
-                    text: "Hello world".into()
+                    text: "Hello world".into(),
+                    words: Vec::new(),
                 },
                 Line {
                     time_ms: 20_000,
-                    text: "Again".into()
+                    text: "Again".into(),
+                    words: Vec::new(),
                 },
                 Line {
                     time_ms: 30_000,
-                    text: "Again".into()
+                    text: "Again".into(),
+                    words: Vec::new(),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn parses_enhanced_word_tags() {
+        let lrc = "[00:12.00]<00:12.00>Hello <00:12.60>big <00:13.20>world";
+        let lines = parse_lrc(lrc);
+        assert_eq!(lines.len(), 1);
+        assert_eq!(lines[0].text, "Hello big world");
+        assert_eq!(
+            lines[0].words,
+            vec![
+                Word {
+                    time_ms: 0,
+                    text: "Hello".into()
+                },
+                Word {
+                    time_ms: 600,
+                    text: "big".into()
+                },
+                Word {
+                    time_ms: 1_200,
+                    text: "world".into()
                 },
             ]
         );
@@ -146,11 +248,13 @@ mod tests {
             vec![
                 Line {
                     time_ms: 0,
-                    text: "First line".into()
+                    text: "First line".into(),
+                    words: Vec::new(),
                 },
                 Line {
                     time_ms: 0,
-                    text: "Second line".into()
+                    text: "Second line".into(),
+                    words: Vec::new(),
                 },
             ]
         );

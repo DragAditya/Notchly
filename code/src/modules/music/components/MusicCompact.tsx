@@ -5,7 +5,8 @@ import { MusicIcon } from "../../../components/icons";
 import { CompanionEyes, type DanceStyle } from "../../../companion/CompanionEyes";
 import { companionSettings, useCompanionMode, useSetting } from "../../../core/settings";
 import { formatTime, useLivePosition, type MusicState } from "../hooks/useMusic";
-import { musicSettings } from "../settings";
+import { lyricsBoardSettings, musicSettings } from "../settings";
+import { LyricsTrigger } from "../../../lyrics/LyricsTrigger";
 import { Artwork } from "./Artwork";
 import { Visualizer } from "./Visualizer";
 
@@ -20,6 +21,7 @@ export function MusicCompactLeft({ music, lyric }: { music: MusicState; lyric?: 
   const musicEyes = useSetting(companionSettings.musicEyes);
   const dancePref = useSetting(companionSettings.dance);
   const showArtwork = useSetting(musicSettings.showArtwork);
+  const boardEnabled = useSetting(lyricsBoardSettings.enabled);
   const [danceIndex, setDanceIndex] = useState(0);
 
   useEffect(() => {
@@ -51,20 +53,28 @@ export function MusicCompactLeft({ music, lyric }: { music: MusicState; lyric?: 
     </span>
   );
 
+  // The pop-out lyrics board hangs off the face (or the artwork when the
+  // companion is off). Only that chip is the toggle, not the whole pill.
+  const face = boardEnabled ? (
+    <LyricsTrigger className="music-compact-face">{eyes}</LyricsTrigger>
+  ) : (
+    eyes
+  );
+
   // Eyes mode: the eyes are the whole compact surface. Mixed keeps the track
   // copy; Live activities and Off show the normal artwork + copy.
-  if (eyesOnly) return <>{eyes}</>;
+  if (eyesOnly) return <>{face}</>;
   if (lyric) {
     return (
       <>
-        {eyes}
+        {face}
         {lyric}
       </>
     );
   }
   return (
     <>
-      {eyes}
+      {face}
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.div
           key={`${music.title}|${music.artist}`}

@@ -26,6 +26,7 @@ import { launcherSize } from "./island/Launcher";
 import { Rim } from "./island/Rim";
 import { Surface } from "./island/Surface";
 import { useIslandFileDrop } from "./island/useIslandFileDrop";
+import { useLyricsOpen } from "../lyrics/useLyricsPanel";
 
 export function Island() {
 	const ctl = useIslandController(modules);
@@ -51,6 +52,8 @@ export function Island() {
 		"--island-scale": String(look.scale),
 		"--rim-speed": `${look.borderSpeed}s`,
 	} as CSSProperties;
+	// While the lyrics board owns the screen the notch is fully out of the way.
+	const lyricsOpen = useLyricsOpen();
 	useHitRects();
 	useSyncLocale();
 	useIslandFileDrop(ctl);
@@ -71,7 +74,7 @@ export function Island() {
 	const hidden = mode === "hidden";
 	const swallowed = mode === "swallowed";
 	const resting = mode === "compact" || mode === "idle";
-	const showSecondary = mode === "compact" && secondary !== undefined;
+	const showSecondary = mode === "compact" && secondary !== undefined && !lyricsOpen;
 	// A spring's frequency scales with sqrt(stiffness); keeping the damping ratio
 	// means damping scales with the same factor as the speed.
 	const speedUp = (t: typeof v.shellSpring) => ({
@@ -114,7 +117,7 @@ export function Island() {
 		leftExtra: g.ear + (resting ? ambientWidth(ctl.entries.filter((e) => e.view.ambient).length) : 0),
 		rightExtra: g.ear + (showSecondary ? BUBBLE_GAP + BUBBLE : 0),
 		canReturn: !big,
-		disabled: ctl.locked,
+		disabled: ctl.locked || lyricsOpen,
 		onDragChange: ctl.lockHover,
 	});
 
@@ -192,8 +195,8 @@ export function Island() {
 						} ${lockClickThrough ? "is-lock-clickthrough" : ""} ${
 							lockFeedback === "locked" ? "is-lock-hit" : ""
 						} ${lockFeedback === "unlocked" ? "is-unlock-hit" : ""}`}
-						{...(hidden || swallowed || lockClickThrough ? {} : { "data-hit": true })}
-						{...ctl.domHover}
+						{...(hidden || swallowed || lockClickThrough || lyricsOpen ? {} : { "data-hit": true })}
+						{...(lyricsOpen ? {} : ctl.domHover)}
 						style={{ ...drag.style, marginTop: v.top }}
 						onPointerDown={drag.onPointerDown}
 						onClickCapture={(e) => {
@@ -205,17 +208,25 @@ export function Island() {
 							}
 							drag.onClickCapture(e);
 						}}
+						// Hovering the pop-out face must not auto-expand the island
+						// before the click lands.
+						onPointerOverCapture={(e) => {
+							if ((e.target as Element).closest(".lyrics-pop")) ctl.lockHover(true);
+						}}
+						onPointerOutCapture={(e) => {
+							if (!(e.relatedTarget as Element | null)?.closest?.(".lyrics-pop")) ctl.lockHover(false);
+						}}
 						onUpdate={drag.onShellUpdate}
-						onWheel={ctl.onWheel}
+						onWheel={(e) => !lyricsOpen && ctl.onWheel(e)}
 						initial={false}
 						animate={{
 							width: g.width,
 							height: g.height,
-							opacity: hidden ? 0 : 1,
+							opacity: hidden || lyricsOpen ? 0 : 1,
 							y: hidden ? -g.height - 12 - v.top : 0,
 						}}
 						transition={transition}
-						onClick={() => resting && !ctl.locked && ctl.expand()}
+						onClick={() => resting && !ctl.locked && !lyricsOpen && ctl.expand()}
 					>
 						<motion.span className="ear left" initial={false} animate={{ width: g.ear, height: g.ear }} transition={transition} />
 						<motion.span className="ear right" initial={false} animate={{ width: g.ear, height: g.ear }} transition={transition} />
@@ -237,7 +248,7 @@ export function Island() {
 							</span>
 						)}
 
-						<AmbientBubbles entries={ctl.entries} visible={resting && !ctl.locked} shrunk={mode === "idle" && !windows} {...bubble} />
+						<AmbientBubbles entries={ctl.entries} visible={resting && !ctl.locked && !lyricsOpen} shrunk={mode === "idle" && !windows} {...bubble} />
 						<SecondaryBubble entry={showSecondary ? secondary : undefined} {...bubble} />
 					</motion.div>
 				</motion.div>

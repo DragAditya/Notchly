@@ -82,8 +82,8 @@ export const musicModule: IslandModule = {
           offsetMs={offsetMs}
         />
       ),
-      // Wider only when the lyric column is there; the rest of the panel is untouched.
-      expandedSize: { width: hasLyrics ? 700 : 560, height: 176 },
+      // Classic island size; the lyrics column is tightened to fit it.
+      expandedSize: { width: 560, height: 176 },
       activityKey: autoExpand && music?.available && !music.youtube ? trackKey : undefined,
     };
   },

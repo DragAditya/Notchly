@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import { Island } from "./components/Island";
 import { isTauri, startBridge } from "./core/bridge";
 import { startSettings } from "./core/settings";
+import { LyricsApp } from "./lyrics/LyricsApp";
 import { PipApp } from "./pip/PipApp";
 import { SettingsApp } from "./settings/SettingsApp";
 import "./styles.css";
@@ -23,5 +24,7 @@ if (import.meta.env.PROD) document.addEventListener("contextmenu", (e) => e.prev
 if (!isTauri && label === "island") document.body.classList.add("preview");
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>{label === "settings" ? <SettingsApp /> : label === "pip" ? <PipApp /> : <Island />}</React.StrictMode>,
+  <React.StrictMode>
+    {label === "settings" ? <SettingsApp /> : label === "pip" ? <PipApp /> : label === "lyrics" ? <LyricsApp /> : <Island />}
+  </React.StrictMode>,
 );

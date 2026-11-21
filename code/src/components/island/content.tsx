@@ -4,6 +4,9 @@ import { LAUNCHER, type IslandController } from "../../core/useIslandController"
 import { CompanionEyes } from "../../companion/CompanionEyes";
 import type { CompanionView } from "../../companion/types";
 import { IdleClock } from "../IdleClock";
+import { useSetting } from "../../core/settings";
+import { LyricsTrigger } from "../../lyrics/LyricsTrigger";
+import { lyricsBoardSettings } from "../../modules/music/settings";
 import type { Variant } from "./geometry";
 import { Launcher } from "./Launcher";
 import { Tabs } from "./Tabs";
@@ -65,7 +68,7 @@ export function islandContent(
 			key: "companion",
 			node: (
 				<div className={`companion-idle ${hasClock ? "has-clock" : ""}`}>
-					<CompanionEyes mood={companion.mood} />
+					<IdleFace mood={companion.mood} />
 					{hasClock && <IdleClock />}
 				</div>
 			),
@@ -77,4 +80,11 @@ export function islandContent(
 	}
 
 	return { key: "idle", node: null };
+}
+
+/** The resting face doubles as the lyrics-board toggle when the board is on. */
+function IdleFace({ mood }: { mood: CompanionView["mood"] }) {
+	const enabled = useSetting(lyricsBoardSettings.enabled);
+	const face = <CompanionEyes mood={mood} />;
+	return enabled ? <LyricsTrigger className="companion-idle-face">{face}</LyricsTrigger> : face;
 }

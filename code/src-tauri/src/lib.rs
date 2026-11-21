@@ -3,6 +3,7 @@ mod display;
 mod file_drop;
 mod hub;
 mod i18n;
+mod lyrics_board;
 mod pip;
 mod portable;
 mod providers;
@@ -51,6 +52,29 @@ pub fn run() {
                         shortcuts::toggle_lock(app);
                         return;
                     }
+                    // Media keys are explicit presses, so they keep working on a
+                    // locked notch (unlike hover, drags and the other opening
+                    // shortcuts, which stay frozen).
+                    if matches(*shortcut, shortcuts::media_previous()) {
+                        media_action(app, "previous");
+                        return;
+                    }
+                    if matches(*shortcut, shortcuts::media_next()) {
+                        media_action(app, "next");
+                        return;
+                    }
+                    if matches(*shortcut, shortcuts::media_play_pause()) {
+                        media_action(app, "toggle");
+                        return;
+                    }
+                    if matches(*shortcut, shortcuts::volume_up()) {
+                        media_action(app, "volumeUp");
+                        return;
+                    }
+                    if matches(*shortcut, shortcuts::volume_down()) {
+                        media_action(app, "volumeDown");
+                        return;
+                    }
                     // A locked notch ignores every other global opening too,
                     // including the companion keys and Ask/Find.
                     if shortcuts::is_locked(app) {
@@ -79,6 +103,7 @@ pub fn run() {
         )
         .manage(window::HitState::default())
         .manage(window::DragState::default())
+        .manage(lyrics_board::BoardState::default())
         .manage(i18n::Locale::default())
         .setup(|app| {
             let handle = app.handle().clone();
@@ -140,6 +165,11 @@ pub fn run() {
             pip::is_pip_open,
             pip::pip_snap,
             pip::pip_resize,
+            lyrics_board::open_lyrics,
+            lyrics_board::close_lyrics,
+            lyrics_board::is_lyrics_open,
+            lyrics_board::lyrics_snap,
+            lyrics_board::lyrics_set_visibility,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -148,6 +178,27 @@ pub fn run() {
 /// True when a registered shortcut is the one the user saved for `event`.
 fn matches(pressed: Shortcut, saved: Option<Shortcut>) -> bool {
     saved.is_some_and(|registered| registered == pressed)
+}
+
+/// Runs a music action off the shortcut thread so a slow player never blocks
+/// the handler (or the UI) that received the key.
+fn media_action(app: &AppHandle, action: &'static str) {
+    let Some(providers) = app.try_state::<Providers>() else {
+        return;
+    };
+    let Some(music) = providers
+        .0
+        .iter()
+        .find(|provider| provider.id() == providers::music::ID)
+        .cloned()
+    else {
+        return;
+    };
+    std::thread::spawn(move || {
+        if let Err(error) = music.action(action, serde_json::Value::Null) {
+            log::warn!("media shortcut {action}: {error}");
+        }
+    });
 }
 
 /// Brings the island forward on a page that takes the keyboard (`event` tells which).

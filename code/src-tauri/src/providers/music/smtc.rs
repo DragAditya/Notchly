@@ -1,5 +1,6 @@
 //! Now-playing metadata and transport controls through SMTC.
 
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
 use std::time::Duration;
@@ -23,6 +24,9 @@ use crate::settings::Settings;
 
 /// Off by default: the YouTube lookup is a search request per browser track.
 const VIDEO_KEY: &str = "music.video.label";
+/// On by default: look cover art up online when a player shows none (or only
+/// its own logo). Read here; toggled in the music settings.
+const ART_KEY: &str = "music.artLookup";
 /// Which player wins when several apps expose a session.
 const SOURCE_KEY: &str = "music.sourcePriority";
 
@@ -38,6 +42,11 @@ pub fn poll_loop(hub: Arc<Hub>, playing_flag: Arc<AtomicBool>, spotify: Arc<Spot
     let mut thumbnail: Option<String> = None;
     let mut thumb_attempts = 0u8;
     let youtube = super::youtube::Resolver::default();
+    let art = super::artwork::Resolver::default();
+    // app id -> (track key, thumbnail). When the same image shows up for two
+    // different songs, the player is publishing its logo, not artwork.
+    let mut seen_thumbs: HashMap<String, (String, String)> = HashMap::new();
+    let mut generic_apps: HashSet<String> = HashSet::new();
 
     loop {
         if manager.is_none() {
@@ -62,7 +71,7 @@ pub fn poll_loop(hub: Arc<Hub>, playing_flag: Arc<AtomicBool>, spotify: Arc<Spot
                     state.app_id, state.title, state.artist, state.album
                 );
                 if key != track_key {
-                    track_key = key;
+                    track_key = key.clone();
                     thumbnail = None;
                     thumb_attempts = 0;
                 }
@@ -72,6 +81,39 @@ pub fn poll_loop(hub: Arc<Hub>, playing_flag: Arc<AtomicBool>, spotify: Arc<Spot
                     thumbnail = read_thumbnail(&session).ok().flatten();
                 }
                 state.thumbnail = thumbnail.clone();
+
+                // Flag a player that hands us the same picture for unrelated
+                // songs: that is its own logo, not album art.
+                if let Some(thumb) = state.thumbnail.clone() {
+                    let repeated = seen_thumbs
+                        .get(&state.app_id)
+                        .is_some_and(|(prev_key, prev_thumb)| prev_key != &key && prev_thumb == &thumb);
+                    if repeated {
+                        generic_apps.insert(state.app_id.clone());
+                    }
+                    seen_thumbs.insert(state.app_id.clone(), (key.clone(), thumb));
+                }
+
+                // Cover-art fallback. Browsers almost never publish artwork
+                // (they send their logo), so look it up for them always; for
+                // any other player, only once its logo has been detected. A
+                // miss keeps whatever SMTC gave us.
+                let online = hub
+                    .app()
+                    .state::<Settings>()
+                    .get(ART_KEY)
+                    .and_then(|v| v.as_bool())
+                    .unwrap_or(true);
+                let suspect = state.thumbnail.is_none()
+                    || generic_apps.contains(&state.app_id)
+                    || (super::youtube::is_browser(&state.app_name) && !state.title.is_empty());
+                if online
+                    && suspect
+                    && let Some(found) = art.art(hub.app(), &state.artist, &state.title)
+                {
+                    state.thumbnail = Some(found);
+                }
+
                 let video = hub
                     .app()
                     .state::<Settings>()
@@ -129,6 +171,10 @@ pub fn control(action: &str, payload: Value) -> Result<()> {
         "toggle" => session.TryTogglePlayPauseAsync()?.join()?,
         "play" => session.TryPlayAsync()?.join()?,
         "pause" => session.TryPauseAsync()?.join()?,
+        "stop" => {
+            session.TryPauseAsync()?.join()?;
+            session.TryChangePlaybackPositionAsync(0)?.join()?
+        }
         "next" => session.TrySkipNextAsync()?.join()?,
         "previous" => session.TrySkipPreviousAsync()?.join()?,
         "focus" => {

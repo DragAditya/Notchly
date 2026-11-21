@@ -42,7 +42,7 @@ export const LEVEL_EVENT = "music://level";
 const PAUSE_GRACE_MS = 15_000;
 
 /** `focus` brings the player's window to the front. */
-export const musicAction = (action: "toggle" | "next" | "previous" | "seek" | "focus", payload?: number) =>
+export const musicAction = (action: "toggle" | "stop" | "next" | "previous" | "seek" | "focus", payload?: number) =>
   providerAction(MUSIC_PROVIDER, action, payload);
 
 export const setVolume = (

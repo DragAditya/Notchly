@@ -170,6 +170,26 @@
       label: "Bloquear / desbloquear a ilha",
       desc: "Congela a ilha no estado ocioso: sem hover, cliques, arrastos, música ou notificações até você pressionar de novo.",
     },
+    mediaPrevious: {
+      label: "Faixa anterior",
+      desc: "Pula para a música anterior de qualquer lugar.",
+    },
+    mediaNext: {
+      label: "Próxima faixa",
+      desc: "Pula para a próxima música de qualquer lugar.",
+    },
+    mediaPlayPause: {
+      label: "Reproduzir / pausar",
+      desc: "Alterna a reprodução de qualquer lugar.",
+    },
+    volumeUp: {
+      label: "Aumentar volume",
+      desc: "Aumenta o volume do sistema em 5% de qualquer lugar.",
+    },
+    volumeDown: {
+      label: "Diminuir volume",
+      desc: "Diminui o volume do sistema em 5% de qualquer lugar.",
+    },
   },
 
   // Olhos do companheiro (sinais de atividade locais e seguros)
@@ -355,6 +375,10 @@
       label: "Mostrar capa",
       desc: "Capa do álbum na pílula compacta e no painel expandido. Desligado usa o ícone do módulo.",
     },
+    artLookup: {
+      label: "Buscar capa online",
+      desc: "Quando o player não envia capa (navegadores costumam mostrar só o próprio logo), busca a capa online pela música e artista. Precisa de internet.",
+    },
     showProgress: {
       label: "Mostrar progresso",
       desc: "A barra de busca e o tempo decorrido/restante no painel expandido.",
@@ -372,13 +396,66 @@
     },
     lyrics: {
       label: "Letras",
-      desc: "Mostra a linha atual na ilha, acompanhando a música, e a letra completa no painel expandido. As letras vêm do LRCLIB e do lyrics.ovh.",
+      desc: "Mostra a linha atual na ilha, acompanhando a música, e a letra completa no painel expandido. Mostra a linha atual na ilha, acompanhando a música, e a letra completa no painel expandido. As letras vêm do LRCLIB, Megalobiz e lyrics.ovh.",
       modeLabel: "Estilo compacto",
       line: "Linha",
       word: "Palavra",
       offsetLabel: "Ajuste de tempo",
       offsetDesc: "Ajuste se a letra estiver adiantada ou atrasada em relação à voz. Valores positivos mostram depois.",
+      hinglishLabel: "Preferir letras em hinglish",
+      hinglishDesc: "Quando uma música só tem letra em hindi (devanágari), mostrá-la romanizada e preferir versões em alfabeto latino dos provedores.",
       reset: "Redefinir",
+    },
+    // Painel de letras flutuante: janela própria e redimensionável, aberta pelo rosto.
+    board: {
+      label: "Painel de letras",
+      title: "Letras",
+      open: "Abrir painel de letras",
+      nothingPlaying: "Nada tocando",
+      noLyrics: "Sem letra para esta faixa",
+      looking: "Procurando a letra…",
+      prev: "Anterior",
+      play: "Reproduzir",
+      pause: "Pausar",
+      stop: "Parar",
+      next: "Próxima",
+      seek: "Buscar",
+      enabled: {
+        label: "Painel de letras flutuante",
+        desc: "Clique no rosto do companion no notch compacto para abrir uma janela de letras redimensionável. Desative para manter o rosto como era.",
+      },
+      emptyAnim: {
+        label: "Animação de vazio",
+        desc: "O que aparece enquanto nenhuma faixa está carregada.",
+        face: "Rosto respirando",
+        bars: "Equalizador",
+        notes: "Notas flutuando",
+        none: "Nada",
+      },
+      showEmptyText: {
+        label: "Mensagem de vazio",
+        desc: "Desative para deixar a área de letras em branco quando nada estiver tocando ou a faixa não tiver letra.",
+      },
+      nothingText: {
+        label: "Mensagem de nada tocando",
+        desc: "Deixe vazio para o texto padrão.",
+      },
+      noLyricsText: {
+        label: "Mensagem de sem letra",
+        desc: "Mostrada quando a faixa não tem letra. Deixe vazio para o padrão.",
+      },
+      tint: {
+        label: "Intensidade do fundo",
+        desc: "Quanto a capa é escurecida sob o vidro vinho.",
+      },
+      blur: {
+        label: "Desfoque do fundo",
+        desc: "Suaviza o fundo com a capa. Valores menores deixam a capa mais visível.",
+      },
+      autoHide: {
+        label: "Ocultar controles",
+        desc: "Os controles e o botão fechar somem até você passar o mouse no painel.",
+      },
     },
     pin: "Fixar",
     pinned: "Vídeo fixado · trazer de volta",

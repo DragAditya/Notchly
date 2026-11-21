@@ -28,7 +28,17 @@ pub fn fetch(agent: &ureq::Agent, query: &TrackQuery) -> Vec<Candidate> {
         candidates.push(candidate);
     }
 
-    for record in search(agent, query) {
+    let mut records = search(agent, query);
+    if records.len() < 2 && !query.artist.is_empty() {
+        // Some sheets are filed under a different artist spelling, or only
+        // under a free-text query.
+        records.extend(free_search(agent, query));
+    }
+    if records.is_empty() {
+        records = title_search(agent, query);
+    }
+
+    for record in records {
         if let Some(candidate) = to_candidate(record, query) {
             candidates.push(candidate);
         }
@@ -38,14 +48,17 @@ pub fn fetch(agent: &ureq::Agent, query: &TrackQuery) -> Vec<Candidate> {
 }
 
 fn exact(agent: &ureq::Agent, query: &TrackQuery) -> Option<Record> {
-    let mut response = agent
+    let mut request = agent
         .get(format!("{API}/get"))
         .query("artist_name", &query.artist)
-        .query("track_name", &query.title)
-        .query("album_name", &query.album)
-        .query("duration", (query.duration_ms / 1000).to_string())
-        .call()
-        .ok()?;
+        .query("track_name", &query.title);
+    if !query.album.trim().is_empty() {
+        request = request.query("album_name", &query.album);
+    }
+    if query.duration_ms > 0 {
+        request = request.query("duration", (query.duration_ms / 1000).to_string());
+    }
+    let mut response = request.call().ok()?;
     let body = response.body_mut().read_to_string().ok()?;
     serde_json::from_str(&body).ok()
 }
@@ -57,6 +70,23 @@ fn search(agent: &ureq::Agent, query: &TrackQuery) -> Vec<Record> {
     if !query.artist.trim().is_empty() {
         request = request.query("artist_name", &query.artist);
     }
+    get_records(request)
+}
+
+fn free_search(agent: &ureq::Agent, query: &TrackQuery) -> Vec<Record> {
+    let text = format!("{} {}", query.artist, query.title);
+    get_records(agent.get(format!("{API}/search")).query("q", text.trim()))
+}
+
+fn title_search(agent: &ureq::Agent, query: &TrackQuery) -> Vec<Record> {
+    get_records(
+        agent
+            .get(format!("{API}/search"))
+            .query("track_name", &query.title),
+    )
+}
+
+fn get_records(request: ureq::RequestBuilder<ureq::typestate::WithoutBody>) -> Vec<Record> {
     let Ok(mut response) = request.call() else {
         return Vec::new();
     };

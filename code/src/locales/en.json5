@@ -181,6 +181,26 @@
       label: "Lock / unlock the notch",
       desc: "Freezes the notch in idle: no hover, clicks, drags, music or notifications until you press it again.",
     },
+    mediaPrevious: {
+      label: "Previous track",
+      desc: "Skips to the previous song from anywhere.",
+    },
+    mediaNext: {
+      label: "Next track",
+      desc: "Skips to the next song from anywhere.",
+    },
+    mediaPlayPause: {
+      label: "Play / pause",
+      desc: "Toggles playback from anywhere.",
+    },
+    volumeUp: {
+      label: "Volume up",
+      desc: "Raises the system volume by 5% from anywhere.",
+    },
+    volumeDown: {
+      label: "Volume down",
+      desc: "Lowers the system volume by 5% from anywhere.",
+    },
   },
 
   // Companion eyes (safe, local activity signals only)
@@ -370,6 +390,10 @@
       label: "Show artwork",
       desc: "Album art in the compact pill and the expanded panel. Off uses the module icon.",
     },
+    artLookup: {
+      label: "Find cover art online",
+      desc: "When a player gives no artwork (browsers usually show their own logo), look the cover up online by song and artist. Needs an internet connection.",
+    },
     showProgress: {
       label: "Show progress",
       desc: "The seek bar and elapsed/remaining time in the expanded panel.",
@@ -387,13 +411,66 @@
     },
     lyrics: {
       label: "Lyrics",
-      desc: "Shows the current line in the island, in time with the music, and the full lyrics in the expanded panel. Lyrics come from LRCLIB and lyrics.ovh.",
+      desc: "Shows the current line in the island, in time with the music, and the full lyrics in the expanded panel. Shows the current line in the island, in time with the music, and the full lyrics in the expanded panel. Lyrics come from LRCLIB, Megalobiz and lyrics.ovh.",
       modeLabel: "Compact style",
       line: "Line",
       word: "Single word",
       offsetLabel: "Timing offset",
       offsetDesc: "Adjust if the lyrics run ahead of or behind the voice. Positive values show them later.",
+      hinglishLabel: "Prefer Hinglish lyrics",
+      hinglishDesc: "When a song only has Hindi (Devanagari) lyrics, show them romanized and prefer Latin-script versions from providers.",
       reset: "Reset",
+    },
+    // Pop-out lyrics board: its own resizable window, opened from the face.
+    board: {
+      label: "Lyrics board",
+      title: "Lyrics",
+      open: "Open lyrics board",
+      nothingPlaying: "Nothing playing",
+      noLyrics: "No lyrics for this track",
+      looking: "Looking for lyrics…",
+      prev: "Previous",
+      play: "Play",
+      pause: "Pause",
+      stop: "Stop",
+      next: "Next",
+      seek: "Seek",
+      enabled: {
+        label: "Pop-out lyrics board",
+        desc: "Click the companion face in the mini notch to open a resizable lyrics window. Turn off to keep the face as it was.",
+      },
+      emptyAnim: {
+        label: "Empty-state animation",
+        desc: "What plays while no track is loaded.",
+        face: "Breathing face",
+        bars: "Equalizer",
+        notes: "Drifting notes",
+        none: "Nothing",
+      },
+      showEmptyText: {
+        label: "Empty-state message",
+        desc: "Turn off to leave the lyrics area blank when nothing is playing or the track has no lyrics.",
+      },
+      nothingText: {
+        label: "Nothing-playing message",
+        desc: "Leave empty for the default text.",
+      },
+      noLyricsText: {
+        label: "No-lyrics message",
+        desc: "Shown for a track that has no lyrics. Leave empty for the default.",
+      },
+      tint: {
+        label: "Backdrop tint",
+        desc: "How strongly the album art is dimmed under the maroon glass.",
+      },
+      blur: {
+        label: "Backdrop blur",
+        desc: "Softens the album-art background. Lower values keep more of the cover readable.",
+      },
+      autoHide: {
+        label: "Auto-hide controls",
+        desc: "The transports and close button fade out until you hover the board.",
+      },
     },
     // YouTube video mirrored in the island / pinned to its own window
     pin: "Pin",

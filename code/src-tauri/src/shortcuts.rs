@@ -22,6 +22,11 @@ pub const SUMMON_SETTING: &str = "shortcuts.companionSummon";
 pub const TOGGLE_SETTING: &str = "shortcuts.companionToggle";
 pub const LOCK_SETTING: &str = "shortcuts.notchLock";
 pub const LOCK_KEY: &str = "island.locked";
+pub const MEDIA_PREVIOUS_SETTING: &str = "shortcuts.mediaPrevious";
+pub const MEDIA_NEXT_SETTING: &str = "shortcuts.mediaNext";
+pub const MEDIA_PLAY_SETTING: &str = "shortcuts.mediaPlayPause";
+pub const VOLUME_UP_SETTING: &str = "shortcuts.volumeUp";
+pub const VOLUME_DOWN_SETTING: &str = "shortcuts.volumeDown";
 
 const ASK_DEFAULT: &str = "Ctrl+Alt+Space";
 const ASK_FALLBACK: &str = "Ctrl+Shift+Space";
@@ -29,6 +34,11 @@ const FIND_DEFAULT: &str = "Ctrl+Alt+F";
 const SUMMON_DEFAULT: &str = "Ctrl+Alt+R";
 const TOGGLE_DEFAULT: &str = "Ctrl+Alt+Shift+R";
 const LOCK_DEFAULT: &str = "Ctrl+Alt+L";
+const MEDIA_PREVIOUS_DEFAULT: &str = "Ctrl+Alt+Left";
+const MEDIA_NEXT_DEFAULT: &str = "Ctrl+Alt+Right";
+const MEDIA_PLAY_DEFAULT: &str = "Ctrl+Alt+0";
+const VOLUME_UP_DEFAULT: &str = "Ctrl+Alt+Up";
+const VOLUME_DOWN_DEFAULT: &str = "Ctrl+Alt+Down";
 
 static INSTANT: Mutex<Option<Shortcut>> = Mutex::new(None);
 static ASK: Mutex<Option<Shortcut>> = Mutex::new(None);
@@ -36,6 +46,11 @@ static FIND: Mutex<Option<Shortcut>> = Mutex::new(None);
 static SUMMON: Mutex<Option<Shortcut>> = Mutex::new(None);
 static TOGGLE: Mutex<Option<Shortcut>> = Mutex::new(None);
 static LOCK: Mutex<Option<Shortcut>> = Mutex::new(None);
+static MEDIA_PREVIOUS: Mutex<Option<Shortcut>> = Mutex::new(None);
+static MEDIA_NEXT: Mutex<Option<Shortcut>> = Mutex::new(None);
+static MEDIA_PLAY: Mutex<Option<Shortcut>> = Mutex::new(None);
+static VOLUME_UP: Mutex<Option<Shortcut>> = Mutex::new(None);
+static VOLUME_DOWN: Mutex<Option<Shortcut>> = Mutex::new(None);
 
 /// A saved shortcut that could not be registered at startup. The settings
 /// window shows these so a conflict does not stay hidden in the log.
@@ -73,6 +88,26 @@ pub fn notch_lock() -> Option<Shortcut> {
     *LOCK.lock().unwrap()
 }
 
+pub fn media_previous() -> Option<Shortcut> {
+    *MEDIA_PREVIOUS.lock().unwrap()
+}
+
+pub fn media_next() -> Option<Shortcut> {
+    *MEDIA_NEXT.lock().unwrap()
+}
+
+pub fn media_play_pause() -> Option<Shortcut> {
+    *MEDIA_PLAY.lock().unwrap()
+}
+
+pub fn volume_up() -> Option<Shortcut> {
+    *VOLUME_UP.lock().unwrap()
+}
+
+pub fn volume_down() -> Option<Shortcut> {
+    *VOLUME_DOWN.lock().unwrap()
+}
+
 fn clear_conflict(key: &str) {
     CONFLICTS
         .lock()
@@ -104,6 +139,11 @@ fn slot(key: &str) -> Option<&'static Mutex<Option<Shortcut>>> {
         SUMMON_SETTING => Some(&SUMMON),
         TOGGLE_SETTING => Some(&TOGGLE),
         LOCK_SETTING => Some(&LOCK),
+        MEDIA_PREVIOUS_SETTING => Some(&MEDIA_PREVIOUS),
+        MEDIA_NEXT_SETTING => Some(&MEDIA_NEXT),
+        MEDIA_PLAY_SETTING => Some(&MEDIA_PLAY),
+        VOLUME_UP_SETTING => Some(&VOLUME_UP),
+        VOLUME_DOWN_SETTING => Some(&VOLUME_DOWN),
         _ => None,
     }
 }
@@ -115,6 +155,11 @@ fn default_for(key: &str) -> &'static str {
         SUMMON_SETTING => SUMMON_DEFAULT,
         TOGGLE_SETTING => TOGGLE_DEFAULT,
         LOCK_SETTING => LOCK_DEFAULT,
+        MEDIA_PREVIOUS_SETTING => MEDIA_PREVIOUS_DEFAULT,
+        MEDIA_NEXT_SETTING => MEDIA_NEXT_DEFAULT,
+        MEDIA_PLAY_SETTING => MEDIA_PLAY_DEFAULT,
+        VOLUME_UP_SETTING => VOLUME_UP_DEFAULT,
+        VOLUME_DOWN_SETTING => VOLUME_DOWN_DEFAULT,
         _ => "",
     }
 }
@@ -144,6 +189,11 @@ pub fn register_saved(app: &AppHandle) {
         SUMMON_SETTING,
         TOGGLE_SETTING,
         LOCK_SETTING,
+        MEDIA_PREVIOUS_SETTING,
+        MEDIA_NEXT_SETTING,
+        MEDIA_PLAY_SETTING,
+        VOLUME_UP_SETTING,
+        VOLUME_DOWN_SETTING,
         INSTANT_SETTING,
     ] {
         let saved = app

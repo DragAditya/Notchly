@@ -59,6 +59,9 @@ export function MusicPanel({
 
   return (
     <div className={`music-panel${showLyrics ? " has-lyrics" : ""}`} style={{ "--accent": accent } as React.CSSProperties}>
+      {music.thumbnail && (
+        <div className="music-bg" aria-hidden="true" style={{ backgroundImage: `url("${music.thumbnail}")` }} />
+      )}
       {video ? (
         // YouTube in a browser: the video itself plays here (muted, in sync with the tab).
         <div className="music-video">
@@ -76,7 +79,7 @@ export function MusicPanel({
       ) : (
         <button className="music-open" title={music.appName} onClick={openPlayer}>
           {showArtwork ? (
-            <Artwork src={music.thumbnail} size={112} radius={20} trackKey={music.title} glow={accent} />
+            <Artwork src={music.thumbnail} size={96} radius={18} trackKey={music.title} glow={accent} />
           ) : (
             <span className="music-artwork-off">
               <MusicIcon size={44} />
