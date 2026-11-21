@@ -80,7 +80,11 @@ fn search(agent: &ureq::Agent, query: &TrackQuery, free_text: bool) -> Vec<Hit> 
 }
 
 fn download(agent: &ureq::Agent, hit: &Hit, query: &TrackQuery) -> Option<Candidate> {
-    let Ok(mut response) = agent.get(format!("{API}/lrc/{}", hit.id)).query("format", "lrc").call() else {
+    let Ok(mut response) = agent
+        .get(format!("{API}/lrc/{}", hit.id))
+        .query("format", "lrc")
+        .call()
+    else {
         return None;
     };
     let Ok(body) = response.body_mut().read_to_string() else {
@@ -97,9 +101,8 @@ fn download(agent: &ureq::Agent, hit: &Hit, query: &TrackQuery) -> Option<Candid
         .duration_diff
         .map(|diff| (diff * 1000.0).abs().round() as u64)
         .or_else(|| {
-            hit.duration.map(|seconds| {
-                (seconds * 1000.0 - query.duration_ms as f64).abs().round() as u64
-            })
+            hit.duration
+                .map(|seconds| (seconds * 1000.0 - query.duration_ms as f64).abs().round() as u64)
         })
         .unwrap_or(0);
 

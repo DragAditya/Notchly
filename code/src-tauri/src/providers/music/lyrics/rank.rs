@@ -94,9 +94,7 @@ fn similarity(a: &str, b: &str) -> f32 {
         current[0] = i + 1;
         for (j, cb) in b.iter().enumerate() {
             let cost = usize::from(ca != cb);
-            current[j + 1] = (prev[j + 1] + 1)
-                .min(current[j] + 1)
-                .min(prev[j] + cost);
+            current[j + 1] = (prev[j + 1] + 1).min(current[j] + 1).min(prev[j] + cost);
         }
         std::mem::swap(&mut prev, &mut current);
     }

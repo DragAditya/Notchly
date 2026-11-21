@@ -215,19 +215,21 @@ mod tests {
         let lines = parse_lrc(lrc);
         assert_eq!(lines.len(), 1);
         assert_eq!(lines[0].text, "Hello big world");
+        // Word times are absolute (the line stamp plus the word-tag offset),
+        // matching `LyricWordSpan.timeMs` in the frontend.
         assert_eq!(
             lines[0].words,
             vec![
                 Word {
-                    time_ms: 0,
+                    time_ms: 12_000,
                     text: "Hello".into()
                 },
                 Word {
-                    time_ms: 600,
+                    time_ms: 12_600,
                     text: "big".into()
                 },
                 Word {
-                    time_ms: 1_200,
+                    time_ms: 13_200,
                     text: "world".into()
                 },
             ]

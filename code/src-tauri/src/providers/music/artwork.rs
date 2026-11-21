@@ -98,7 +98,11 @@ fn deezer(agent: &ureq::Agent, artist: &str, title: &str) -> Option<String> {
     } else {
         format!("artist:\"{artist}\" track:\"{}\"", title.trim())
     };
-    let body = get_json(agent, "https://api.deezer.com/search", &[("q", &query), ("limit", "1")])?;
+    let body = get_json(
+        agent,
+        "https://api.deezer.com/search",
+        &[("q", &query), ("limit", "1")],
+    )?;
     let track = body["data"].as_array()?.first()?;
     track["album"]["cover_xl"]
         .as_str()
@@ -198,7 +202,10 @@ mod tests {
 
     #[test]
     fn keys_are_stable_and_ignore_case() {
-        assert_eq!(art_key(" A.R. Rahman ", "Kesariya"), art_key("a.r. rahman", "kesariya"));
+        assert_eq!(
+            art_key(" A.R. Rahman ", "Kesariya"),
+            art_key("a.r. rahman", "kesariya")
+        );
     }
 
     #[test]

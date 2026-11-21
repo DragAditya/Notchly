@@ -43,9 +43,7 @@ pub fn detect(text: &str) -> (Language, String) {
     let mut devanagari = 0usize;
     for ch in text.chars().filter(|ch| ch.is_alphabetic()) {
         letters += 1;
-        if ch.is_ascii_alphabetic()
-            || matches!(ch as u32, 0x00C0..=0x024F | 0x1E00..=0x1EFF)
-        {
+        if ch.is_ascii_alphabetic() || matches!(ch as u32, 0x00C0..=0x024F | 0x1E00..=0x1EFF) {
             latin += 1;
         }
         if matches!(ch as u32, 0x0900..=0x097F) {

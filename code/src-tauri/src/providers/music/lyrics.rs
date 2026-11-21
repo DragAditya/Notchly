@@ -192,13 +192,7 @@ fn agent() -> ureq::Agent {
     )
 }
 
-fn query(
-    artist: &str,
-    title: &str,
-    album: &str,
-    duration_ms: u64,
-    hinglish: bool,
-) -> Lyrics {
+fn query(artist: &str, title: &str, album: &str, duration_ms: u64, hinglish: bool) -> Lyrics {
     // Search engines are happier with plain words: drop `(Official Video)`,
     // featured artists and edition suffixes before asking.
     let query = TrackQuery {
@@ -305,7 +299,13 @@ mod tests {
     #[test]
     #[ignore = "hits lyrics providers"]
     fn fetches_a_known_song() {
-        let lyrics = query("The Weeknd", "Blinding Lights", "After Hours", 200_000, false);
+        let lyrics = query(
+            "The Weeknd",
+            "Blinding Lights",
+            "After Hours",
+            200_000,
+            false,
+        );
         assert!(lyrics.synced, "expected synced lyrics");
         assert!(lyrics.lines.len() > 10, "expected a full lyric");
         assert!(

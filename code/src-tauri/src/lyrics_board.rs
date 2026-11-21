@@ -6,8 +6,8 @@
 //! the window's real bounds so the move is part of the morph, not a cut. The
 //! frontend page is `src/lyrics/LyricsApp.tsx`.
 
-use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use serde::Deserialize;
@@ -128,9 +128,8 @@ pub fn open_lyrics(app: AppHandle, origin: Origin) -> Result<(), String> {
     let was_open = state.open.swap(true, Ordering::Relaxed);
     if let Some(win) = app.get_webview_window(LABEL) {
         // Already resting on screen: just take focus back.
-        let settled = was_open
-            && state.settled.load(Ordering::Relaxed)
-            && win.is_visible().unwrap_or(false);
+        let settled =
+            was_open && state.settled.load(Ordering::Relaxed) && win.is_visible().unwrap_or(false);
         if settled {
             let _ = win.set_focus();
             let _ = app.emit(CHANGED_EVENT, true);
@@ -164,7 +163,9 @@ pub fn open_lyrics(app: AppHandle, origin: Origin) -> Result<(), String> {
 
 /// Opening failed: put the notch back instead of leaving an invisible strip.
 fn reopen_failed(app: &AppHandle) {
-    app.state::<BoardState>().open.store(false, Ordering::Relaxed);
+    app.state::<BoardState>()
+        .open
+        .store(false, Ordering::Relaxed);
     show_island(app);
     let _ = app.emit(CHANGED_EVENT, false);
 }
@@ -215,7 +216,9 @@ fn state_animating(app: &AppHandle, on: bool) {
 }
 
 fn bounds(win: &WebviewWindow) -> Rect {
-    let pos = win.outer_position().unwrap_or_else(|_| PhysicalPosition::new(0, 0));
+    let pos = win
+        .outer_position()
+        .unwrap_or_else(|_| PhysicalPosition::new(0, 0));
     let size = win.outer_size().unwrap_or_else(|_| PhysicalSize::new(1, 1));
     Rect {
         x: pos.x,
@@ -259,7 +262,8 @@ fn animate(app: &AppHandle, win: &WebviewWindow, from: Rect, to: Rect, ms: u64, 
 fn island_frame(app: &AppHandle) -> (PhysicalPosition<i32>, f64) {
     match island_of(app) {
         Some(win) => (
-            win.outer_position().unwrap_or_else(|_| PhysicalPosition::new(0, 0)),
+            win.outer_position()
+                .unwrap_or_else(|_| PhysicalPosition::new(0, 0)),
             win.scale_factor().unwrap_or(1.0),
         ),
         None => (PhysicalPosition::new(0, 0), 1.0),
@@ -319,7 +323,6 @@ fn begin(app: &AppHandle, win: &WebviewWindow, origin: Origin) -> tauri::Result<
     state.open.store(true, Ordering::Relaxed);
     let epoch = state.next_gen();
     state.settled.store(false, Ordering::Relaxed);
-    drop(state);
 
     let _ = win.set_position(PhysicalPosition::new(start.x, start.y));
     let _ = win.set_size(PhysicalSize::new(start.w, start.h));
@@ -389,7 +392,10 @@ fn create(app: &AppHandle, origin: Origin) -> tauri::Result<()> {
 fn destination(app: &AppHandle, scale: f64, w: f64, h: f64) -> Rect {
     let monitor = island_of(app)
         .and_then(|win| win.current_monitor().ok().flatten())
-        .or_else(|| app.get_webview_window(LABEL).and_then(|w| w.primary_monitor().ok().flatten()));
+        .or_else(|| {
+            app.get_webview_window(LABEL)
+                .and_then(|w| w.primary_monitor().ok().flatten())
+        });
     let Some(monitor) = monitor else {
         return Rect {
             x: 100,
@@ -437,7 +443,7 @@ pub fn lyrics_snap(app: AppHandle) -> Result<(), String> {
     {
         return Ok(());
     }
-    drop(state);
+
     let win = app.get_webview_window(LABEL).ok_or("no lyrics window")?;
     let scale = win.scale_factor().map_err(|e| e.to_string())?;
     let pos = win.outer_position().map_err(|e| e.to_string())?;
@@ -456,7 +462,10 @@ pub fn lyrics_snap(app: AppHandle) -> Result<(), String> {
         x = x.clamp(left, (right - w).max(left));
         y = y.clamp(top, (bottom - h).max(top));
         if x * scale != pos.x as f64 || y * scale != pos.y as f64 {
-            let _ = win.set_position(PhysicalPosition::new((x * scale).round() as i32, (y * scale).round() as i32));
+            let _ = win.set_position(PhysicalPosition::new(
+                (x * scale).round() as i32,
+                (y * scale).round() as i32,
+            ));
         }
     }
     save_bounds(&app, x, y, w, h);

@@ -56,11 +56,20 @@ pub(crate) fn romanize_text(input: &str) -> String {
     let chars: Vec<char> = input.chars().collect();
     let mut out = String::with_capacity(input.len());
     let mut i = 0usize;
+    // True once a Devanagari letter has been seen in the current word. Used to
+    // keep the word-initial inherent `a` but drop medial schwas.
+    let mut word_started = false;
     while i < chars.len() {
         let ch = chars[i];
 
+        // Anything that is not a Devanagari letter/joiner starts a new word.
+        if !matches!(ch as u32, 0x0900..=0x097F | 0x200C | 0x200D) {
+            word_started = false;
+        }
+
         if let Some(vowel) = independent_vowel(ch) {
             out.push_str(vowel);
+            word_started = true;
             i += 1;
             continue;
         }
@@ -97,13 +106,17 @@ pub(crate) fn romanize_text(input: &str) -> String {
                             next += 1;
                         } else if is_word_end(chars.get(next).copied()) {
                             // Hindi drops the final inherent `a` (दिल → dil).
-                        } else {
+                        } else if !word_started {
+                            // Word-initial inherent `a` stays (बताए → batae);
+                            // medial schwas drop, the common Hindi syncope
+                            // (इतना → itna, मुझको → mujhko).
                             out.push('a');
                         }
                     }
                 }
             }
             // At the end of a word the inherent `a` is silent.
+            word_started = true;
             i = next;
             continue;
         }
@@ -136,8 +149,7 @@ pub(crate) fn romanize_text(input: &str) -> String {
 fn is_word_end(next: Option<char>) -> bool {
     next.is_none_or(|ch| {
         ch.is_whitespace()
-            || !(ch.is_alphanumeric()
-                || matches!(ch as u32, 0x0900..=0x097F | 0x200C | 0x200D))
+            || !(ch.is_alphanumeric() || matches!(ch as u32, 0x0900..=0x097F | 0x200C | 0x200D))
     })
 }
 
@@ -146,7 +158,7 @@ fn independent_vowel(ch: char) -> Option<&'static str> {
         'अ' => "a",
         'आ' => "aa",
         'इ' => "i",
-        'ई' => "ee",
+        'ई' => "i",
         'उ' => "u",
         'ऊ' => "oo",
         'ऋ' => "ri",
@@ -247,10 +259,7 @@ mod tests {
 
     #[test]
     fn romanizes_common_lines() {
-        assert_eq!(
-            romanize_text("मुझको इतना बताए कोई"),
-            "Mujhko itna batae koi"
-        );
+        assert_eq!(romanize_text("मुझको इतना बताए कोई"), "Mujhko itna batae koi");
         assert_eq!(
             romanize_text("कैसे तुझसे दिल ना लगाए कोई"),
             "Kaise tujhse dil na lagae koi"

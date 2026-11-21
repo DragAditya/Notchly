@@ -85,9 +85,12 @@ pub fn poll_loop(hub: Arc<Hub>, playing_flag: Arc<AtomicBool>, spotify: Arc<Spot
                 // Flag a player that hands us the same picture for unrelated
                 // songs: that is its own logo, not album art.
                 if let Some(thumb) = state.thumbnail.clone() {
-                    let repeated = seen_thumbs
-                        .get(&state.app_id)
-                        .is_some_and(|(prev_key, prev_thumb)| prev_key != &key && prev_thumb == &thumb);
+                    let repeated =
+                        seen_thumbs
+                            .get(&state.app_id)
+                            .is_some_and(|(prev_key, prev_thumb)| {
+                                prev_key != &key && prev_thumb == &thumb
+                            });
                     if repeated {
                         generic_apps.insert(state.app_id.clone());
                     }
