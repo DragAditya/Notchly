@@ -10,8 +10,8 @@ Package-manager definitions for Notchly.
   [DragAditya/scoop-notchly](https://github.com/DragAditya/scoop-notchly) bucket.
   The official Extras bucket has a popularity threshold, so the self-hosted
   bucket is the immediate install path.
-- `chocolatey/notchly/` — Chocolatey package definition. `notchly 1.2.1` has
-  been pushed to the community repository and is awaiting moderation.
+- `chocolatey/notchly/` — Chocolatey package definition. `notchly 1.3.0` is the
+  current version, updated from the latest release's `SHA256SUMS.txt`.
 
 Keep the version, installer URL, and SHA-256 hashes in sync with each GitHub
 release. The release's `SHA256SUMS.txt` is the source of truth. Do not re-run

@@ -11,7 +11,7 @@ choco pack
 Publish it with a Chocolatey community repository API key:
 
 ```powershell
-choco push notchly.1.2.1.nupkg --source https://push.chocolatey.org/ --api-key <key>
+choco push notchly.1.3.0.nupkg --source https://push.chocolatey.org/ --api-key <key>
 ```
 
 Or add `CHOCOLATEY_API_KEY` as a repository secret and run the **Publish
