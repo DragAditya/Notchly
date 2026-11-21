@@ -4,6 +4,23 @@ All notable changes to Notchly are documented here. The format follows [Keep a C
 
 ## [Unreleased]
 
+## [1.3.0] — 2026-11-21
+
+### Added
+
+- Pop-out lyrics board: a dedicated window with **bar**, **mini** and **full** layouts that adapt to the window size, a karaoke-style active line that fills as it plays, and per-word highlighting when the lyrics source provides word timings.
+- Smooth playback clock: a single shared frame loop drives live highlighting without re-rendering React on every tick, so the active line and progress rail stay fluid instead of lagging.
+- Thumbnail-driven accent colours: the cover art's palette tints the board, scrubber and controls, so each track gets its own look.
+- Online cover-art lookup: artwork for browser-played music is fetched from Deezer and iTunes and cached locally, with an automatic "browser logo" detector so real covers replace placeholder logos. A toggle in Settings turns the lookup off.
+- Global media hotkeys: `Ctrl+Alt+Left` / `Ctrl+Alt+Right` skip tracks, `Ctrl+Alt+Up` / `Ctrl+Alt+Down` change the system volume, and `Ctrl+Alt+0` plays or pauses. All are dispatched on a worker thread and are editable in Advanced.
+- More lyric sources and language support: lyrics.ovh, LRCLIB and **megalobiz** are queried together, results are ranked, and transliteration (including Hinglish) is preferred when available.
+
+### Changed
+
+- **Buttons above the progress bar.** The controls row now sits above the elapsed/rail/remaining scrubber, which gets a gradient accent fill, hover time bubble and optimistic drag/keyboard seeking.
+- The backdrop is less blurred by default, with a new blur control in Settings.
+- Compact music layouts hide cleanly and avoid empty space; resizing limits prevent broken layouts, and the mini active lyric is clamped to one line.
+
 ## [1.2.1] — 2026-11-07
 
 ### Added
