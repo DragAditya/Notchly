@@ -14,5 +14,7 @@ Submit a new version with:
 wingetcreate submit --prtitle "New package: DragAditya.Notchly version 1.3.0" .\DragAditya.Notchly\1.3.0
 ```
 
-The current submission is [microsoft/winget-pkgs#474260](https://github.com/microsoft/winget-pkgs/pull/474260).
-It is waiting for the Microsoft CLA to be signed.
+The first submission is [microsoft/winget-pkgs#474260](https://github.com/microsoft/winget-pkgs/pull/474260),
+updated to `DragAditya.Notchly` 1.3.0. The Microsoft CLA is signed and all
+validation checks pass; the PR is waiting for a moderator to merge. Later
+releases are pushed as version updates with `wingetcreate update`.
