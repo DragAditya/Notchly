@@ -227,9 +227,12 @@ pub fn spawn_hit_test(app: AppHandle) {
             let fg = foreground_window();
             let fg_changed = fg != last_fg;
             last_fg = fg;
-            if !fullscreen {
-                ensure_topmost(&win, fg_changed || fullscreen_left);
-            }
+            // Always keep the TOPMOST bit, even while a maximized/fullscreen
+            // app (a browser, a video) is in front: the island is an overlay
+            // and must never slide behind it. Only *re-raise* on foreground
+            // changes outside fullscreen, so we don't fight a running game.
+            let force = (fg_changed || fullscreen_left) && !fullscreen;
+            ensure_topmost(&win, force);
 
             let dragging = app.state::<DragState>().0.load(Ordering::Relaxed);
             let click_through = lock_click_through(&app);
@@ -448,9 +451,9 @@ unsafe extern "system" fn overlay_proc(
     use windows::Win32::Foundation::{LPARAM, LRESULT};
     use windows::Win32::UI::Shell::DefSubclassProc;
     use windows::Win32::UI::WindowsAndMessaging::{
-        GWL_EXSTYLE, GWL_STYLE, STYLESTRUCT, SWP_NOACTIVATE, WINDOWPOS, WM_NCACTIVATE, WM_NCPAINT,
-        WM_STYLECHANGING, WM_WINDOWPOSCHANGING, WS_CAPTION, WS_EX_APPWINDOW, WS_EX_NOACTIVATE,
-        WS_EX_TOOLWINDOW, WS_SYSMENU,
+        GWL_EXSTYLE, GWL_STYLE, GetWindowLongW, STYLESTRUCT, SWP_NOACTIVATE, WINDOWPOS,
+        WM_NCACTIVATE, WM_NCPAINT, WM_STYLECHANGING, WM_WINDOWPOSCHANGING, WS_CAPTION,
+        WS_EX_APPWINDOW, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_SYSMENU,
     };
 
     match msg {
@@ -467,7 +470,14 @@ unsafe extern "system" fn overlay_proc(
             if which == GWL_STYLE.0 {
                 change.styleNew &= !(WS_CAPTION.0 | WS_SYSMENU.0);
             } else if which == GWL_EXSTYLE.0 {
-                change.styleNew = (change.styleNew | WS_EX_TOOLWINDOW.0) & !WS_EX_APPWINDOW.0;
+                // tao rebuilds the extended style from its own record (it does
+                // not track `alwaysOnTop`), so keep the TOPMOST bit present on
+                // the live window: otherwise a style rewrite — every hover
+                // click-through toggle — drops the island out of the topmost
+                // band and the next app to open covers it.
+                let topmost = unsafe { GetWindowLongW(hwnd, GWL_EXSTYLE) } as u32 & WS_EX_TOPMOST.0;
+                change.styleNew =
+                    (change.styleNew | WS_EX_TOOLWINDOW.0 | topmost) & !WS_EX_APPWINDOW.0;
                 if !FILE_DRAG.load(Ordering::Relaxed) {
                     change.styleNew |= WS_EX_NOACTIVATE.0;
                 }
