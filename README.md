@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="../../releases/tag/v1.3.0"><img alt="Latest release: v1.3.0" src="https://img.shields.io/badge/release-v1.3.0-6366f1?style=flat-square" /></a>
+  <a href="../../releases/tag/v1.3.1"><img alt="Latest release: v1.3.1" src="https://img.shields.io/badge/release-v1.3.1-6366f1?style=flat-square" /></a>
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/badge/license-GPL--3.0-22c55e?style=flat-square" /></a>
   <img alt="Platform: Windows 10 / 11" src="https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0ea5e9?style=flat-square" />
   <img alt="Frontend: React 19 + TypeScript + Vite" src="https://img.shields.io/badge/frontend-React%2019%20%2B%20TypeScript%20%2B%20Vite-8b5cf6?style=flat-square" />
@@ -36,7 +36,11 @@
 
 ---
 
-## New in 1.3.0
+## New in 1.3.1
+
+- **The notch stays on top.** Opening or focusing a browser no longer sends the island behind it. The topmost state now survives the click-through style changes that happen as the pointer crosses the notch, and it is kept even while a maximized or fullscreen app is in front.
+
+### Still new in 1.3.0
 
 - **Pop-out lyrics board.** A dedicated window with bar, mini and full layouts, a karaoke line that fills as it plays, per-word highlighting and a scrollback you can drag anywhere on screen.
 - **Smooth by design.** One shared frame loop drives the highlight, and the cover art's palette tints the board — no more laggy, stuttering lyrics.
@@ -138,7 +142,7 @@ Use **Settings → Appearance** to switch between the classic black notch and th
 
 ## Download and install
 
-Get the latest build — **v1.3.0** — from [Releases](../../releases/tag/v1.3.0).
+Get the latest build — **v1.3.1** — from [Releases](../../releases/tag/v1.3.1).
 
 Direct downloads from the latest release:
 [Setup EXE](../../releases/latest/download/Notchly_x64-setup.exe) ·
@@ -383,9 +387,9 @@ Read the full [privacy policy](docs/privacy/index.md) and [security policy](SECU
 ## Project quality
 
 - CI runs the frontend build and Rust formatting/tests on Windows.
-- Current suite: 70 passing Rust tests, with one ignored live lyrics test.
+- Current suite: 80 passing Rust tests, with one ignored live lyrics test.
 - Unit tests cover activity routing, API validation, music YouTube parsing, calendar recurrence, OCR tiling, clipboard images and more.
-- Release builds are produced from tagged commits by GitHub Actions; **v1.3.0** is the current release.
+- Release builds are produced from tagged commits by GitHub Actions; **v1.3.1** is the current release.
 
 ## Contributing
 

@@ -4,6 +4,12 @@ All notable changes to Notchly are documented here. The format follows [Keep a C
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-11-23
+
+### Fixed
+
+- **The notch stays on top.** Opening or focusing a browser could leave the island behind the browser window until a foreground change raised it again. The window's extended style is rebuilt whenever the notch toggles click-through, and those rewrites dropped the topmost bit; the topmost state is now preserved across style changes, and the island keeps it even while a maximized or fullscreen app is in front (it only re-raises on foreground changes outside fullscreen, so games and videos are untouched).
+
 ## [1.3.0] — 2026-11-21
 
 ### Added
